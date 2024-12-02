@@ -1,5 +1,8 @@
 const images = {
     homepage: require('./images/home.png'),
+    hospital: require('./images/hospital_icon.png'),
+    healthcare: require('./images/health_icon.png'),
+    construction: require('./images/construction_icon.png'),
     mark:  require('./images/mark.png'),
     profile: require('./images/woman.png'),
     checkList: require('./images/checklist.png'),

@@ -65,6 +65,7 @@ import VerifyCation from './admin/Verifycation.js';
 import TimesheetForm from './client/TimesheetForm.js';
 import AdminFileViewer from './AdminFileViewer.js';
 import BookShiftsNow from './client/BookShiftsNow.js';
+import Mainboard from './Mainboard.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,12 @@ function Layout() {
         footer: () => <MFooter />,
       }}
     >
+      <Stack.Screen 
+        name= 'Main'
+        component = {Mainboard}
+        options={{headerShown: false}}
+      />
+
       <Stack.Screen 
         name= 'Home'
         component = {Dashboard}

@@ -2364,6 +2364,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/push-notification-ios@npm:^1.11.0":
+  version: 1.11.0
+  resolution: "@react-native-community/push-notification-ios@npm:1.11.0"
+  dependencies:
+    invariant: ^2.2.4
+  peerDependencies:
+    react: ">=16.6.3"
+    react-native: ">=0.58.4"
+  checksum: d8c8cdd0d4e8112752a13bf2c426618ec8edd91eacadf03f05375648b5f12ffa761e8676e9d6ac9e5bc5ded73c991ab2219c67fe02e110dfaf38f4cb59695868
+  languageName: node
+  linkType: hard
+
 "@react-native-picker/picker@npm:^2.7.7":
   version: 2.9.0
   resolution: "@react-native-picker/picker@npm:2.9.0"
@@ -3089,6 +3101,7 @@ __metadata:
     "@react-native-community/datetimepicker": ^8.2.0
     "@react-native-community/geolocation": ^3.3.0
     "@react-native-community/masked-view": ^0.1.11
+    "@react-native-community/push-notification-ios": ^1.11.0
     "@react-native-picker/picker": ^2.7.7
     "@react-native/babel-preset": 0.73.21
     "@react-native/eslint-config": 0.73.2
