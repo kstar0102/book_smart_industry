@@ -67,6 +67,10 @@ import AdminFileViewer from './AdminFileViewer.js';
 import BookShiftsNow from './client/BookShiftsNow.js';
 import Mainboard from './Mainboard.js';
 import HospitalityHomePage from './hospitality/hospitality_homepage.js'
+import HospitalityRestaurantDashboard from './hospitality/restaurant/hospitality_restaurant_dashboard.js'
+import HospitalityHotelDashboard from './hospitality/hotel/hospitality_hotel_dashboard.js'
+import HospitalityRestaurantHireLogin from './hospitality/restaurant/hospitality_restaurant_hire_login.js'
+import HospitalityRestaurantWorkLogin from './hospitality/restaurant/hospitality_restaurant_work_login.js'
 
 const Stack = createNativeStackNavigator();
 
@@ -93,6 +97,30 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityHomePage'
         component = {HospitalityHomePage}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantDashboard'
+        component = {HospitalityRestaurantDashboard}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireLogin'
+        component = {HospitalityRestaurantHireLogin}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkLogin'
+        component = {HospitalityRestaurantWorkLogin}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityHotelDashboard'
+        component = {HospitalityHotelDashboard}
         options={{headerShown: false}}
       />
 

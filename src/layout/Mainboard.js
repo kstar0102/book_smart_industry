@@ -15,6 +15,10 @@ export default function Mainboard ({ navigation }) {
     navigation.navigate('Home');
   };
 
+  const handleHospitality = () => {
+    navigation.navigate('HospitalityHomePage');
+  };
+
   return (
     <SafeAreaView  style={styles.container}>
       <StatusBar  translucent backgroundColor="transparent" />
@@ -34,7 +38,7 @@ export default function Mainboard ({ navigation }) {
           />
           <TouchableOpacity
             style={styles.button}
-            onPress={() => {}}
+            onPress={handleHospitality}
           >
             <Text style={styles.buttonText}>HOSPITALITY</Text>
           </TouchableOpacity>
