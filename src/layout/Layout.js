@@ -66,6 +66,7 @@ import TimesheetForm from './client/TimesheetForm.js';
 import AdminFileViewer from './AdminFileViewer.js';
 import BookShiftsNow from './client/BookShiftsNow.js';
 import Mainboard from './Mainboard.js';
+import HospitalityHomePage from './hospitality/hospitality_homepage.js'
 
 const Stack = createNativeStackNavigator();
 
@@ -88,6 +89,13 @@ function Layout() {
         component = {Dashboard}
         options={{headerShown: false}}
       />
+
+      <Stack.Screen 
+        name= 'HospitalityHomePage'
+        component = {HospitalityHomePage}
+        options={{headerShown: false}}
+      />
+
       <Stack.Screen 
         name= 'ClientSignIn'
         component = {ClientSignIn}

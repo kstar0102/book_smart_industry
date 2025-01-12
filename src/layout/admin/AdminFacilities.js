@@ -42,13 +42,15 @@ export default function AdminFacilities({ navigation }) {
   const [pageList, setPageList] = useState([
     {label: 'Page 1', value: 1}
   ]);
-  const widths = [100, 150, 250, 200, 150, 150, 150, 100];
+  const widths = [100, 150, 250, 200, 150, 200, 300, 150, 150, 100];
   const tableHead = [
     'ID',
     'Date Added',
     'Company Name',
     'Contact Name',
     '✏️ User Status',
+    'Terms',
+    'Signature',
     'User Roles',
     'View Shifts',
     'P.W.'
@@ -319,38 +321,61 @@ export default function AdminFacilities({ navigation }) {
 
   const handleUpdate = async () => {
     try {
-      const response = await updateUserInfo({userEmail: cellData[8], userRole: cellData[5], status: status, password: ''}, 'admin');
-      if (!response?.error) {
-        getData();
-        toggleStatusModal();
-      } else {
+      if (!cellData || !status) {
+        Alert.alert('Error', 'Missing required data');
+        return;
+      }
+
+      const updatePayload = {
+        userEmail: cellData[10],
+        userRole: cellData[7],
+        status: status,
+        password: ''
+      };
+
+      console.log('Sending update payload:', updatePayload);
+
+      const response = await updateUserInfo(updatePayload, 'admin');
+      console.log('Update response:', response);
+
+      if (response && !response.error) {
         Alert.alert(
-          'Failure!',
-          'Network Error',
+          'Success',
+          'Status updated successfully',
           [
             {
               text: 'OK',
               onPress: () => {
-                console.log('OK pressed');
+                getData();
+                toggleStatusModal();
               },
             },
-          ],
-          { cancelable: false }
+          ]
+        );
+      } else {
+        const errorMessage = response?.message || 'Network Error';
+        Alert.alert(
+          'Update Failed',
+          errorMessage,
+          [
+            {
+              text: 'OK',
+              onPress: () => console.log('Error acknowledged'),
+            },
+          ]
         );
       }
     } catch (error) {
+      console.error('Update error:', error);
       Alert.alert(
-        'Failure!',
-        'Network Error',
+        'Error',
+        'An unexpected error occurred. Please try again.',
         [
           {
             text: 'OK',
-            onPress: () => {
-              console.log('OK pressed');
-            },
+            onPress: () => console.log('Error:', error),
           },
-        ],
-        { cancelable: false }
+        ]
       );
     }
   };
@@ -586,7 +611,7 @@ export default function AdminFacilities({ navigation }) {
                           );
                         } else if (cellIndex >= tableHead.length) {
                           return (<View key={cellIndex}></View>);
-                        } else if (cellIndex == 6) {
+                        } else if (cellIndex == 8) {
                           return (
                             <View key={cellIndex} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', backgroundColor: '#E2E2E2', width: widths[cellIndex] }}>
                               <TouchableOpacity
@@ -606,7 +631,7 @@ export default function AdminFacilities({ navigation }) {
                               </TouchableOpacity>
                             </View>
                           );
-                        } else if (cellIndex == 7) {
+                        } else if (cellIndex == 9) {
                           return (
                             <View key={cellIndex} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', backgroundColor: '#E2E2E2', width: widths[cellIndex] }}>
                               <TouchableOpacity
@@ -627,6 +652,44 @@ export default function AdminFacilities({ navigation }) {
                               </TouchableOpacity>
                             </View>
                           );
+                        } else if (cellIndex == 6) {
+                          if(cellData)
+                            return (
+                              <View key={cellIndex} style={[{ borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', padding: 10, backgroundColor: '#E2E2E2' }, {width: widths[cellIndex]}]}>
+                                <Image
+                                  style={{width: widths[cellIndex], height: 100}}
+                                  source={{ uri: `data:image/png;base64,${cellData}` }}
+                                  // resizeMode="contain"
+                                />
+                              </View>
+                            )
+                          else 
+                            return (
+                              <View key={cellIndex} style={[{ borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', padding: 10, backgroundColor: '#E2E2E2' }, {width: widths[cellIndex]}]}>
+                              <Text style={[styles.tableText, cellIndex == 1 ? { borderWidth: 0, color: 'blue' } : { borderWidth: 0 }]}>No sign</Text>
+                            </View>
+                            )
+                        } else if (cellIndex == 5) {
+                          console.log(cellData=='first');
+                          if (cellData == 'first') {
+                            return (
+                              <View key={cellIndex} style={[{ borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', padding: 10, backgroundColor: '#E2E2E2' }, {width: widths[cellIndex]}]}>
+                                <Text style={[styles.tableText, cellIndex == 1 ? { borderWidth: 0, color: 'blue' } : { borderWidth: 0 }]}>Option 1</Text>
+                              </View>
+                            )
+                          } else if (cellData == 'second') {
+                            return (
+                              <View key={cellIndex} style={[{ borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', padding: 10, backgroundColor: '#E2E2E2' }, {width: widths[cellIndex]}]}>
+                                <Text style={[styles.tableText, cellIndex == 1 ? { borderWidth: 0, color: 'blue' } : { borderWidth: 0 }]}>Option 2</Text>
+                              </View>
+                            )
+                          } else {
+                            return (
+                              <View key={cellIndex} style={[{ borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', padding: 10, backgroundColor: '#E2E2E2' }, {width: widths[cellIndex]}]}>
+                                <Text style={[styles.tableText, cellIndex == 1 ? { borderWidth: 0, color: 'blue' } : { borderWidth: 0 }]}>No Select</Text>
+                              </View>
+                            )
+                          }
                         } else {
                           return (
                             <View key={cellIndex} style={[{ borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', padding: 10, backgroundColor: '#E2E2E2' }, {width: widths[cellIndex]}]}>

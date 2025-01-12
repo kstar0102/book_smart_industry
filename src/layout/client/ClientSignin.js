@@ -231,7 +231,7 @@ export default function ClientSignIn({ navigation }) {
             />
             <Text style={constStyles.loginMainTitle}>WHY BOOK DUMB?</Text>
             <Image
-              source={images.homepage}
+              source={images.homepage_nurse}
               resizeMode="contain"
               style={styles.homepage}
             />

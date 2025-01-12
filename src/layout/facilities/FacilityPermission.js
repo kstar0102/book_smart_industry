@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, Image, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, Image, Alert, Dimensions, TouchableOpacity, Button } from 'react-native';
 import MFooter from '../../components/Mfooter';
 import MHeader from '../../components/Mheader';
 import SubNavbar from '../../components/SubNavbar';
+import { RadioButton } from 'react-native-paper';
 import { useAtom } from 'jotai';
 import Hyperlink from 'react-native-hyperlink';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -12,7 +13,6 @@ import HButton from '../../components/Hbutton';
 import { facilityAcknowledgementAtom } from '../../context/FacilityAuthProvider';
 import { Update } from '../../utils/useApi';
 import { RFValue } from 'react-native-responsive-fontsize';
-
 const { width, height } = Dimensions.get('window');
 
 export default function FacilityPermission ({ navigation }) {
@@ -21,39 +21,50 @@ export default function FacilityPermission ({ navigation }) {
     {label: 'Yes', value: 1},
     {label: 'No', value: 2},
   ];
+  const [checked, setChecked] = React.useState('first');
   const [value, setValue] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
+  const [isSigned, setIsSigned] = useState(false);
   const [credentials, setCredentials] = useState({
     signature: '',
-    facilityAcknowledgeTerm: facilityAcknowledgement
+    facilityAcknowledgeTerm: facilityAcknowledgement,
+    selectedoption: 'first'
   });
   let signatureRef = useRef(null);
 
   const onSaveEvent = (result) => {
+    console.log('Saved Signature:', result.encoded);
     setCredentials(prevCredentials => ({
       ...prevCredentials, 
       signature: result.encoded
     }));
+    setIsSigned(true);
   }
 
-  const getSignature = () => {
-    if (signatureRef.current) {
-      signatureRef.current.saveImage();
+  const handlePreSubmit = () => {
+    if (value != 1) {
+      return;
     }
+    if (!isSigned) {
+      Alert.alert('Please sign and click Save button');
+      return;
+    }
+    handleUploadSubmit();
   };
 
-  const handlePreSubmit = () => {
-    getSignature();
-    setTimeout(() => {
-        handleUploadSubmit();
-    }, 1000);
-  };
+  const handleReset = () => {
+    signatureRef.current.resetImage();
+    setIsSigned(false);
+  }
 
   const handleUploadSubmit = async () => {
     if (value != 1) {
       return;
     }
-
+    if (!isSigned) {
+      Alert.alert('Please sign and click save button');
+      return;
+    }
     try {
       const response = await Update(credentials, 'facilities');
       if (!response?.error) {
@@ -131,7 +142,7 @@ export default function FacilityPermission ({ navigation }) {
                 <Text style={[styles.text, {marginTop: 0}]}><Text style={{fontWeight: 'bold'}}>(d) Qualifications. </Text>I/Cs represent that they are duly licensed (as applicable) and have the experience, qualifications, and ability to perform each Request the I/C accepts.</Text>
                 <Text style={[styles.text, {marginTop: 0}]}><Text style={{fontWeight: 'bold'}}>(e) No Reimbursement. </Text>BOOKSMART™ does not reimburse any user for any expenses incurred because of the performance of Services for Customers or Facilities.</Text>
                 <Text style={[styles.text, {marginTop: 0}]}><Text style={{fontWeight: 'bold'}}>(f) No Employment Relationship. </Text>In addition to the Terms set forth above, Facilities expressly acknowledge and agree that there is no employment, part-time employment, consulting, contractor, partnership, or joint venture relationship between I/C and BOOKSMART™. Customers agree that they are not joint employers with BOOKSMART™. Users further agree and acknowledge that BOOKSMART™ is not an employment service or agency and does not secure employment for anyone. Users acknowledge and agree that they are not entitled to any of the benefits that BOOKSMART™ makes available to its employees and/or officers and/or directors and/or agents, and users hereby waive and disclaim any rights to receive any such benefits. Users also acknowledge and agree that BOOKSMART™ does not pay any unemployment compensation taxes with respect to any provision of any work for any Customer or Facility. Users acknowledge and agree that they are not entitled to any unemployment compensation benefits chargeable to or claimed from BOOKSMART™ during any period of time.</Text>
-                <Text style={[styles.text, {marginTop: 0}]}><Text style={{fontWeight: 'bold'}}>(g) Consent to Text Messages and Phone Calls. </Text>Users consent to receiving text messages and phone calls from BOOKSMART™ or the Customers or Facilities at the phone number provided in your registration information for the purpose of communicating information regarding Service Requests. Users are solely responsible for any costs you incur when receiving text messages, including any carrier charges that apply for receiving such text messages.</Text>
+                <Text style={[styles.text, {marginTop: 0}]}><Text style={{fontWeight: 'bold'}}>(g) Consent to Phone Calls. </Text>Users consent to receiving phone calls from BOOKSMART™, or the Customers or Facilities, at the phone number provided in your registration information for the purpose of communicating information regarding Service Requests. Users are solely responsible for any costs you incur when receiving calls, including any carrier charges that apply for receiving such calls.</Text>
               </View>
               <View style={styles.titleBar}>
                 <Text style={styles.subTitle}>3. Payment and Insurance Terms</Text>
@@ -142,11 +153,34 @@ export default function FacilityPermission ({ navigation }) {
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
                   <View style={{ backgroundColor: 'black', width: 4, height: 4, borderRadius: 2, marginHorizontal: 10, marginTop: 10 }} />
-                  <Text style={{ textAlign: 'left', fontSize: 14, fontWeight: 'normal', color: 'black' }}>If Customer is a Facility or Community paying Net 7, that Fee is $7/hour for CNA, $10/hour for LPN or $15/hour for RN for designated access to and use of BOOKSMART™ and processing of payments and insurances (“Service Fee”).</Text>
+                  <Text style={{ textAlign: 'left', fontSize: 14, fontWeight: 'normal', color: 'black' }}>Customers who are with a direct Facility or Community must choose between the options of:</Text>
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                  <View style={{ backgroundColor: 'black', width: 4, height: 4, borderRadius: 2, marginHorizontal: 10, marginTop: 10 }} />
-                  <Text style={{ textAlign: 'left', fontSize: 14, fontWeight: 'normal', color: 'black' }}>Or – Net 30 Bill rates apply as: $35/hour - CNA, $55/hour - LPN, and $75/hour - RN.</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start'}}>
+                  {/* <View style = {styles.checkboxWrapper}>
+                    <RadioButton
+                      value="first"
+                      status={ checked === 'first' ? 'checked' : 'unchecked' }
+                      onPress={() => setChecked('first')}
+                    />
+                  </View> */}
+                  <TouchableOpacity onPress={() => setChecked('first')}>
+                    {checked=='first'?(<Image source={images.checkedbtn} style = {{width : 13, height : 13, marginTop: 7, marginRight: 7}}/>):(<Image  source={images.uncheckedbtn} style = {{width : 13, height : 13,  marginTop: 7, marginRight: 7}} />)}
+                  </TouchableOpacity>
+                  <Text style={{ textAlign: 'left', fontSize: 14, fontWeight: 'normal', color: 'black' }}>1. Paying Net 7 with a Fee of $7/hour for CNAs, $10/hour for LPNs or $15/hour for RNs for designated access to and use of BOOKSMART™ and processing of payments and insurances (“Service Fee”).
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start'}}>
+                  {/* <View style = {styles.checkboxWrapper}> 
+                    <RadioButton
+                      value="second"
+                      status={ checked === 'second' ? 'checked' : 'unchecked' }
+                      onPress={() => setChecked('second')}
+                    /> 
+                  </View> */}
+                  <TouchableOpacity onPress={() => setChecked('second')}>
+                    {checked=='second'?(<Image source={images.checkedbtn} style = {{width : 13, height : 13,  marginTop: 7, marginRight: 7}}/>):(<Image  source={images.uncheckedbtn} style = {{width : 13, height : 13,  marginTop: 7, marginRight: 7}}/>)}
+                  </TouchableOpacity> 
+                  <Text style={{ textAlign: 'left', fontSize: 14, fontWeight: 'normal', color: 'black' }}>2. Paying Net 30 Bill rates set as: $35/hour for CNAs, $55/hour for LPNs, and $75/hour for RNs.</Text>
                 </View>
                 <Text style={{ textAlign: 'left', fontSize: 14, fontWeight: 'normal', color: 'black', marginTop: 20 }}>A 50% Fee increase shall be applied for all hours worked by I/Cs in excess of 40 hours in any given week. Further, a 50% Fee increase shall be applied for any I/C hours worked on: New Years Day, Easter Sunday, Thanksgiving, Memorial Day, Independence Day, Labor Day, and Christmas Day. The Fee increases are non-compoundable so in the case a holiday falls on a weekend you will only be billed the 50% increase for hours over 40.</Text>
                 <Text style={{ textAlign: 'left', fontSize: 14, fontWeight: 'normal', color: 'black' }}>BOOKSMART™ shall remit to I/C within a reasonable time of a Service Request for which I/C provided to the Customer being marked as a Completed Service on the Service.</Text>
@@ -192,9 +226,9 @@ export default function FacilityPermission ({ navigation }) {
                     setValue(item.value);
                     setIsFocus(false);
                     if (item.value == 1) {
-                      setCredentials({...credentials, ["facilityAcknowledgeTerm"] : true})
+                      setCredentials({...credentials, ["facilityAcknowledgeTerm"] : true, ["selectedoption"]: checked})
                     } else 
-                      setCredentials({...credentials, ["facilityAcknowledgeTerm"] : false})
+                      setCredentials({...credentials, ["facilityAcknowledgeTerm"] : false, ["selectedoption"]: checked})
                   }}
                   renderLeftIcon={() => (
                     <View
@@ -214,10 +248,14 @@ export default function FacilityPermission ({ navigation }) {
                   <SignatureCapture
                       style={styles.signature}
                       ref={signatureRef}
-                      onSaveEvent={onSaveEvent}
+                      onSaveEvent={(result) => onSaveEvent(result)}
                       saveImageFileInExtStorage={false}
-                      showNativeButtons={true}
+                      showNativeButtons={false}
                   />
+                    <View style={styles.buttonContainer}>
+                      <Button title="Save" onPress={() => signatureRef.current.saveImage()} />
+                      <Button title="Reset" onPress={handleReset} />
+                    </View>
                   </View>}
               </View>
               <View style={[styles.btn, {marginTop: 20, width: '90%'}]}>
@@ -338,6 +376,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#A020F0',
     color: 'white',
     fontSize: RFValue(17),
+  },
+  checkboxWrapper: {
+    transform: [{ scale: 0.8}],
+    marginTop: -5
+  },
+  buttonContainer: {
+    flexDirection: 'row', // Buttons side by side
+    justifyContent: 'space-around', // Add spacing between buttons
+    alignItems: 'center', // Align buttons vertically
+    marginVertical: 10,
   },
 });
   

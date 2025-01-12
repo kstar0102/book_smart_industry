@@ -23,12 +23,12 @@ export default function Dashboard ({ navigation }) {
   return (
     <SafeAreaView  style={styles.container}>
       <StatusBar  translucent backgroundColor="transparent" />
-      <MHeader navigation={navigation} />
+      <MHeader navigation={navigation} back={true}/>
       <Text style={styles.text}>
         Welcome to the BookSmart™ App {'\n'} where you make what you deserve!
       </Text>
       <Image
-        source={images.homepage}
+        source={images.homepage_nurse}
         style={styles.homepage}
         resizeMode="contain"
       />
@@ -37,12 +37,12 @@ export default function Dashboard ({ navigation }) {
         <HButton
           onPress={ handleClient }
           style={styles.button}>
-          CLINICIAN
+          WORK
         </HButton>
         <HButton
           onPress={ handleFacility }
           style={styles.button}>
-          FACILITY
+          HIRE
         </HButton>
       </View>
       <MFooter />
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   button: {
     fontSize: RFValue(14),
-    marginHorizontal: 5, // Replace gap with marginHorizontal
+    marginHorizontal: 5,
   },
 });
   

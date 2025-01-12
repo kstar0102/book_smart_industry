@@ -6,7 +6,6 @@ import MFooter from '../components/Mfooter';
 import MHeader from '../components/Mheader';
 import { RFValue } from "react-native-responsive-fontsize";
 import { Dimensions } from 'react-native';
-import HButton from '../components/Hbutton'
 
 const { width, height } = Dimensions.get('window');
 
