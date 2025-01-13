@@ -19,7 +19,7 @@ export default function HospitalityHomePage({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <MHeader navigation={navigation} />
+      <MHeader navigation={navigation} back={true}/>
       <Text style={styles.title}>Hospitality{'\n'}Home Page</Text>
       
       <Image

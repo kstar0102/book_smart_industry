@@ -58,7 +58,7 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <MHeader navigation={navigation} />
+      <MHeader navigation={navigation} back={true}/>
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.intro}>
           <AnimatedHeader title="REGISTER HERE!" />

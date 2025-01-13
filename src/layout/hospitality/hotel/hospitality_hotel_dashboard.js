@@ -19,7 +19,7 @@ export default function HospitalityHotelDashboard({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <MHeader navigation={navigation} />
+      <MHeader navigation={navigation} back={true}/>
       <Image
         source={images.hospitality_icon}
         style={styles.homepage}
