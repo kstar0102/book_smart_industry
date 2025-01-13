@@ -71,6 +71,9 @@ import HospitalityRestaurantDashboard from './hospitality/restaurant/hospitality
 import HospitalityHotelDashboard from './hospitality/hotel/hospitality_hotel_dashboard.js'
 import HospitalityRestaurantHireLogin from './hospitality/restaurant/hospitality_restaurant_hire_login.js'
 import HospitalityRestaurantWorkLogin from './hospitality/restaurant/hospitality_restaurant_work_login.js'
+import HospitalityRestaurantWorkSignup from './hospitality/restaurant/hospitality_restaurant_work_signup.js'
+import HospitalityRestaurantHireSignup from './hospitality/restaurant/hospitality_restaurant_hire_signup.js'
+
 
 const Stack = createNativeStackNavigator();
 
@@ -115,6 +118,18 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityRestaurantWorkLogin'
         component = {HospitalityRestaurantWorkLogin}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkSignup'
+        component = {HospitalityRestaurantWorkSignup}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireSignup'
+        component = {HospitalityRestaurantHireSignup}
         options={{headerShown: false}}
       />
 

@@ -1,23 +1,37 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, SafeAreaView } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
+import images from '../../../assets/images';
+import { Dimensions } from 'react-native';
+const { width, height } = Dimensions.get('window');
+import MHeader from '../../../components/Mheader';
+import MFooter from '../../../components/Mfooter';
 
-export default function HospitalityRestaurantWorkLogin() {
+export default function HospitalityRestaurantWorkLogin({ navigation }) {
   const handleSignIn = () => {
     console.log('Sign In button pressed'); // Add login logic here
   };
 
   const handleSignUp = () => {
-    console.log('Sign Up button pressed'); // Add sign-up navigation or logic here
+    navigation.navigate('HospitalityRestaurantWorkSignup');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Restaurant{'\n'}if "Work" button is selected</Text>
+      <MHeader navigation={navigation} />
+      <Image
+        source={images.hospitality_icon}
+        style={styles.imageHospitality}
+        resizeMode="contain"
+      />
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Email</Text>
-        <TextInput style={styles.textInput} placeholder="Enter your email" keyboardType="email-address" />
+        <TextInput 
+          style={styles.textInput} 
+          placeholder="Enter your email" 
+          keyboardType="email-address" 
+        />
         <Text style={styles.label}>Password</Text>
         <TextInput style={styles.textInput} placeholder="Enter your password" secureTextEntry />
       </View>
@@ -39,17 +53,16 @@ export default function HospitalityRestaurantWorkLogin() {
           <Text style={styles.buttonText}>Sign Up</Text>
         </LinearGradient>
       </TouchableOpacity>
+      <MFooter navigation={navigation} />
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    padding: 20,
   },
   heading: {
     fontSize: RFValue(24),
@@ -58,7 +71,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   inputContainer: {
-    width: '80%',
+    width: '90%',
     marginBottom: 30,
   },
   label: {
@@ -69,20 +82,26 @@ const styles = StyleSheet.create({
   },
   textInput: {
     width: '100%',
-    height: RFValue(45),
+    height: RFValue(40),
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
     paddingHorizontal: 10,
-    marginBottom: 20,
+    marginBottom: 10,
     fontSize: RFValue(14),
+    paddingVertical: 0,
+    textAlignVertical: 'center',
+
   },
   button: {
-    width: '50%',
-    marginBottom: 20,
+    width: '40%',
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+    left: RFValue(20), // Adjust the `left` value as needed
   },
   gradientButton: {
-    paddingVertical: 15,
+    height: RFValue(35), // Adjust the button height here
+    paddingVertical: 0, // Remove padding to maintain consistent height
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
@@ -95,7 +114,17 @@ const styles = StyleSheet.create({
   },
   signupPrompt: {
     fontSize: RFValue(14),
-    color: 'gray',
+    color: 'black',
     marginBottom: 10,
+    marginTop: 20,
+    alignSelf: 'flex-start',
+    left: RFValue(20), // Adjust the `left` value as needed
+  },
+  imageHospitality: {
+    width: width * 0.65,
+    height: height * 0.25,
+    marginTop: 30,
+    resizeMode: 'cover'
   },
 });
+
