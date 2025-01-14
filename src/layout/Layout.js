@@ -73,7 +73,10 @@ import HospitalityRestaurantHireLogin from './hospitality/restaurant/hire/hospit
 import HospitalityRestaurantHireSignUp from './hospitality/restaurant/hire/hospitality_restaurant_hire_signup.js';
 import HospitalityRestaurantWorkLogin from './hospitality/restaurant/work/hospitality_restaurant_work_login.js';
 import HospitalityRestaurantWorkSignup from './hospitality/restaurant/work/hospitality_restaurant_work_signup.js';
-
+import HospitalityRestaurantHireHome from './hospitality/restaurant/hire/hospitality_restaurant_hire_home.js';
+import HospitalityRestaurantHirePostShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_postshift.js';
+import HospitalityRestaurantHireEditShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_editshift.js';
+import HospitalityRestaurantHireEditProfile from './hospitality/restaurant/hire/hospitality_restaurant_hire_editprofile.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -112,6 +115,30 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityRestaurantHireLogin'
         component = {HospitalityRestaurantHireLogin}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireHome'
+        component = {HospitalityRestaurantHireHome}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHirePostShift'
+        component = {HospitalityRestaurantHirePostShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireEditShift'
+        component = {HospitalityRestaurantHireEditShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireEditProfile'
+        component = {HospitalityRestaurantHireEditProfile}
         options={{headerShown: false}}
       />
 

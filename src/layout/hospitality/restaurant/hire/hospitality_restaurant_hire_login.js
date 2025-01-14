@@ -26,6 +26,10 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
     navigation.navigate('HospitalityRestaurantHireSignUp');
   };
 
+  const handleSignIn = () => {
+    navigation.navigate('HospitalityRestaurantHireHome');
+  };
+
   return (
     <View style={styles.container}>
       <MHeader navigation={navigation} back={true}/>
@@ -91,7 +95,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
             </View>
 
             <View style={styles.btn}>
-              <TouchableOpacity onPress={() => {}} style={styles.button}>
+              <TouchableOpacity onPress={handleSignIn} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
