@@ -20,7 +20,12 @@ export default function HospitalityHomePage({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <MHeader navigation={navigation} back={true}/>
-      <Text style={styles.title}>Hospitality{'\n'}Home Page</Text>
+      <Text style={styles.text}>
+        Welcome to the BookSmart™ App
+      </Text>
+      <Text style={styles.text}>
+        Where you make what you deserve!
+      </Text>
       
       <Image
         source={images.hospitality_icon}
@@ -92,5 +97,11 @@ const styles = StyleSheet.create({
     height: height * 0.25,
     marginTop: 30,
     resizeMode: 'cover'
+  },
+  text: {
+    fontSize: RFValue(17),
+    color: 'black',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

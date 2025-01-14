@@ -90,9 +90,9 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file('booksmart_keystore.keystore')
+            storeFile file('booksmartindustry.jks')
             storePassword 'booksmart'
-            keyAlias 'booksmart_keystore'
+            keyAlias 'booksmartindustry'
             keyPassword 'booksmart'
         }
     }

@@ -213,6 +213,15 @@ export const getDegreeList = async (endpoint) => {
   }
 }
 
+export const getHospitalityTileList = async () => {
+  try {
+    const response = await axios.get(`api/title/getTitles?type=Hospital`);
+    return response.data;
+  } catch (error) {
+    return {error: error}
+  }
+}
+
 export const getFacilityInfo = async (data, endpoint) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');

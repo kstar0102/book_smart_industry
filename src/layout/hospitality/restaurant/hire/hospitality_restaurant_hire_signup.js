@@ -1,26 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Alert, Animated, Easing, StyleSheet, View, Text, ScrollView, TouchableOpacity, Modal, StatusBar, Image } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useFocusEffect } from '@react-navigation/native';
-import images from '../../assets/images';
-import HButton from '../../components/Hbutton';
-import MHeader from '../../components/Mheader';
-import MFooter from '../../components/Mfooter';
-import { Signup } from '../../utils/useApi';
-// Choose file
-import DocumentPicker from 'react-native-document-picker';
-import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import RNFS from 'react-native-fs'
-import AnimatedHeader from '../AnimatedHeader';
-import Loader from '../Loader';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Modal,
+  Animated,
+  Easing,
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
-import constStyles from '../../assets/styles';
 import { Dimensions } from 'react-native';
+import MHeader from '../../../../components/Mheader';
+import MFooter from '../../../../components/Mfooter';
+import HButton from '../../../../components/Hbutton';
+import AnimatedHeader from '../../../AnimatedHeader';
+import constStyles from '../../../../assets/styles';
+import Loader from '../../../Loader';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
-export default function FacilitySignUp({ navigation }) {
+export default function HospitalityRestaurantHireSignUp({ navigation }) {
   const [fileType, setFiletype] = useState('');
   const [fileTypeSelectModal, setFiletypeSelectModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,11 +96,65 @@ export default function FacilitySignUp({ navigation }) {
   const toggleFileTypeSelectModal = () => {
     setFiletypeSelectModal(!fileTypeSelectModal);
   };
-  
-  const handleChangeFileType = (mode) => {
-    setFiletype(mode);
-    toggleFileTypeSelectModal();
+  // const [title, setTitle] = useState('');
+  // const [isModalVisible, setModalVisible] = useState(false);
+
+  // const titles = ['Front Desk', 'Housekeeping'];
+
+  const validateInputs = () => {
+    if (!firstName || !lastName) {
+      Alert.alert('Validation Error', 'First and Last Name are required.');
+      return false;
+    }
+    if (!email) {
+      Alert.alert('Validation Error', 'Email is required.');
+      return false;
+    }
+    if (!password || password !== confirmPassword) {
+      Alert.alert('Validation Error', 'Passwords do not match.');
+      return false;
+    }
+    return true;
   };
+
+  const handleSubmit = () => {
+    if (validateInputs()) {
+      console.log('Sign Up successful'); // Replace with API logic
+      Alert.alert('Success', 'You have successfully registered!');
+    }
+  };
+
+  const formatPhoneNumber = (input) => {
+    // Remove all non-numeric characters from the input
+    const cleaned = input.replace(/\D/g, '');
+
+    // If the cleaned input has 1 or 2 characters, return it as is
+    if (cleaned.length === 1 || cleaned.length === 2) {
+        return cleaned;
+    }
+
+    // Apply the desired phone number format
+    let formattedNumber = '';
+    if (cleaned.length >= 3) {
+        formattedNumber = `(${cleaned.slice(0, 3)})`;
+    }
+    if (cleaned.length > 3) {
+        formattedNumber += ` ${cleaned.slice(3, 6)}`;
+    }
+    if (cleaned.length > 6) {
+        formattedNumber += `-${cleaned.slice(6, 10)}`;
+    }
+    return formattedNumber;
+  };
+
+  const handlePhoneNumberChange = (text) => {
+    const formattedNumber = formatPhoneNumber(text); 
+    handleCredentials('contactPhone', formattedNumber);
+  };
+
+  const handleHospitalityHome = () => {
+    navigation.navigate('HospitalityHomePage');
+  }
 
   const openCamera = async () => {
     const options = {
@@ -265,243 +323,13 @@ export default function FacilitySignUp({ navigation }) {
     }
   };
 
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  //Alert
-  const showAlert = () => {
-    Alert.alert(
-      'Warning!',
-      "The Password doesn't matched. Please try again.",
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            setConfirmPassword('');
-            console.log('OK pressed')
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  const handlePassword = () => {
-    if (credentials.password !== confirmPassword ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
- 
-  //------------------------------------------Phone Input----------------
-  const formatPhoneNumber = (input) => {
-    // Remove all non-numeric characters from the input
-    const cleaned = input.replace(/\D/g, '');
-
-    // If the cleaned input has 1 or 2 characters, return it as is
-    if (cleaned.length === 1 || cleaned.length === 2) {
-        return cleaned;
-    }
-
-    // Apply the desired phone number format
-    let formattedNumber = '';
-    if (cleaned.length >= 3) {
-        formattedNumber = `(${cleaned.slice(0, 3)})`;
-    }
-    if (cleaned.length > 3) {
-        formattedNumber += ` ${cleaned.slice(3, 6)}`;
-    }
-    if (cleaned.length > 6) {
-        formattedNumber += `-${cleaned.slice(6, 10)}`;
-    }
-    return formattedNumber;
-  };
-
-  const handlePhoneNumberChange = (text) => {
-    const formattedNumber = formatPhoneNumber(text); 
-    handleCredentials('contactPhone', formattedNumber);
-  };
-
-  const handleBack = () => {
-    navigation.navigate('FacilityLogin');
-  }
-
-  //Alert
-  const showAlerts = (name) => {
-    Alert.alert(
-      'Warning!',
-      `You have to input ${name}!`,
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            console.log('OK pressed')
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  const validation = () => {
-    // Create an array of checks for each required field with corresponding error messages
-    const fieldChecks = [
-      { field: credentials.companyName, message: 'Company Name is required' },
-      { field: credentials.contactEmail, message: 'Contact Email is required' },
-      { field: credentials.firstName, message: 'First Name is required' },
-      { field: credentials.lastName, message: 'Last Name is required' },
-      { field: credentials.contactPhone, message: 'Contact Phone is required' },
-      { field: credentials.password, message: 'Password is required' },
-      { field: credentials.confirmPassword, message: 'Password is required' },
-      { field: credentials.address?.street, message: 'Street Address is required' },
-      { field: credentials.address?.city, message: 'City is required' },
-      { field: credentials.address?.state, message: 'State is required' },
-      { field: credentials.address?.zip, message: 'ZIP code is required' },
-    ];
-  
-    // Iterate over the field checks and show an alert for the first empty field
-    for (const check of fieldChecks) {
-      if (!check.field || check.field === '') {
-        Alert.alert(
-          'Validation Error',
-          check.message,
-          [{ text: 'OK', onPress: () => console.log(`${check.message} alert acknowledged`) }],
-          { cancelable: false }
-        );
-        return false; // Return false if any field is invalid
-      }
-    }
-
-    if (credentials.password !== credentials.confirmPassword) {
-      showPswWrongAlert();
-      return false;
-    }
-  
-    return true; // Return true if all fields are valid
-  };
-
-  const showPswWrongAlert = () => {
-    Alert.alert(
-      'Warning!',
-      "The Password doesn't matched. Please try again.",
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            setPassword('');
-            setConfirmPassword('');
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  const handleSubmit = async () => {
-    if (isSubmitting) {
-      return;
-    }
-    console.log('clicked');
-
-    if (!validation()) {
-      setIsSubmitting(false);
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      setSending(true);
-      const response = await Signup(credentials, "facilities");
-      if (!response?.error) {
-        setSending(false);
-        navigation.navigate('FacilityFinishSignup');
-      } else {
-        setIsSubmitting(false);
-        setSending(false);
-        if (response.error.status == 500) {
-          Alert.alert(
-            'Warning!',
-            "Can't register now",
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  console.log('OK pressed');
-                },
-              },
-            ],
-            { cancelable: false }
-          );
-        } else if (response.error.status == 409) {
-          Alert.alert(
-            'Alert',
-            "The Email is already registered",
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  console.log('OK pressed');
-                },
-              },
-            ],
-            { cancelable: false }
-          );
-        } else if (response.error.status == 405) {
-          Alert.alert(
-            'Alert',
-            "User not approved",
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  console.log('OK pressed');
-                },
-              },
-            ],
-            { cancelable: false }
-          );
-        } else {
-          Alert.alert(
-            'Failure!',
-            'Network Error',
-            [
-              {
-                text: 'OK',
-                onPress: () => {
-                  console.log('OK pressed');
-                },
-              },
-            ],
-            { cancelable: false }
-          );
-        }
-      }
-    } catch (error) {
-      setIsSubmitting(false);
-      setSending(false);
-      console.error('Signup failed: ', error);
-      Alert.alert(
-        'Failure!',
-        'Network Error',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              console.log('OK pressed');
-            },
-          },
-        ],
-        { cancelable: false }
-      );
-    }
-  }
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.intro}>
-            <AnimatedHeader title="FACILITIES REGISTER HERE!" />
+            <AnimatedHeader title="REGISTER HERE!" />
           </View>
           <View style={styles.authInfo}>
             <View style={styles.email}>
@@ -669,18 +497,24 @@ export default function FacilitySignUp({ navigation }) {
             </View>
 
             <View style={[styles.btn, { marginTop: 20 }]}>
-              <HButton style={styles.subBtn} onPress={handleSubmit}>
-                Submit
-              </HButton>
+              <TouchableOpacity onPress={() => {}} style={styles.button}>
+                <LinearGradient
+                  colors={['#A1E9F1', '#B980EC']}
+                  style={styles.gradientButton}
+                >
+                  <Text style={styles.buttonText}>Submit</Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
 
             <Text style={{ textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 20 }}
-              onPress={handleBack}
+              onPress={handleHospitalityHome}
             >
-              Back to 🏚️ Facilities Home
+              Back to 🏚️ Hospitality Home
             </Text>
           </View>
         </View>
+
         {fileTypeSelectModal && (
           <Modal
             visible={fileTypeSelectModal} // Changed from Visible to visible
@@ -730,9 +564,18 @@ export default function FacilitySignUp({ navigation }) {
 
 const styles = StyleSheet.create({
   button: {
+    width : "70%",
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
+
+  gradientButton: {
+    height: RFValue(40), // Adjust the button height here
+    paddingVertical: 0, // Remove padding to maintain consistent height
     borderRadius: 10,
-    backgroundColor: 'red',
-    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5, // For shadow on Android
   },
   container: {
     marginBottom: 0,

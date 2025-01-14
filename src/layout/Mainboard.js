@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 30,
     width: '100%',
-    paddingHorizontal: 10, // Add some padding for spacing
+    paddingHorizontal: 10,
   },
   iconContainer: {
     alignItems: 'center',
@@ -139,9 +139,8 @@ const styles = StyleSheet.create({
     borderRadius: 4, // Slightly rounded corners
     alignItems: 'center', // Center align text horizontally
     justifyContent: 'center', // Center align text vertically
-    width: 150, // Set fixed width
+    width: RFValue(120), // Set fixed width
     marginTop: 10, // Add spacing between buttons if needed
-    width: 140
   },
 
   buttonText: {

@@ -64,23 +64,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   subheading: {
-    fontSize: RFValue(16),
+    fontSize: RFValue(17),
+    color: 'black',
+    fontWeight: 'bold',
     textAlign: 'center',
-    color: 'gray',
-    marginBottom: 40,
+    margin : RFValue(20)
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%',
+    width: '100%',
   },
   button: {
     flex: 1,
     marginHorizontal: 10,
   },
   gradientButton: {
-    paddingVertical: 15,
-    borderRadius: 25,
+    paddingVertical: 10,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,

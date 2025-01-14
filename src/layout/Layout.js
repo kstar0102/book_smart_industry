@@ -69,10 +69,10 @@ import Mainboard from './Mainboard.js';
 import HospitalityHomePage from './hospitality/hospitality_homepage.js'
 import HospitalityRestaurantDashboard from './hospitality/restaurant/hospitality_restaurant_dashboard.js'
 import HospitalityHotelDashboard from './hospitality/hotel/hospitality_hotel_dashboard.js'
-import HospitalityRestaurantHireLogin from './hospitality/restaurant/hospitality_restaurant_hire_login.js'
-import HospitalityRestaurantWorkLogin from './hospitality/restaurant/hospitality_restaurant_work_login.js'
-import HospitalityRestaurantWorkSignup from './hospitality/restaurant/hospitality_restaurant_work_signup.js'
-import HospitalityRestaurantHireSignup from './hospitality/restaurant/hospitality_restaurant_hire_signup.js'
+import HospitalityRestaurantHireLogin from './hospitality/restaurant/hire/hospitality_restaurant_hire_login.js';
+import HospitalityRestaurantHireSignUp from './hospitality/restaurant/hire/hospitality_restaurant_hire_signup.js';
+import HospitalityRestaurantWorkLogin from './hospitality/restaurant/work/hospitality_restaurant_work_login.js';
+import HospitalityRestaurantWorkSignup from './hospitality/restaurant/work/hospitality_restaurant_work_signup.js';
 
 
 const Stack = createNativeStackNavigator();
@@ -128,8 +128,8 @@ function Layout() {
       />
 
       <Stack.Screen 
-        name= 'HospitalityRestaurantHireSignup'
-        component = {HospitalityRestaurantHireSignup}
+        name= 'HospitalityRestaurantHireSignUp'
+        component = {HospitalityRestaurantHireSignUp}
         options={{headerShown: false}}
       />
 
