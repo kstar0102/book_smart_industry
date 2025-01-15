@@ -26,6 +26,11 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
     navigation.navigate('HospitalityRestaurantWorkSignup');
   };
 
+  const handleSignIn = () => {
+    navigation.navigate('HospitalityRestaurantWorkHome');
+  };
+
+
   return (
     <View style={styles.container}>
       <MHeader navigation={navigation} back={true}/>
@@ -68,7 +73,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
                   onPress={() => console.log('Navigate to forget password')}>
                   <Text
                     style={[constStyles.loginSubTitle, { color: '#2a53c1'}]}
-                    onPress={() => navigation.navigate('ClientForgotPwd')}>
+                    onPress={() => navigation.navigate('HospitalityRestaurantWorkForgot')}>
                     {'('}forgot?{')'}
                   </Text>
                 </TouchableOpacity>
@@ -91,7 +96,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
             </View>
 
             <View style={styles.btn}>
-              <TouchableOpacity onPress={() => {}} style={styles.button}>
+              <TouchableOpacity onPress={handleSignIn} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}

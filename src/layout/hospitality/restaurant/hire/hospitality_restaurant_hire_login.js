@@ -72,7 +72,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
                   onPress={() => console.log('Navigate to forget password')}>
                   <Text
                     style={[constStyles.loginSubTitle, { color: '#2a53c1'}]}
-                    onPress={() => navigation.navigate('ClientForgotPwd')}>
+                    onPress={() => navigation.navigate('HospitalityRestaurantHireForgot')}>
                     {'('}forgot?{')'}
                   </Text>
                 </TouchableOpacity>

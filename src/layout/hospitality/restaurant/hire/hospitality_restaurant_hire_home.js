@@ -56,7 +56,7 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
           </View>
           <View style={styles.profile}>
             <View style={styles.profileTitleBg}>
-              <Text style={styles.profileTitle}>FACILITY PROFILE</Text>
+              <Text style={styles.profileTitle}>PROFILE</Text>
             </View>
             {avatar.content && <Image
               source={{ uri: `${avatar.content}` }}

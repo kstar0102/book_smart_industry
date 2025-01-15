@@ -73,10 +73,21 @@ import HospitalityRestaurantHireLogin from './hospitality/restaurant/hire/hospit
 import HospitalityRestaurantHireSignUp from './hospitality/restaurant/hire/hospitality_restaurant_hire_signup.js';
 import HospitalityRestaurantWorkLogin from './hospitality/restaurant/work/hospitality_restaurant_work_login.js';
 import HospitalityRestaurantWorkSignup from './hospitality/restaurant/work/hospitality_restaurant_work_signup.js';
+import HospitalityRestaurantWorkForgot from './hospitality/restaurant/work/hospitality_restaurant_work_forgot.js';
+import HospitalityRestaurantWorkHome from './hospitality/restaurant/work/hospitality_restaurant_work_home.js';
+import HospitalityRestaurantWorkEditProfile from './hospitality/restaurant/work/hospitality_restaurant_work_editprofile.js';
+import HospitalityRestaurantWorkTimesheetForm from './hospitality/restaurant/work/hospitality_restaurant_work_TimesheetForm.js';
+import HospitalityRestaurantWorkMyShift from './hospitality/restaurant/work/hospitality_restaurant_work_myshifts.js';
+import HospitalityRestaurantWorkUploadTimesheet from './hospitality/restaurant/work/hospitality_restaurant_work_uploadtimesheet.js';
+import HospitalityRestaurantWorkReporting from './hospitality/restaurant/work/hospitality_restaurant_work_reporting.js';
+import HospitalityRestaurantWorkBookShift from './hospitality/restaurant/work/hospitality_restaurant_work_bookshift.js';
+import HospitalityRestaurantWorkApplyShift from './hospitality/restaurant/work/hospitality_restaurant_work_applyshift.js';
+
 import HospitalityRestaurantHireHome from './hospitality/restaurant/hire/hospitality_restaurant_hire_home.js';
 import HospitalityRestaurantHirePostShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_postshift.js';
 import HospitalityRestaurantHireEditShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_editshift.js';
 import HospitalityRestaurantHireEditProfile from './hospitality/restaurant/hire/hospitality_restaurant_hire_editprofile.js';
+import HospitalityRestaurantHireForgot from './hospitality/restaurant/hire/hospitality_restaurant_hire_forgot.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -103,6 +114,36 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityHomePage'
         component = {HospitalityHomePage}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkApplyShift'
+        component = {HospitalityRestaurantWorkApplyShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkBookShift'
+        component = {HospitalityRestaurantWorkBookShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkReporting'
+        component = {HospitalityRestaurantWorkReporting}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkUploadTimesheet'
+        component = {HospitalityRestaurantWorkUploadTimesheet}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkMyShift'
+        component = {HospitalityRestaurantWorkMyShift}
         options={{headerShown: false}}
       />
 
@@ -143,6 +184,12 @@ function Layout() {
       />
 
       <Stack.Screen 
+        name= 'HospitalityRestaurantHireForgot'
+        component = {HospitalityRestaurantHireForgot}
+        options={{headerShown: false}}
+      />
+      
+      <Stack.Screen 
         name= 'HospitalityRestaurantWorkLogin'
         component = {HospitalityRestaurantWorkLogin}
         options={{headerShown: false}}
@@ -151,6 +198,30 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityRestaurantWorkSignup'
         component = {HospitalityRestaurantWorkSignup}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkForgot'
+        component = {HospitalityRestaurantWorkForgot}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkHome'
+        component = {HospitalityRestaurantWorkHome}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkEditProfile'
+        component = {HospitalityRestaurantWorkEditProfile}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkTimesheetForm'
+        component = {HospitalityRestaurantWorkTimesheetForm}
         options={{headerShown: false}}
       />
 
