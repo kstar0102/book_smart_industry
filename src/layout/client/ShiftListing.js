@@ -12,7 +12,6 @@ import { aicAtom, firstNameAtom, lastNameAtom } from '../../context/ClinicalAuth
 import { PostBid, Jobs } from '../../utils/useApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
-import AnimatedHeader from '../AnimatedHeader';
 import Loader from '../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 

@@ -1,14 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert, ScrollView, Pressable } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../../../Loader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUniqueId } from 'react-native-device-info';
 import { RFValue } from 'react-native-responsive-fontsize';
 import images from '../../../../assets/images';
 import { Dimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 const { width, height } = Dimensions.get('window');
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
 import constStyles from '../../../../assets/styles';
+import { 
+  firstNameAtom, 
+  lastNameAtom, 
+  emailAtom, 
+  titleAtom, 
+  userRoleAtom, 
+  phoneNumberAtom,
+  passwordAtom,
+  aicAtom
+ } from '../../../../context/RestaurantWorkProvider';
+import { useAtom } from 'jotai';
+import { Signin } from '../../../../utils/useApi';
 
 export default function HospitalityRestaurantWorkLogin({ navigation }) {
   const [device, setDevice] = useState('');
@@ -17,19 +32,183 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
   const [checked, setChecked] = useState(false);
   const [request, setRequest] = useState(false);
 
+  const [aic, setAIC] = useAtom(aicAtom);
+  const [firstName, setFirstName] = useAtom(firstNameAtom);
+  const [lastName, setLastName] = useAtom(lastNameAtom);
+  const [phoneNumber, setPhoneNumber] = useAtom(phoneNumberAtom);
+  const [title, setTitle] = useAtom(titleAtom);
+  const [email, setEmail] = useAtom(emailAtom);
+  const [userRole, setUserRole]= useAtom(userRoleAtom);
+  const [password, setPassword] = useAtom(passwordAtom);
+
+  const fetchDeviceInfo = async () => {
+    try {
+      const id = await getUniqueId();
+      setDevice(id);
+    } catch (error) {
+      console.error('Error fetching device info:', error);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchDeviceInfo();
+    }, [])
+  );
+
+  useEffect(() => {
+    const getCredentials = async() => {
+      const emails = (await AsyncStorage.getItem('restaurantWorkEmail')) || '';
+      const password = (await AsyncStorage.getItem('restaurantWorkPSW')) || '';
+      setLoginEmail(emails);
+      setLoginPW(password);
+    }
+    getCredentials();
+  }, []);
 
   const handleToggle = async () => {
     setChecked(!checked);
   };
 
-  const handleSignUp = () => {
+  const handleSignUpNavigate = () => {
     navigation.navigate('HospitalityRestaurantWorkSignup');
   };
 
-  const handleSignIn = () => {
+  const handleSignInNavigate = () => {
     navigation.navigate('HospitalityRestaurantWorkHome');
   };
 
+  const handleSubmit = async () => {
+    if (loginEmail == "") {
+      Alert.alert(
+        'Warning!',
+        "Please enter your email",
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed')
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+
+    if (loginPW == "") {
+      Alert.alert(
+        'Warning!',
+        "Please enter password",
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed')
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+
+    try {
+      setRequest(true);
+      const response = await Signin({ email: loginEmail, password: loginPW, device: device, userRole: 'RestaurantUser' }, 'restau_user');
+      if (response?.user) {
+        setRequest(false);
+        setAIC(response.user.aic);
+        setFirstName(response.user.firstName);
+        setLastName(response.user.lastName);
+        setEmail(response.user.email);
+        setTitle(response.user.title);
+        setPhoneNumber(response.user.phoneNumber);
+        setUserRole(response.user.userRole);
+        // setClinicalAcknowledgement(response.user.clinicalAcknowledgeTerm);
+        setPassword(response.user.password);
+
+        await AsyncStorage.setItem('restaurantWorkPhoneNumber', response.user.phoneNumber);
+
+        if (checked) {
+          await AsyncStorage.setItem('restaurantWorkEmail', loginEmail);
+          await AsyncStorage.setItem('restaurantWorkPSW', loginPW);
+        }
+
+        // if (response.user.clinicalAcknowledgeTerm) {
+        //   if (response.phoneAuth) {
+        //     handleSignInNavigate('ClientPhone');
+        //   } else {
+        //     handleSignInNavigate('MyHome');
+        //   }
+        // } else {
+        //   handleSignInNavigate('ClientPermission');
+        // }
+        handleSignInNavigate('HospitalityRestaurantWorkHome');
+      } else {
+        setRequest(false);
+        if (response.error.status == 401) {
+          Alert.alert(
+            'Failed!',
+            "Sign in informaation is incorrect.",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed')
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else if (response.error.status == 402) {
+          Alert.alert(
+            'Failed!',
+            "You are not approved! Please wait.",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed')
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else {
+          Alert.alert(
+            'Failed!',
+            "User Not Found! Please Register First.",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed')
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        }
+      }
+    } catch (error) {
+      setRequest(false);
+      console.log('SignIn failed: ', JSON.stringify(error))
+      Alert.alert(
+        'Failed!',
+        "Network Error",
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed')
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -96,7 +275,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
             </View>
 
             <View style={styles.btn}>
-              <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
@@ -109,7 +288,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
               <Text style={constStyles.loginMiddleText}>Need an account?</Text>
               <View style = {{marginTop : RFValue(5)}}/>
 
-              <TouchableOpacity onPress={handleSignUp} style={styles.button}>
+              <TouchableOpacity onPress={handleSignUpNavigate} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}

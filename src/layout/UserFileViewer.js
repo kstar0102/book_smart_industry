@@ -14,7 +14,7 @@ export default function UserFileViewer({ navigation, route }) {
     const getData = async () => {
         setLoading(true);
         console.log(userId);
-        let result = await getUserImage({ userId, filename }, 'clinical');
+        let result = await getUserImage({ userId, filename }, 'restau_user');
         console.log(result);
         if (!result?.error) {
             const fetchedFileInfo = result;

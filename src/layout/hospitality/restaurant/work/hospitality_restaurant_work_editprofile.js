@@ -8,8 +8,8 @@ import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
 import DatePicker from 'react-native-date-picker';
 import MSubNavbar from '../../../../components/MSubNavbar';
-import { getDegreeList, getUserInfo, Update } from '../../../../utils/useApi';
-import { aicAtom } from '../../../../context/ClinicalAuthProvider';
+import { getTitleList, getUserInfo, Update } from '../../../../utils/useApi';
+import { aicAtom } from '../../../../context/RestaurantWorkProvider';
 // Choose file
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -33,61 +33,61 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
   const [title, setTitle] = useState('');
   const [birthdays, setBirthdays] = useState(new Date());
   const [socialSecurityNumber, setSocialSecurityNumber] = useState('');
-  const [driverLicense, setDriverLicense] = useState({
-    content: '',
-    type: '',
-    name: ''
-  }); 
-  const [socialCard, setSocialCard] = useState({
-    content: '',
-    type: '',
-    name: ''
-  });
-  const [physicalExam, setPhysicalExam] = useState({
-    content: '',
-    type: '',
-    name: ''
-  }); 
-  const [ppd, setPPD] = useState({
-    content: '',
-    type: '',
-    name: ''
-  });
-  const [mmr, setMMR] = useState({
-    content: '',
-    type: '',
-    name: ''
-  }); 
-  const [healthcareLicense, setHealthcareLicense] = useState({
-    content: '',
-    type: '',
-    name: ''
-  });
-  const [resume, setResume] = useState({
-    content: '',
-    type: '',
-    name: ''
-  }); 
-  const [covidCard, setCovidCard] = useState({
-    content: '',
-    type: '',
-    name: ''
-  });
-  const [bls, setBls] = useState({
-    content: '',
-    type: '',
-    name: ''
-  });
+  // const [driverLicense, setDriverLicense] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // }); 
+  // const [socialCard, setSocialCard] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // });
+  // const [physicalExam, setPhysicalExam] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // }); 
+  // const [ppd, setPPD] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // });
+  // const [mmr, setMMR] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // }); 
+  // const [healthcareLicense, setHealthcareLicense] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // });
+  // const [resume, setResume] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // }); 
+  // const [covidCard, setCovidCard] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // });
+  // const [bls, setBls] = useState({
+  //   content: '',
+  //   type: '',
+  //   name: ''
+  // });
 
-  const [isSendDL, setIsSendDL] = useState(false);
-  const [isSendSC, setIsSendSC] = useState(false);
-  const [isSendPE, setIsSendPE] = useState(false);
-  const [isSendPPD, setIsSendPPD] = useState(false);
-  const [isSendMMR, setIsSendMMR] = useState(false);
-  const [isSendHL, setIsSendHL] = useState(false);
-  const [isSendResume, setIsSendResume] = useState(false);
-  const [isSendCC, setIsSendCC] = useState(false);
-  const [isSendBLS, setIsSendBLS] = useState(false);
+  // const [isSendDL, setIsSendDL] = useState(false);
+  // const [isSendSC, setIsSendSC] = useState(false);
+  // const [isSendPE, setIsSendPE] = useState(false);
+  // const [isSendPPD, setIsSendPPD] = useState(false);
+  // const [isSendMMR, setIsSendMMR] = useState(false);
+  // const [isSendHL, setIsSendHL] = useState(false);
+  // const [isSendResume, setIsSendResume] = useState(false);
+  // const [isSendCC, setIsSendCC] = useState(false);
+  // const [isSendBLS, setIsSendBLS] = useState(false);
 
   const [sfileType, setFiletype] = useState('');
   const [fileTypeSelectModal, setFiletypeSelectModal] = useState(false);
@@ -107,8 +107,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
 
   const getData = async () => {
     setLoading(true);
-    let result = await getUserInfo({ userId: aic }, 'clinical');
-    console.log(result);
+    let result = await getUserInfo({ userId: aic }, 'restau_user');
     if (!result?.error) {
       const updatedCredentials = { ...credentials };
       Object.keys(updatedCredentials).forEach((key) => {
@@ -131,41 +130,41 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
         }
       });
       
-      if (result.userData['driverLicense']) {
-        setDriverLicense(result.userData['driverLicense']);
-      }
+      // if (result.userData['driverLicense']) {
+      //   setDriverLicense(result.userData['driverLicense']);
+      // }
 
-      if (result.userData['socialCard']) {
-        setSocialCard(result.userData['socialCard']);
-      }
+      // if (result.userData['socialCard']) {
+      //   setSocialCard(result.userData['socialCard']);
+      // }
 
-      if (result.userData['physicalExam']) {
-        setPhysicalExam(result.userData['physicalExam']);
-      }
+      // if (result.userData['physicalExam']) {
+      //   setPhysicalExam(result.userData['physicalExam']);
+      // }
 
-      if (result.userData['ppd']) {
-        setPPD(result.userData['ppd']);
-      }
+      // if (result.userData['ppd']) {
+      //   setPPD(result.userData['ppd']);
+      // }
 
-      if (result.userData['mmr']) {
-        setMMR(result.userData['mmr']);
-      }
+      // if (result.userData['mmr']) {
+      //   setMMR(result.userData['mmr']);
+      // }
 
-      if (result.userData['healthcareLicense']) {
-        setHealthcareLicense(result.userData['healthcareLicense']);
-      }
+      // if (result.userData['healthcareLicense']) {
+      //   setHealthcareLicense(result.userData['healthcareLicense']);
+      // }
 
-      if (result.userData['resume']) {
-        setResume(result.userData['resume']);
-      }
+      // if (result.userData['resume']) {
+      //   setResume(result.userData['resume']);
+      // }
 
-      if (result.userData['covidCard']) {
-        setCovidCard(result.userData['covidCard']);
-      }
+      // if (result.userData['covidCard']) {
+      //   setCovidCard(result.userData['covidCard']);
+      // }
 
-      if (result.userData['bls']) {
-        setBls(result.userData['bls']);
-      }
+      // if (result.userData['bls']) {
+      //   setBls(result.userData['bls']);
+      // }
 
       setCredentials(updatedCredentials);
       setLoading(false);
@@ -193,7 +192,6 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
   //   }, [])
   // );
   useEffect(() => {
-    console.log('===========================================');
     getData();
     getDegree();
   }, []);
@@ -279,11 +277,11 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
 
   const [degrees, setDegree] = useState([]);
   const getDegree = async () => {
-    const response = await getDegreeList('degree');
+    const response = await getTitleList('Restaurant');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push(item.degreeName);
+        tempArr.push(item.titleName);
       });
       tempArr.unshift('');
       setDegree(tempArr);
@@ -580,7 +578,9 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
     } else {
       setLoading(true);
       try {
-        const response = await Update(credentials, 'clinical');
+        const response = await Update(credentials, 'restau_user');
+        console.log(response);
+        console.log(credentials);
         if (!response?.error) {
           console.log('successfully Updated')
           setLoading(false);
@@ -649,7 +649,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <MSubNavbar navigation={navigation} name={"Caregiver"}/>
+      <MSubNavbar navigation={navigation} name={"RestaurantWork"}/>
       <ScrollView style = {styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.authInfo}>
@@ -863,7 +863,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
             <View style={styles.bottomBar}/>
           </View>
           <View style={styles.authInfo}>
-            <View style={styles.profileTitleBg}>
+            {/* <View style={styles.profileTitleBg}>
               <Text style={styles.profileTitle}>MY DOCUMENTS</Text>
             </View>
             <View>
@@ -1134,7 +1134,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
                 CHRC 102 Form{'\n'}
                 CHRC 103 Form{'\n'}
               </Text>
-            </View>
+            </View> */}
             <Text style={{textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 20 }}
               onPress={handleBack}
             >

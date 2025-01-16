@@ -4,7 +4,6 @@ import { Alert } from 'react-native';
 
 export const Signup = async (userData, endpoint) => {
   try {
-    console.log('success')
     const response = await axios.post(`api/${endpoint}/signup`, userData);
     return response.data;
   } catch (error) {
@@ -99,8 +98,10 @@ export const getUserInfo = async (data, endpoint) => {
     if (response.data.token) {
       await AsyncStorage.setItem('token', response.data.token);
     }
+    console.log(response)
     return response.data;
   } catch (error) {
+    console.log(JSON.stringify(error));
     return {error: error}
   }
 };
@@ -213,9 +214,10 @@ export const getDegreeList = async (endpoint) => {
   }
 }
 
-export const getHospitalityTileList = async () => {
+export const getTitleList = async (type) => {
   try {
-    const response = await axios.get(`api/title/getTitles?type=Hospital`);
+    const response = await axios.get(`api/title/getTitles?type=${type}`);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     return {error: error}
@@ -769,6 +771,16 @@ export const MyShift = async (endpoint, role) => {
     } else if (response.status === 401) {
       console.log('Token is expired')
     }
+    return response.data.jobData;
+  } catch (error) {
+    console.log(error);
+    return { error: error };
+  }
+};
+
+export const RestaurantWorkShifts = async (endpoint, data) => {
+  try {
+    const response = await axios.post(`api/${endpoint}/myShift`, data);
     return response.data.jobData;
   } catch (error) {
     console.log(error);

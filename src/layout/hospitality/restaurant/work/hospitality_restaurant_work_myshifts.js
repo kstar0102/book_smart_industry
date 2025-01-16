@@ -4,7 +4,7 @@ import { Text } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { PermissionsAndroid } from 'react-native';
-import { MyShift, updateTimeSheet } from '../../../../utils/useApi';
+import { RestaurantWorkShifts, updateTimeSheet } from '../../../../utils/useApi';
 import images from '../../../../assets/images';
 import HButton from '../../../../components/Hbutton'
 import MFooter from '../../../../components/Mfooter';
@@ -15,10 +15,11 @@ import ImageButton from '../../../../components/ImageButton';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs'
+import { useAtom } from 'jotai';
 import Loader from '../../../Loader';
-// import AnimatedHeader from '../AnimatedHeader';
 import { Dimensions } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { aicAtom, emailAtom } from '../../../../context/RestaurantWorkProvider';
 
 const { width, height } = Dimensions.get('window');
 
@@ -60,10 +61,12 @@ export default function HospitalityRestaurantWorkMyShift ({ navigation }) {
     {label: '500 per page', value: '500'},
     {label: '1000 per page', value: '1000'},
   ];
+  const [aic, setAic] = useAtom(aicAtom);
+  const [email, setEmail] = useAtom(emailAtom);
   
   const getData = async () => {
     setLoading(true);
-    let data = await MyShift('jobs', 'Clinician');
+    let data = await RestaurantWorkShifts('restaurant/jobs', { aic: aic, email: email });
     if(!data) {
       setData(['No Data'])
     } else {

@@ -5,6 +5,7 @@ import { useAtom } from 'jotai';
 import { firstNameAtom as clinicalFirstNameAtom } from '../context/ClinicalAuthProvider';
 import { firstNameAtom as adminFirstNameAtom } from '../context/AdminAuthProvider';
 import { firstNameAtom as facilityFirstNameAtom } from '../context/FacilityAuthProvider';
+import { firstNameAtom as restaurantWorkFirstNameAtom } from '../context/RestaurantWorkProvider';
 import { RFValue } from "react-native-responsive-fontsize";
 import { Dimensions } from 'react-native';
 
@@ -16,8 +17,9 @@ export default function SubNavbar({name, navigation}) {
   if (name === "ClientSignIn") userRole = 'clinical';
   else if (name === "AdminLogin") userRole = 'admin';
   else if (name === "FacilityLogin") userRole = 'facilities';
+  else if (name === "RestaurantWorkLogin") userRole = 'restaurantWork';
 
-  const [firstName, setFirstName] = useAtom(userRole === 'clinical' ? clinicalFirstNameAtom : userRole === 'admin' ? adminFirstNameAtom : facilityFirstNameAtom);
+  const [firstName, setFirstName] = useAtom(userRole === 'clinical' ? clinicalFirstNameAtom : userRole === 'admin' ? adminFirstNameAtom : userRole === 'facilities' ? facilityFirstNameAtom : restaurantWorkFirstNameAtom);
   const handleNavigate = (navigateUrl) => {
     navigation.navigate(navigateUrl, {userRole: userRole});
   };

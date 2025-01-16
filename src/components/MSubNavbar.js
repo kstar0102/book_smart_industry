@@ -14,6 +14,7 @@ export default function MSubNavbar({name, navigation}) {
   if (name === "Caregiver") userRole = 'clinical';
   else if (name === "Admin") userRole = 'admin';
   else if (name === "Facilities") userRole = 'facilities';
+  else if (name === "RestaurantWork") userRole = 'restaurantWork';
 
   const [firstName, serFistName] = useAtom(firstNameAtom)
   const handleNavigate = (navigateUrl) => {
@@ -34,6 +35,8 @@ export default function MSubNavbar({name, navigation}) {
               handleNavigate('MyHome')
             } else if (name === "Facilities") {
               handleNavigate('FacilityProfile')
+            } else if (name === "RestaurantWork") {
+              handleNavigate('HospitalityRestaurantWorkHome');
             }
           }}
         >
@@ -53,6 +56,8 @@ export default function MSubNavbar({name, navigation}) {
               handleNavigate('EditProfile')
             } else if (name === "Facilities") {
               handleNavigate('FacilityEditProfile')
+            } else if (name === "RestaurantWork") {
+              handleNavigate('HospitalityRestaurantEditProfile');
             }
           }}
         >

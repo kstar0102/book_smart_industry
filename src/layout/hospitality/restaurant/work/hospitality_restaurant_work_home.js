@@ -7,7 +7,7 @@ import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
 import AnimatedHeader from '../../../AnimatedHeader';
-import { firstNameAtom, lastNameAtom, emailAtom, userRoleAtom, caregiverAtom } from '../../../../context/ClinicalAuthProvider';
+import { firstNameAtom, lastNameAtom, emailAtom, userRoleAtom, caregiverAtom } from '../../../../context/RestaurantWorkProvider';
 import { useAtom } from 'jotai';
 import { RFValue } from "react-native-responsive-fontsize";
 import { Dimensions } from 'react-native';
@@ -20,7 +20,7 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
   const [lastName, setLastName] = useAtom(lastNameAtom);
   const [email, setEmail] = useAtom(emailAtom);
   const [userRole, setUserRole] = useAtom(userRoleAtom);
-  const [caregiver, setCaregiver] = useAtom(caregiverAtom);
+
   const handleNavigate = (navigateUrl) => {
     navigation.navigate(navigateUrl);
   };
@@ -35,7 +35,7 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
       <View style={styles.container}>
         <StatusBar translucent backgroundColor="transparent"/>
         <MHeader navigation={navigation} />
-        <SubNavbar navigation={navigation} name={'ClientSignIn'}/>
+        <SubNavbar navigation={navigation} name={'RestaurantWorkLogin'}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <View style={styles.topView}>
             <TouchableOpacity onPress={() => navigation.navigate("HospitalityRestaurantWorkBookShift")}>

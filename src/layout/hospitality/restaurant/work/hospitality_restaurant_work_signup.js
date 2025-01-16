@@ -16,7 +16,7 @@ import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
 import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
-import { getHospitalityTileList, Signup } from '../../../../utils/useApi';
+import { getTitleList, Signup } from '../../../../utils/useApi';
 import images from '../../../../assets/images';
 const { width, height } = Dimensions.get('window');
 
@@ -46,7 +46,6 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     name: ''
   });
   const [signature, setSignature] = useState({content: ''});
-  const [userRole, setuserRole] = useState('Clinician');
   const [showModal, setShowModal] = useState(false);
   const [showCalender, setShowCalendar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,11 +95,11 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
   const [degrees, setDegree] = useState([]);
 
   const getDegree = async () => {
-    const response = await getHospitalityTileList();
+    const response = await getTitleList('Restaurant');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push(item.degreeName);
+        tempArr.push(item.titleName);
       });
       tempArr.unshift('');
       setDegree(tempArr);
@@ -301,6 +300,13 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     }
   };
 
+  const handleInputAddress = (field, value) => {
+    setAddress(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
   const showPswWrongAlert = () => {
     Alert.alert(
       'Warning!',
@@ -368,10 +374,105 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     return true;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (validateInputs()) {
-      console.log('Sign Up successful'); // Replace with API logic
-      Alert.alert('Success', 'You have successfully registered!');
+      setSending(true);
+      const credentials = {
+        firstName,
+        lastName,
+        email,
+        password,
+        phoneNumber,
+        title,
+        birthday,
+        socialSecurityNumber: ssNumber,
+        verifiedSocialSecurityNumber: verifySSNumber,
+        address,
+        photoImage,
+        signature: signature.content
+      };
+
+      const response = await Signup(credentials, 'restau_user');
+      if (!response?.error) {
+        setSending(false);
+        setIsSubmitting(false);
+        Alert.alert(
+          "SignUp Success",
+          "",
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate("HospitalityRestaurantWorkLogin");
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        setSending(false);
+        setIsSubmitting(false);
+        if (response.error.status == 500) {
+          Alert.alert(
+            'Warning!',
+            "Can't register now",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else if (response.error.status == 409) {
+          Alert.alert(
+            'Alert',
+            "The Email is already registered",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else if (response.error.status == 405) {
+          Alert.alert(
+            'Alert',
+            "User not approved",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else {
+          Alert.alert(
+            'Failure!',
+            'Network Error',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        }
+      }
+    } else {
+      setIsSubmitting(false);
+      return;
     }
   };
 
@@ -649,7 +750,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
 
             <View style={[styles.btn, {marginTop: RFValue(20)}]}>
-              <TouchableOpacity onPress={() => {}} style={styles.button}>
+              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
@@ -666,7 +767,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </Text>
           </View>
         </View>
-        
+
         {fileTypeSelectModal && (
           <Modal
             visible={fileTypeSelectModal} // Changed from Visible to visible

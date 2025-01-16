@@ -6,12 +6,14 @@ import MFooter from '../../../../components/Mfooter';
 import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
-import { MyShift, UpdateTime } from '../../../../utils/useApi';
+import { RestaurantWorkShifts, UpdateTime } from '../../../../utils/useApi';
 import { useFocusEffect } from '@react-navigation/native';
 import moment from 'moment';
+import { useAtom } from 'jotai';
 import AnimatedHeader from '../../../AnimatedHeader';
 import Loader from '../../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { aicAtom, emailAtom } from '../../../../context/RestaurantWorkProvider';
 
 const { width, height } = Dimensions.get('window');
 
@@ -24,10 +26,13 @@ export default function HospitalityRestaurantWorkReporting ({ navigation }) {
   const [weeklyPay, setWeeklyPay] = useState({date: '', pay: 0});
   const [times, setTimes] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [aic, setAic] = useAtom(aicAtom);
+  const [email, setEmail] = useAtom(emailAtom);
   
   const getData = async () => {
     setLoading(true);
-    let data = await MyShift('jobs', 'Clinician');
+    let data = await RestaurantWorkShifts('restaurant/jobs', { aic: aic, email: email });
     if (!data) {
       setData(['No Data']);
     } else {
