@@ -22,7 +22,7 @@ import HButton from '../../../../components/Hbutton';
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
 import Loader from '../../../Loader';
-import constStyles from '../../assets/styles';
+import constStyles from '../../../../assets/styles';
 import { Dimensions } from 'react-native';
 import { RFValue } from "react-native-responsive-fontsize";
 
