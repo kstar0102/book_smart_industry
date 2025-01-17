@@ -14,7 +14,7 @@ export default function HospitalityRestaurantDashboard({ navigation }) {
   };
 
   const handleHire = () => {
-    navigation.navigate('HospitalityRestaurantHireLogin');
+    navigation.navigate('HospitalityHotelHireSignIn');
   };
 
   return (

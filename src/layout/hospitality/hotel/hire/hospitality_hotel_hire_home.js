@@ -13,7 +13,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 
 const { width, height } = Dimensions.get('window');
 
-export default function HospitalityRestaurantHireHome ({ navigation }) {
+export default function HospitalityHotelHireHome ({ navigation }) {
   const [firstName, setFirstName] = useAtom(firstNameAtom);
   const [lastName, setLastName] = useAtom(lastNameAtom);
   const [contactPhone, setContactPhone] = useAtom(contactPhoneAtom);
@@ -50,9 +50,9 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
           </View>
           <View style={styles.imageButton}>
             <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityRestaurantHirePostShift')} />
-            <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
-            <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
-            <ImageButton title={"APPROVE TIMESHEETS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
+            <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityHotelHireEditShift')} />
+            <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityHotelHireEditShift')} />
+            <ImageButton title={"APPROVE TIMESHEETS"} onPress={() => handleNavigate('HospitalityHotelHireEditShift')} />
           </View>
           <View style={styles.profile}>
             <View style={styles.profileTitleBg}>
