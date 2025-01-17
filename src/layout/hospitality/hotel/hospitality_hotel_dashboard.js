@@ -10,7 +10,7 @@ import images from '../../../assets/images';
 
 export default function HospitalityHotelDashboard({ navigation }) {
   const handleWork = () => {
-    console.log('Work button pressed'); // Add navigation or functionality as needed
+    navigation.navigate('HospitalityHotelWorkSignIn');
   };
 
   const handleHire = () => {

@@ -155,7 +155,25 @@ const constStyles = StyleSheet.create({
         color: '#0000ff', 
         textDecorationLine: 'underline', 
         fontSize: RFValue(12)
+    },
+
+    signInButtonWrapper : {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: RFValue(10),
+        marginBottom: RFValue(130)
+    },
+
+    signIncheckbox : {
+        width: RFValue(20),
+        height: RFValue(20),
+        borderWidth: RFValue(1),
+        borderColor: '#000',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: RFValue(10),
     }
+
 })
 
 export default constStyles;
