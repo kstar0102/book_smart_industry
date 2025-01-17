@@ -12,7 +12,6 @@ import { aicAtom, firstNameAtom, lastNameAtom } from '../../../../context/Clinic
 import { PostBid, Jobs } from '../../../../utils/useApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
-// import AnimatedHeader from '../AnimatedHeader';
 import Loader from '../../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -26,9 +25,6 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
   const [aic, setAIC] = useAtom(aicAtom);
   const [firstName, setFirstName] = useAtom(firstNameAtom);
   const [lastName, setLastName] = useAtom(lastNameAtom);
-  const handleNavigate = (navigateUrl) => {
-    navigation.navigate(navigateUrl);
-  };
   const [data, setData] = useState([]);
   const [userInfos, setUserInfo] = useState([]);
   const [detailedInfos, setDetailedInfo] = useState([]);
@@ -38,9 +34,13 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
   const [pageItems, setPageItems] = useState([]);
   const [bidsubmit, setBidsubmit] = useState(false); 
 
+  const handleNavigate = (navigateUrl) => {
+    navigation.navigate(navigateUrl);
+  };
+
   const getData = async () => {
     setGettingData(true);
-    let data = await Jobs({}, 'jobs', 'Clinician');
+    let data = await Jobs({}, 'restaurant/jobs', 'RestaurantWork');
     console.log(data);
     if(data?.error) {
       setGettingData(false);

@@ -389,7 +389,8 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
         verifiedSocialSecurityNumber: verifySSNumber,
         address,
         photoImage,
-        signature: signature.content
+        signature: signature.content,
+        userRole: "restaurantWork"
       };
 
       const response = await Signup(credentials, 'restau_user');
