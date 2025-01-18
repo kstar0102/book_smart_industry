@@ -12,7 +12,7 @@ export default function FileViewer({ navigation, route }) {
 
     const getData = async () => {
         setLoading(true);
-        let result = await getTimesheet({ jobId });
+        let result = await getTimesheet({ jobId }, 'jobs');
 
         if (!result?.error) {
             const fetchedFileInfo = result;

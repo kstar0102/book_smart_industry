@@ -8,7 +8,7 @@ import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
 import { useAtom } from 'jotai';
-import { aicAtom, firstNameAtom, lastNameAtom } from '../../../../context/ClinicalAuthProvider';
+import { aicAtom, firstNameAtom, lastNameAtom } from '../../../../context/RestaurantWorkProvider';
 import { PostBid, Jobs } from '../../../../utils/useApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
@@ -243,7 +243,7 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
             translucent backgroundColor="transparent"
         />
         <MHeader navigation={navigation} back={true} />
-        <SubNavbar navigation={navigation} name={'ClientSignIn'} />
+        <SubNavbar navigation={navigation} name={'HospitalityRestaurantWorkLogin'} />
         <ScrollView style={{width: '100%', marginTop: height * 0.22}}
           showsVerticalScrollIndicator={false}
         >

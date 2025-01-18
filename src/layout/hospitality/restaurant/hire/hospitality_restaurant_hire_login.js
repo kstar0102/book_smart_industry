@@ -1,34 +1,196 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 import images from '../../../../assets/images';
 import { Dimensions } from 'react-native';
-const { width, height } = Dimensions.get('window');
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
 import constStyles from '../../../../assets/styles';
 import HButton from '../../../../components/Hbutton';
+import { useAtom } from 'jotai';
+import { aicAtom, firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, entryDateAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom, passwordAtom } from '../../../../context/RestaurantHireProvider'
+import { Signin } from '../../../../utils/useApi';
+
+const { width, height } = Dimensions.get('window');
+
 export default function HospitalityRestaurantHireLogin({ navigation }) {
-  const [device, setDevice] = useState('');
   const [loginEmail, setLoginEmail] =  useState('');
   const [loginPW, setLoginPW] = useState('');
   const [checked, setChecked] = useState(false);
   const [request, setRequest] = useState(false);
 
+  const [firstName, setFirstName] = useAtom(firstNameAtom);
+  const [lastName, setLastName] = useAtom(lastNameAtom);
+  const [companyName, setCompanyName] = useAtom(companyNameAtom);
+  const [contactPhone, setContactPhone] = useAtom(contactPhoneAtom);
+  const [contactPassword, setContactPassword] = useAtom(contactPasswordAtom);
+  const [entryDate, setEntryDate] = useAtom(entryDateAtom);
+  const [contactEmail, setContactEmail] = useAtom(contactEmailAtom);
+  const [avatar, setAvatar] = useAtom(avatarAtom);
+  const [userRole, setUserRole]= useAtom(userRoleAtom);
+  const [address, setAddress]= useAtom(addressAtom);
+  const [password, setPassword] = useAtom(passwordAtom);
+  const [aic, setAIC] = useAtom(aicAtom);
+
+  useEffect(() => {
+    const getCredentials = async() => {
+      const emails = (await AsyncStorage.getItem('restaurantHireEmail')) || '';
+      const password = (await AsyncStorage.getItem('restaurantHirePSW')) || '';
+      setLoginEmail(emails);
+      setLoginPW(password);
+    }
+    getCredentials();
+  }, []);
 
   const handleToggle = async () => {
     setChecked(!checked);
   };
 
-  const handleSignUp = () => {
+  const handleSignUpNavigate = () => {
     navigation.navigate('HospitalityRestaurantHireSignUp');
   };
 
-  const handleSignIn = () => {
+  const handleSignInNavigate = () => {
     navigation.navigate('HospitalityRestaurantHireHome');
   };
+
+  const handleSignIn = async () => {
+    if (loginEmail == "") {
+      Alert.alert(
+        'Warning!',
+        "Please enter your email",
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed')
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+
+    if (loginPW == "") {
+      Alert.alert(
+        'Warning!',
+        "Please enter password",
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed')
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+
+    try {
+      setRequest(true);
+      const response = await Signin({ contactEmail: loginEmail, password: loginPW, userRole: 'restaurantManager' }, 'restau_manager');
+      if (response?.user) {
+        setRequest(false);
+        setAIC(response?.user.aic);
+        setFirstName(response?.user.firstName);
+        setLastName(response?.user.lastName);
+        setContactEmail(response?.user.contactEmail);
+        setContactPassword(response?.user.contactPassword);
+        setContactPhone(response?.user.contactPhone);
+        setEntryDate(response?.user.entryDate);
+        setCompanyName(response?.user.companyName);
+        setAddress(response?.user.address);
+        setAvatar(response?.user.avatar);
+        setUserRole(response?.user.userRole);
+        setPassword(response?.user.password);
+
+        await AsyncStorage.setItem('restaurantHirePhoneNumber', response?.user.contactPhone);
+
+        if (checked) {
+          await AsyncStorage.setItem('restaurantHireEmail', loginEmail);
+          await AsyncStorage.setItem('restaurantHirePSW', loginPW);
+        }
+
+        // if (response.user.clinicalAcknowledgeTerm) {
+        //   if (response.phoneAuth) {
+        //     handleSignInNavigate('ClientPhone');
+        //   } else {
+        //     handleSignInNavigate('MyHome');
+        //   }
+        // } else {
+        //   handleSignInNavigate('ClientPermission');
+        // }
+        navigation.navigate('HospitalityRestaurantHireHome');
+      } else {
+        setRequest(false);
+        if (response.error.status == 401) {
+          Alert.alert(
+            'Failed!',
+            "Sign in informaation is incorrect.",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed')
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else if (response.error.status == 402) {
+          Alert.alert(
+            'Failed!',
+            "You are not approved! Please wait.",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed')
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else {
+          Alert.alert(
+            'Failed!',
+            "User Not Found! Please Register First.",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed')
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        }
+      }
+    } catch (error) {
+      setRequest(false);
+      console.log('SignIn failed: ', JSON.stringify(error))
+      Alert.alert(
+        'Failed!',
+        "Network Error",
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed')
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -108,7 +270,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
               <Text style={constStyles.loginMiddleText}>Need an account?</Text>
               <View style = {{marginTop : RFValue(5)}}/>
 
-              <TouchableOpacity onPress={handleSignUp} style={styles.button}>
+              <TouchableOpacity onPress={handleSignUpNavigate} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}

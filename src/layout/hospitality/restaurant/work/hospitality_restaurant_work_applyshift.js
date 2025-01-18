@@ -16,6 +16,7 @@ export default function HospitalityRestaurantWorkApplyShift ({ navigation, route
     const [content, setContent] = useState('');
     const [bidsubmit, setBidsubmit] = useState(false); 
     const { modalData, aic, firstName, lastName } = route.params;
+    console.log(modalData, aic, firstName, lastName);
 
     const handleBack = () => {
         navigation.navigate("HospitalityRestaurantWorkBookShift");
@@ -25,7 +26,7 @@ export default function HospitalityRestaurantWorkApplyShift ({ navigation, route
         setBidsubmit(true);
         const bidData = { jobId: id[0].content, message: content, caregiver: `${firstName} ${lastName}`, caregiverId: aic }
         console.log(bidData);
-        let response = await PostBid(bidData, 'bids');
+        let response = await PostBid(bidData, 'restaurant/bids');
     
         if (!response?.error) {
             setBidsubmit(false);
@@ -61,7 +62,7 @@ export default function HospitalityRestaurantWorkApplyShift ({ navigation, route
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent"/>
             <MHeader navigation={navigation} back={true} />
-            <SubNavbar navigation={navigation} name={'ClientSignIn'}/>
+            <SubNavbar navigation={navigation} name={'HospitalityRestaurantWorkLogin'}/>
             <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
                 <View style={styles.body}>
                     <TouchableOpacity style={[styles.backBtn, { width: '100%' }]} onPress={handleBack}>

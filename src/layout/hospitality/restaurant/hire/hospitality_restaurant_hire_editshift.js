@@ -11,7 +11,7 @@ import SubNavbar from '../../../../components/SubNavbar';
 import AnimatedHeader from '../../../AnimatedHeader';
 import Loader from '../../../Loader';
 import { Dropdown } from 'react-native-element-dropdown';
-import { addDegreeItem, addLocationItem, getDegreeList, getLocationList, getTimesheet, Job, Jobs, PostJob, RemoveJos, setAwarded, updateJobRatings, updateJobTSVerify } from '../../../../utils/useApi';
+import { addDegreeItem, addLocationItem, addTitle, getDegreeList, getLocationList, getTimesheet, getTitleList, Job, Jobs, PostJob, removeJob, setAwarded, updateJobRatings, updateJobTSVerify } from '../../../../utils/useApi';
 import { useFocusEffect } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
 import Pdf from 'react-native-pdf';
@@ -148,7 +148,8 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
 
   const getData = async (requestData = { search: search, page: curPage }) => {
     setLoading(true);
-    let result = await Jobs(requestData, 'jobs', 'Facilities');
+    let result = await Jobs(requestData, 'restaurant/jobs', 'RestaurantHire');
+    console.log(result);
     if(result.error) {
       setData(['No Data']);
       setTableData([]);
@@ -169,11 +170,11 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
   };
 
   const getDegree = async () => {
-    const response = await getDegreeList('degree');
+    const response = await getTitleList('Restaurant');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
+        tempArr.push({ label: item.titleName, value: item.titleName });
       });
       tempArr.unshift({ label: 'Select...', value: 'Select...' });
       setDegreeList(tempArr);
@@ -227,7 +228,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
   const handleUpdate = async () => {
     toggleJobStatusModal();
     setLoading(true);
-    let results = await PostJob({ jobId: selectedJobId, jobStatus: selectedJobStatus }, 'jobs');
+    let results = await PostJob({ jobId: selectedJobId, jobStatus: selectedJobStatus }, 'restaurant/jobs');
     if (!results?.error) {
       console.log('success');
       Alert.alert(
@@ -265,7 +266,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
   };
 
   const handleRemove = async (id) => {
-    let results = await RemoveJos({ jobId: id }, 'jobs');
+    let results = await removeJob({ jobId: id }, 'restaurant/jobs');
     if (!results?.error) {
       console.log('success');
       getData();
@@ -304,7 +305,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
   };
 
   const handleChangeRatings = async () => {
-    let results = await updateJobRatings({ jobId: curJobId, rating: curRatings }, 'jobs');
+    let results = await updateJobRatings({ jobId: curJobId, rating: curRatings }, 'restaurant/jobs');
     if (!results?.error) {
       console.log('success');
       setIsRatingModal(false);
@@ -313,13 +314,13 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
       console.log('failure', results.error);
     }
   };
-
+ 
   const handleAddDegree = async () => {
-    let response = await addDegreeItem({ item: degreeItem }, 'degree');
+    let response = await addTitle({ item: degreeItem, type: "Restaurant" });
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
+        tempArr.push({ label: item.titleName, value: item.titleName });
       });
       tempArr.unshift({ label: 'Select...', value: 'Select...' });
       setDegree(tempArr);
@@ -354,7 +355,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
 
   const handleShowJobDetailModal = async (id) => {
     setLoading(true);
-    let data = await Job({ jobId: id }, 'jobs');
+    let data = await Job({ jobId: id }, 'restaurant/jobs');
     console.log(data);
     if(data?.error) {
       setSelectedJob(null);
@@ -375,7 +376,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
   const handleShowJobTSVerifyModal = async (id) => {
     setLoading(true);
     console.log(id);
-    let data = await Job({ jobId: id }, 'jobs');
+    let data = await Job({ jobId: id }, 'restaurant/jobs');
     console.log(data ? 'true' : 'false');
     if(!data) {
       setLoading(false);
@@ -412,7 +413,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
 
   const handleChangeAwardStatus = async (bidderId, jobId) => {
     setIsaward(true);
-    const response = await setAwarded({ jobId: jobId, bidderId: bidderId, status: awardedStatus }, 'jobs');
+    const response = await setAwarded({ jobId: jobId, bidderId: bidderId, status: awardedStatus }, 'restaurant/jobs');
     console.log(JSON.stringify(response));
     if (!response?.error) {
       setIsaward(false);
@@ -436,7 +437,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
 
   const handleChangeJobTSVerify = async () => {
     setLoading(true);
-    const response = await updateJobTSVerify({ jobId: curJobId, status: tsVerifyStatus, file: timeSheetFile }, 'jobs');
+    const response = await updateJobTSVerify({ jobId: curJobId, status: tsVerifyStatus, file: timeSheetFile }, 'restaurant/jobs');
     if (!response?.error) {
       getData();
       setLoading(false);
@@ -467,7 +468,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
 
   const handleJobEditSubmit = async () => {
     const formattedDate = `${String(shiftDate.getMonth() + 1).padStart(2, '0')}/${String(shiftDate.getDate()).padStart(2, '0')}/${shiftDate.getFullYear()}`;
-    let response = await PostJob({ jobId: selectedJob?.jobId, shiftDate: formattedDate, shiftTime: shiftTime, jobNum: jobNum, degree: degree, location: location, payRate: payRate, bonus: bonus, jobRating: jobRating }, 'jobs');
+    let response = await PostJob({ jobId: selectedJob?.jobId, shiftDate: formattedDate, shiftTime: shiftTime, jobNum: jobNum, degree: degree, location: location, payRate: payRate, bonus: bonus, jobRating: jobRating }, 'restaurant/jobs');
     toggleJobEditModal();
     getData();
   };
@@ -735,7 +736,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
   const handleShowFileModal = async () => {
     toggleJobTSVerifyModal();
     setLoading(true);
-    let result = await getTimesheet({ jobId: curJobId });
+    let result = await getTimesheet({ jobId: curJobId }, 'restaurant/jobs');
     console.log(result.type, result.name);
     if (!result?.error) {
       const fetchedFileInfo = result;
@@ -1030,14 +1031,14 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <SubNavbar navigation={navigation} name={"FacilityLogin"} />
+      <SubNavbar navigation={navigation} name={"HospitalityRestaurantHireLogin"} />
       <ScrollView style={{ width: '100%', marginTop: height * 0.22 }}>
         <View style={styles.topView}>
           <AnimatedHeader title="COMPANY JOBS / SHIFTS" />
           <View style={styles.bottomBar} />
         </View>
         <View style={{ marginTop: RFValue(30), flexDirection: 'row', width: '90%', marginLeft: '5%', gap: 10, flexWrap: 'wrap' }}>
-          <TouchableOpacity style={[styles.subBtn, {}]} onPress={() => navigation.navigate('AddJobShift')}>
+          <TouchableOpacity style={[styles.subBtn, {}]} onPress={() => navigation.navigate('HospitalityRestaurantHirePostShift')}>
             <View style={{ backgroundColor: 'white', borderRadius: RFValue(10), width: RFValue(16), height: RFValue(16), justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
               <Text style={{ fontWeight: 'bold', color: '#194f69', textAlign: 'center', marginTop: 0, lineHeight: RFValue(16) }}>+</Text>
             </View>
@@ -1046,9 +1047,9 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.subBtn, {}]} onPress={() => {
-            navigation.navigate('FacilityProfile')
+            navigation.navigate('HospitalityRestaurantHireHome')
           }}>
-            <Text style={[styles.profileTitle, { fontSize: RFValue(14) }]}>🏚️ Facilities Home</Text>
+            <Text style={[styles.profileTitle, { fontSize: RFValue(14) }]}>🏚️ Hire Home</Text>
           </TouchableOpacity>
         </View>
 

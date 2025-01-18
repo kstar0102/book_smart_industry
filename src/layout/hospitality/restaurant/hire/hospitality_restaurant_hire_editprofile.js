@@ -8,7 +8,7 @@ import MFooter from '../../../../components/Mfooter';
 import { Update } from '../../../../utils/useApi';
 import MSubNavbar from '../../../../components/MSubNavbar';
 import Loader from '../../../Loader';
-import { firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom } from '../../../../context/FacilityAuthProvider'
+import { firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom } from '../../../../context/RestaurantHireProvider'
 import { useAtom } from 'jotai';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -280,7 +280,7 @@ export default function HospitalityRestaurantHireEditProfile({ navigation }) {
     } else {
       try {
         setLoading(true);
-        const response = await Update(credentials, "facilities");
+        const response = await Update(credentials, "restau_manager");
         setFirstName(response.user.firstName);
         setLastName(response.user.lastName);
         setContactEmail(response.user.contactEmail);
@@ -289,7 +289,7 @@ export default function HospitalityRestaurantHireEditProfile({ navigation }) {
         setAddress(response.user.address);
         setAvatar(response.user.avatar);
         setLoading(false);
-        navigation.navigate('FacilityProfile');
+        navigation.navigate('HospitalityRestaurantHireHome');
       } catch (error) {
         setLoading(false);
         console.error('Signup failed: ', error)
@@ -305,7 +305,7 @@ export default function HospitalityRestaurantHireEditProfile({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <MSubNavbar navigation={navigation} name={"Facilities"} />
+      <MSubNavbar navigation={navigation} name={"HospitalityRestaurantHireLogin"} />
       <ScrollView style = {styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.authInfo}>
@@ -314,7 +314,7 @@ export default function HospitalityRestaurantHireEditProfile({ navigation }) {
                 <TextInput
                   style={[styles.input, {width: '100%'}]}
                   placeholder="Last"
-                  onChangeText={e => handleCredentials('lastName', e)}
+                  onChangeText={e => handleCredentials('companyName', e)}
                   value={credentials.companyName || ''}
                 />
             </View>

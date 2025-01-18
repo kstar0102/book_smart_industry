@@ -8,19 +8,25 @@ import {
   ScrollView,
   Alert,
   Modal,
+  StatusBar,
   Animated,
   Easing,
+  Image
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
-import HButton from '../../../../components/Hbutton';
 import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import Loader from '../../../Loader';
 import { useFocusEffect } from '@react-navigation/native';
+import images from '../../../../assets/images';
+import { Signup } from '../../../../utils/useApi';
+import DocumentPicker from 'react-native-document-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs'
 
 const { width, height } = Dimensions.get('window');
 
@@ -57,7 +63,6 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
     }, [])
   );
 
-  //--------------------------------------------Credentials-----------------------------
   const [credentials, setCredentials] = useState({
     companyName: '',
     firstName: '',
@@ -79,7 +84,7 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
     },
     confirmPassword: '',
     signature: '',
-    userRole: 'Facilities'
+    userRole: 'restaurantManager'
   });
 
   const handleCredentials = (target, e) => {
@@ -117,10 +122,144 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
     return true;
   };
 
-  const handleSubmit = () => {
-    if (validateInputs()) {
-      console.log('Sign Up successful'); // Replace with API logic
-      Alert.alert('Success', 'You have successfully registered!');
+  const validation = () => {
+    // Create an array of checks for each required field with corresponding error messages
+    const fieldChecks = [
+      { field: credentials.companyName, message: 'Company Name is required' },
+      { field: credentials.contactEmail, message: 'Contact Email is required' },
+      { field: credentials.firstName, message: 'First Name is required' },
+      { field: credentials.lastName, message: 'Last Name is required' },
+      { field: credentials.contactPhone, message: 'Contact Phone is required' },
+      { field: credentials.password, message: 'Password is required' },
+      { field: credentials.confirmPassword, message: 'Password is required' },
+      { field: credentials.address?.street, message: 'Street Address is required' },
+      { field: credentials.address?.city, message: 'City is required' },
+      { field: credentials.address?.state, message: 'State is required' },
+      { field: credentials.address?.zip, message: 'ZIP code is required' },
+    ];
+  
+    // Iterate over the field checks and show an alert for the first empty field
+    for (const check of fieldChecks) {
+      if (!check.field || check.field === '') {
+        Alert.alert(
+          'Validation Error',
+          check.message,
+          [{ text: 'OK', onPress: () => console.log(`${check.message} alert acknowledged`) }],
+          { cancelable: false }
+        );
+        return false; // Return false if any field is invalid
+      }
+    }
+
+    if (credentials.password !== credentials.confirmPassword) {
+      showPswWrongAlert();
+      return false;
+    }
+  
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    console.log('submit');
+    console.log(isSubmitting);
+    console.log(validation());
+    if (isSubmitting) {
+      return;
+    }
+
+    if (!validation()) {
+      setIsSubmitting(false);
+      return;
+    } else {
+      setIsSubmitting(true);
+
+      try {
+        setSending(true);
+        const response = await Signup(credentials, "restau_manager");
+
+        if (!response?.error) {
+          setSending(false);
+          navigation.navigate('HospitalityRestaurantHireSignUp');
+        } else {
+          setIsSubmitting(false);
+          setSending(false);
+
+          if (response.error.status == 500) {
+            Alert.alert(
+              'Warning!',
+              "Can't register now",
+              [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    console.log('OK pressed');
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+          } else if (response.error.status == 409) {
+            Alert.alert(
+              'Alert',
+              "The Email is already registered",
+              [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    console.log('OK pressed');
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+          } else if (response.error.status == 405) {
+            Alert.alert(
+              'Alert',
+              "User not approved",
+              [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    console.log('OK pressed');
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+          } else {
+            Alert.alert(
+              'Failure!',
+              'Network Error',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => {
+                    console.log('OK pressed');
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+          }
+        }
+      } catch (error) {
+        setIsSubmitting(false);
+        setSending(false);
+        console.error('Signup failed: ', error);
+        Alert.alert(
+          'Failure!',
+          'Network Error',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                console.log('OK pressed');
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      }
     }
   };
 
@@ -497,7 +636,7 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
             </View>
 
             <View style={[styles.btn, { marginTop: 20 }]}>
-              <TouchableOpacity onPress={() => {}} style={styles.button}>
+              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
@@ -556,7 +695,7 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
           </Modal>
         )}
       </ScrollView>
-      {sending && <Loader />}
+      <Loader visible={sending} />
       <MFooter />
     </View>
   );

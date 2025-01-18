@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Alert, Animated, Easing, StyleSheet, View, Text, ScrollView, TouchableOpacity, Modal, StatusBar, Image } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
 import images from '../../assets/images';
 import HButton from '../../components/Hbutton';

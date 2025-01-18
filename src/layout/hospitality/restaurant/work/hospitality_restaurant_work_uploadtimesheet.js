@@ -313,7 +313,7 @@ export default function HospitalityRestaurantWorkUploadTimesheet ({ navigation, 
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" />
             <MHeader navigation={navigation} back={true} />
-            <SubNavbar navigation={navigation} name={'ClientSignIn'}/>
+            <SubNavbar navigation={navigation} name={'HospitalityRestaurantWorkLogin'}/>
             <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false} >
                 <View style={styles.modal}>
                     <View style= {{width: '100%', marginTop: RFValue(20), paddingHorizontal : RFValue(50)}}>

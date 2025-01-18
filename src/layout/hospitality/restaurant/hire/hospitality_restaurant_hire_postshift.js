@@ -11,8 +11,8 @@ import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
 import images from '../../../../assets/images';
 import SubNavbar from '../../../../components/SubNavbar';
-import { addDegreeItem, addLocationItem, getDegreeList, getLocationList, PostJob } from '../../../../utils/useApi';
-import { companyNameAtom, facilityIdAtom } from '../../../../context/FacilityAuthProvider'
+import { addTitle, addLocationItem, getTitleList, getLocationList, PostJob } from '../../../../utils/useApi';
+import { companyNameAtom, aicAtom } from '../../../../context/RestaurantHireProvider'
 import Loader from '../../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -20,7 +20,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function HospitalityRestaurantHirePostShift({ navigation }) {
   const [facility, setFacility] = useAtom(companyNameAtom);
-  const [facilityId, setFacilityId] = useAtom(facilityIdAtom);
+  const [facilityId, setFacilityId] = useAtom(aicAtom);
   const [degree, setDegree] = useState([])
   const [degreeValue, setDegreeValue] = useState(null);
   const [isDegreeFocus, setIsDegreeFocus] = useState(false);
@@ -179,11 +179,11 @@ export default function HospitalityRestaurantHirePostShift({ navigation }) {
   ]);
 
   const getDegree = async () => {
-    const response = await getDegreeList('degree');
+    const response = await getTitleList('Restaurant');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
+        tempArr.push({ label: item.titleName, value: item.titleName });
       });
       tempArr.unshift({ label: 'Select...', value: 'Select...' });
       setDegree(tempArr);
@@ -265,10 +265,10 @@ export default function HospitalityRestaurantHirePostShift({ navigation }) {
       showAlerts('Shift Date');
     } else {
       try {
-        const response = await PostJob(credentials, 'jobs');
+        const response = await PostJob(credentials, 'restaurant/jobs');
         console.log(response);
         setloading(false);
-        navigation.navigate('CompanyShift');
+        navigation.navigate('HospitalityRestaurantHireHome');
       } catch (error) {
         setloading(false);
         console.error('Job Shift failed: ', error)
@@ -277,11 +277,11 @@ export default function HospitalityRestaurantHirePostShift({ navigation }) {
   };
 
   const handleAddDegree = async () => {
-    let response = await addDegreeItem({ item: degreeItem }, 'degree');
+    let response = await addTitle({ item: degreeItem, type: "Restaurant" });
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
+        tempArr.push({ label: item.titleName, value: item.titleName });
       });
       tempArr.unshift({ label: 'Select...', value: 'Select...' });
       setDegree(tempArr);
@@ -312,7 +312,7 @@ export default function HospitalityRestaurantHirePostShift({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <SubNavbar navigation={navigation} name={"FacilityLogin"} />
+      <SubNavbar navigation={navigation} name={"HospitalityRestaurantHireLogin"} />
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style= {{width: '100%',  marginTop: 20, paddingHorizontal: RFValue(20)}}>

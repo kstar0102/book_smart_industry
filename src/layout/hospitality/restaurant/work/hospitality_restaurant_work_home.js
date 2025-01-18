@@ -35,7 +35,7 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
       <View style={styles.container}>
         <StatusBar translucent backgroundColor="transparent"/>
         <MHeader navigation={navigation} />
-        <SubNavbar navigation={navigation} name={'RestaurantWorkLogin'}/>
+        <SubNavbar navigation={navigation} name={'HospitalityRestaurantWorkLogin'}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <View style={styles.topView}>
             <TouchableOpacity onPress={() => navigation.navigate("HospitalityRestaurantWorkBookShift")}>

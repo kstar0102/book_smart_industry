@@ -734,7 +734,7 @@ export default function CompanyShift({ navigation }) {
   const handleShowFileModal = async () => {
     toggleJobTSVerifyModal();
     setLoading(true);
-    let result = await getTimesheet({ jobId: curJobId });
+    let result = await getTimesheet({ jobId: curJobId }, 'jobs');
     console.log(result.type, result.name);
     if (!result?.error) {
       const fetchedFileInfo = result;

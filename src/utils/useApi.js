@@ -14,7 +14,6 @@ export const Signup = async (userData, endpoint) => {
 export const Signin = async (credentials, endpoint) => {
   try {
     const response = await axios.post(`api/${endpoint}/login`, credentials);
-    console.log(response.data);
     if (response.data.token) {
       await AsyncStorage.setItem('token', response.data.token);
     }
@@ -218,6 +217,15 @@ export const getTitleList = async (type) => {
   try {
     const response = await axios.get(`api/title/getTitles?type=${type}`);
     console.log(response.data);
+    return response.data;
+  } catch (error) {
+    return {error: error}
+  }
+}
+
+export const addTitle = async (data) => {
+  try {
+    const response = await axios.post(`api/title/addTitle`, data);
     return response.data;
   } catch (error) {
     return {error: error}
@@ -732,10 +740,10 @@ export const getClientInfoWithJobId = async (data, endpoint) => {
   }
 };
 
-export const getTimesheet = async (data) => {
+export const getTimesheet = async (data, endpoint) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
-    const response = await axios.post(`api/jobs/getTimesheet`, data, {
+    const response = await axios.post(`api/${endpoint}/getTimesheet`, data, {
       headers: {
         Authorization: `Bearer ${existingToken}`
       }

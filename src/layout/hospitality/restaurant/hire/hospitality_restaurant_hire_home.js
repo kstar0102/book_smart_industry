@@ -7,7 +7,7 @@ import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
 import { useAtom } from 'jotai';
-import { firstNameAtom, lastNameAtom, contactPhoneAtom, contactEmailAtom, avatarAtom } from '../../../../context/FacilityAuthProvider'
+import { firstNameAtom, lastNameAtom, contactPhoneAtom, contactEmailAtom, avatarAtom } from '../../../../context/RestaurantHireProvider'
 import { RFValue } from 'react-native-responsive-fontsize';
 
 
@@ -38,7 +38,7 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
       <View style={styles.container}>
         <StatusBar translucent backgroundColor="transparent"/>
         <MHeader navigation={navigation} />
-        <SubNavbar navigation={navigation} name={"HospitalityHotelHireSignIn"}/>
+        <SubNavbar navigation={navigation} name={"HospitalityRestaurantHireLogin"}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <View style={styles.topView}>
             <Image
