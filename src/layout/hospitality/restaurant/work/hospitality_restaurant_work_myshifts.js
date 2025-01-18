@@ -67,6 +67,7 @@ export default function HospitalityRestaurantWorkMyShift ({ navigation }) {
   const getData = async () => {
     setLoading(true);
     let data = await RestaurantWorkShifts('restaurant/jobs', { aic: aic, email: email });
+    console.log(aic, email);
     if(!data) {
       setData(['No Data'])
     } else {
@@ -165,7 +166,7 @@ export default function HospitalityRestaurantWorkMyShift ({ navigation }) {
     setUpload(!isUpload);
     const data = {jobId: submitData.jobId, timeSheet: submitData.timeSheet};
     if (submitData.timeSheet?.name != '') {
-      const response = await updateTimeSheet(data, 'jobs');
+      const response = await updateTimeSheet(data, 'restaurant/jobs');
       setLoading(false);
       if (!response?.error) {
         getData();
@@ -550,12 +551,6 @@ export default function HospitalityRestaurantWorkMyShift ({ navigation }) {
   };
 
   const itemsToShow = getItemsForPage(currentPage);
-
-  // if (downloading || isSubmitted) {
-  //   return (
-  //     <Loader />
-  //   );
-  // }
 
   return (
       <View style={styles.container}>
