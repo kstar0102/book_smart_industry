@@ -26,7 +26,7 @@ export default function HospitalityRestaurantWorkForgot ({ navigation }) {
   }
 
   const handleSubmit = async () => {
-    const response = await ForgotPassword(credentials, 'facilities');
+    const response = await ForgotPassword(credentials, 'restau_user');
 
     if (!response.error) {
       console.log('success');
