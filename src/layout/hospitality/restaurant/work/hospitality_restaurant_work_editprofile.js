@@ -33,62 +33,6 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
   const [title, setTitle] = useState('');
   const [birthdays, setBirthdays] = useState(new Date());
   const [socialSecurityNumber, setSocialSecurityNumber] = useState('');
-  // const [driverLicense, setDriverLicense] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // }); 
-  // const [socialCard, setSocialCard] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // });
-  // const [physicalExam, setPhysicalExam] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // }); 
-  // const [ppd, setPPD] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // });
-  // const [mmr, setMMR] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // }); 
-  // const [healthcareLicense, setHealthcareLicense] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // });
-  // const [resume, setResume] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // }); 
-  // const [covidCard, setCovidCard] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // });
-  // const [bls, setBls] = useState({
-  //   content: '',
-  //   type: '',
-  //   name: ''
-  // });
-
-  // const [isSendDL, setIsSendDL] = useState(false);
-  // const [isSendSC, setIsSendSC] = useState(false);
-  // const [isSendPE, setIsSendPE] = useState(false);
-  // const [isSendPPD, setIsSendPPD] = useState(false);
-  // const [isSendMMR, setIsSendMMR] = useState(false);
-  // const [isSendHL, setIsSendHL] = useState(false);
-  // const [isSendResume, setIsSendResume] = useState(false);
-  // const [isSendCC, setIsSendCC] = useState(false);
-  // const [isSendBLS, setIsSendBLS] = useState(false);
-
   const [sfileType, setFiletype] = useState('');
   const [fileTypeSelectModal, setFiletypeSelectModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -191,6 +135,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
   //     getData();
   //   }, [])
   // );
+  
   useEffect(() => {
     getData();
     getDegree();
@@ -288,7 +233,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
     } else {
       setDegree([]);
     }
-  }
+  };
 
   const handleCredentials = (target, e) => {
     if (target !== "streetAddress" && target !== "streetAddress2" && target !== "city" && target !== "state" && target !== "zip") {
@@ -337,7 +282,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
   const [showCalender, setShowCalendar] = useState(false);
   const handleDayChange = (target, day) => {
     handleCredentials(target, day);
-  }
+  };
 
   //-------------------------------------------File Upload----------------------------
   const toggleFileTypeSelectModal = () => {
@@ -606,7 +551,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
         console.error('Update failed: ', error)
       }
     }
-  }
+  };
 
   const handleRemove = (name) => {
     if (name == "driverLicense") {
@@ -863,278 +808,6 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
             <View style={styles.bottomBar}/>
           </View>
           <View style={styles.authInfo}>
-            {/* <View style={styles.profileTitleBg}>
-              <Text style={styles.profileTitle}>MY DOCUMENTS</Text>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> Driver's License</Text>
-              {driverLicense.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                  onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'driverLicense' })}
-                >{driverLicense.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('driverLicense')}
-                >remove</Text>
-              </View>}
-
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('driverLicense')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={driverLicense.name || ''}
-                />
-              </View>
-              <View>
-                {isSendDL && <TouchableOpacity title="Select File" onPress={() => handleSendFile('driverLicense')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> Social Security Card</Text>
-              {socialCard.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                  onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'socialCard' })}
-                >{socialCard.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('socialCard')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('socialCard')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={socialCard.name || ''}
-                />
-              </View>
-              <View>
-                {isSendSC && <TouchableOpacity title="Select File" onPress={() => handleSendFile('socialCard')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> Physical Exam</Text>
-              {physicalExam.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'physicalExam' })}
-                >{physicalExam.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('physicalExam')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('physicalExam')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={physicalExam.name || ''}
-                />
-              </View>
-              <View>
-                {isSendPE && <TouchableOpacity title="Select File" onPress={() => handleSendFile('physicalExam')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> PPD (TB Test)</Text>
-              {ppd.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'ppd' })}
-                >{ppd.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('ppd')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('ppd')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={ppd.name || ''}
-                />
-              </View>
-              <View>
-                {isSendPPD && <TouchableOpacity title="Select File" onPress={() => handleSendFile('ppd')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> MMR (Immunizations)</Text>
-              {mmr.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'mmr' })}
-                >{mmr.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('mmr')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('mmr')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={mmr.name || ''}
-                />
-              </View>
-              <View>
-                {isSendMMR && <TouchableOpacity title="Select File" onPress={() => handleSendFile('mmr')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> Healthcare License</Text>
-              {healthcareLicense.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'healthcareLicense' })}
-                >{healthcareLicense.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('healthcareLicense')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('healthcareLicense')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={healthcareLicense.name || ''}
-                />
-              </View>
-              <View>
-                {isSendHL && <TouchableOpacity title="Select File" onPress={() => handleSendFile('healthcareLicense')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> Resume</Text>
-              {resume.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'resume' })}
-                >{resume.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('resume')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('resume')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={resume.name || ''}
-                />
-              </View>
-              <View>
-                {isSendResume && <TouchableOpacity title="Select File" onPress={() => handleSendFile('resume')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> COVID Card</Text>
-              {covidCard.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'covidCard' })}
-                >{covidCard.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('covidCard')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('covidCard')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={covidCard.name || ''}
-                />
-              </View>
-              <View>
-                {isSendCC && <TouchableOpacity title="Select File" onPress={() => handleSendFile('covidCard')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-            </View>
-            <View>
-              <Text style={constStyles.loginSubTitle}> BLS(CPR card)</Text>
-              {bls.name !== "" &&<View style={{marginBottom: 10}}>
-                <Text style={constStyles.profileChoosenText}
-                onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'bls' })}
-                >{bls.name} &nbsp;&nbsp;</Text>
-                <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('bls')}
-                >remove</Text>
-              </View>}
-              
-              <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('bls')} style={styles.chooseFile}>
-                  <Text style={constStyles.profileChooseButton}>Choose File</Text>
-                </TouchableOpacity>
-                <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
-                  placeholder=""
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  value={bls.name || ''}
-                />
-              </View>
-              <View>
-                {isSendBLS && <TouchableOpacity title="Select File" onPress={() => handleSendFile('bls')} style={styles.saveFile}>
-                  <Text style={constStyles.saveFileBtn}>Save</Text>
-                </TouchableOpacity>}
-              </View>
-              <Text style={[constStyles.signUpSubtitle, {lineHeight:30}]}> W - 9 {'\n'}
-                Standard State Criminal{'\n'}
-                Drug Test{'\n'}
-                Hep B (shot or declination){'\n'}
-                Flu (shot or declination){'\n'}
-                CHRC 102 Form{'\n'}
-                CHRC 103 Form{'\n'}
-              </Text>
-            </View> */}
             <Text style={{textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 20 }}
               onPress={handleBack}
             >

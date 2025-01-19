@@ -25,7 +25,7 @@ export default function HospitalityHotelWorkApplyShift ({ navigation, route }) {
         setBidsubmit(true);
         const bidData = { jobId: id[0].content, message: content, caregiver: `${firstName} ${lastName}`, caregiverId: aic }
         console.log(bidData);
-        let response = await PostBid(bidData, 'bids');
+        let response = await PostBid(bidData, 'hotel/bids');
     
         if (!response?.error) {
             setBidsubmit(false);

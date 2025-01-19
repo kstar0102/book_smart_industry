@@ -27,7 +27,7 @@ export default function HospitalityHotelWorkReporting ({ navigation }) {
   
   const getData = async () => {
     setLoading(true);
-    let data = await MyShift('jobs', 'Clinician');
+    let data = await MyShift('hotel/jobs', 'Clinician');
     if (!data) {
       setData(['No Data']);
     } else {
@@ -35,7 +35,6 @@ export default function HospitalityHotelWorkReporting ({ navigation }) {
       let transformedData = [];
       const monthGroups = {};
       const extractVerifiedJobs = data.reportData.filter(job => job.shiftStatus === "Verified");
-      console.log(extractVerifiedJobs);
       setClocks(extractVerifiedJobs)
       
       transformedData = data.reportData.map(({ entryDate, jobId, shiftStatus, unit, shiftDateAndTimes }, index) => ({ key: index, entryDate, jobId, jobStatus: shiftStatus, unit, shiftDateAndTimes }));

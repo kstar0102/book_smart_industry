@@ -89,7 +89,7 @@ import HospitalityRestaurantHireEditShift from './hospitality/restaurant/hire/ho
 import HospitalityRestaurantHireEditProfile from './hospitality/restaurant/hire/hospitality_restaurant_hire_editprofile.js';
 import HospitalityRestaurantHireForgot from './hospitality/restaurant/hire/hospitality_restaurant_hire_forgot.js';
 
-import HospitalityHotelWorkSignIn from './hospitality/hotel/work/hospitality_hotel_work_login.js';
+import HospitalityHotelWorkSignIn from './hospitality/hotel/work/hospitality_hotel_work_signin.js';
 import HospitalityHotelWorkSignUp from './hospitality/hotel/work/hospitality_hotel_work_signup.js';
 import HospitalityHotelWorkHome from './hospitality/hotel/work/hospitality_hotel_work_home.js';
 import HospitalityHotelWorkProfile from './hospitality/hotel/work/hospitality_hotel_work_profile.js';

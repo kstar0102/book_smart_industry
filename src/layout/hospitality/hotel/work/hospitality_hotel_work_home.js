@@ -11,7 +11,7 @@ import {
     firstNameAtom, 
     lastNameAtom, 
     emailAtom, 
-    userRoleAtom} from '../../../../context/ClinicalAuthProvider';
+    userRoleAtom} from '../../../../context/HotelWorkProvider';
 import { RFValue } from "react-native-responsive-fontsize";
 import { Dimensions } from 'react-native';
 import AnimatedHeader from '../../../AnimatedHeader';
@@ -39,7 +39,7 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
       <View style={styles.container}>
         <StatusBar translucent backgroundColor="transparent"/>
         <MHeader navigation={navigation} />
-        <SubNavbar navigation={navigation} name={'ClientSignIn'}/>
+        <SubNavbar navigation={navigation} name={'HospitalityHotelWorkSignIn'}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <View style={styles.topView}>
             {/* <Image

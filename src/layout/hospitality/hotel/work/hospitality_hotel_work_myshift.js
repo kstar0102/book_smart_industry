@@ -63,7 +63,8 @@ export default function HospitalityHotelWorkMyShift ({ navigation }) {
   
   const getData = async () => {
     setLoading(true);
-    let data = await MyShift('jobs', 'Clinician');
+    let data = await MyShift('hotel/jobs', 'hotelWorker');
+    console.log(data);
     if(!data) {
       setData(['No Data'])
     } else {
@@ -162,7 +163,7 @@ export default function HospitalityHotelWorkMyShift ({ navigation }) {
     setUpload(!isUpload);
     const data = {jobId: submitData.jobId, timeSheet: submitData.timeSheet};
     if (submitData.timeSheet?.name != '') {
-      const response = await updateTimeSheet(data, 'jobs');
+      const response = await updateTimeSheet(data, 'hotel/jobs');
       setLoading(false);
       if (!response?.error) {
         getData();
@@ -547,12 +548,6 @@ export default function HospitalityHotelWorkMyShift ({ navigation }) {
   };
 
   const itemsToShow = getItemsForPage(currentPage);
-
-  // if (downloading || isSubmitted) {
-  //   return (
-  //     <Loader />
-  //   );
-  // }
 
   return (
       <View style={styles.container}>

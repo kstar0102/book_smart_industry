@@ -8,7 +8,7 @@ import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
 import { useAtom } from 'jotai';
-import { aicAtom, firstNameAtom, lastNameAtom } from '../../../../context/ClinicalAuthProvider';
+import { aicAtom, firstNameAtom, lastNameAtom } from '../../../../context/HotelWorkProvider';
 import { PostBid, Jobs } from '../../../../utils/useApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
@@ -39,7 +39,7 @@ export default function HospitalityHotelWorkBookShift ({ navigation }) {
 
   const getData = async () => {
     setGettingData(true);
-    let data = await Jobs({}, 'jobs', 'Clinician');
+    let data = await Jobs({}, 'hotel/jobs', 'HotelWork');
     console.log(data);
     if(data?.error) {
       setGettingData(false);
@@ -126,9 +126,8 @@ export default function HospitalityHotelWorkBookShift ({ navigation }) {
   }
 
   const [modalData, setModalData] = useState([]);
+
   const handleEdit = (id) => {
-    console.log('handleEdit--->', id);
-    console.log(detailedInfos[id])
     setModalData(filteredDetailData[id]);
     navigation.navigate("HospitalityHotelWorkApplyShift", { modalData: filteredDetailData[id], firstName: firstName, lastName: lastName, aic: aic }); 
   };
@@ -138,7 +137,7 @@ export default function HospitalityHotelWorkBookShift ({ navigation }) {
   const handleSubmit = async (id) => {
     setBidsubmit(true);
     const bidData = { jobId: id[0].content, message: content, caregiver: `${firstName} ${lastName}`, caregiverId: aic }
-    let response = await PostBid(bidData, 'bids');
+    let response = await PostBid(bidData, 'hotel/bids');
 
     if (!response?.error) {
       setBidsubmit(false);
@@ -238,18 +237,10 @@ export default function HospitalityHotelWorkBookShift ({ navigation }) {
 
   return (
       <View style={styles.container}>
-        <StatusBar 
-            translucent backgroundColor="transparent"
-        />
+        <StatusBar translucent backgroundColor="transparent" />
         <MHeader navigation={navigation} back={true} />
         <SubNavbar navigation={navigation} name={'HospitalityHotelWorkSignIn'} />
-        <ScrollView style={{width: '100%', marginTop: height * 0.22}}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* <View style={styles.topView}>
-            <AnimatedHeader title="JOB / SHIFT LISTINGS" />
-            <View style={styles.bottomBar}/>
-          </View> */}
+        <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <Text style={styles.text}>View and Apply for Shifts below, once applied the Facility will be notified, and if <Text style={{fontWeight: 'bold'}}>&nbsp;"AWARDED"&nbsp;</Text> the shift will appear on your <Text style={{fontWeight: 'bold'}}>&nbsp;"MY SHIFTS TAB"&nbsp;</Text>.</Text>
           <View style={styles.imageButton}>
             <ImageButton title={"My Home"} onPress={() => handleNavigate('HospitalityHotelWorkHome')} />

@@ -1,25 +1,26 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Alert, Animated, Easing, StyleSheet, Pressable, View, Text, ScrollView, TouchableOpacity, Modal, StatusBar, Button, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Alert, Animated, Easing, StyleSheet, Pressable, View, Text, ScrollView, TouchableOpacity, Modal, StatusBar, Button, Image 
+} from 'react-native';
 import { TextInput } from 'react-native-paper';
 import SignatureCapture from 'react-native-signature-capture';
 import DatePicker from 'react-native-date-picker';
-import HButton from '../../../../components/Hbutton';
-import MHeader from '../../../../components/Mheader';
-import MFooter from '../../../../components/Mfooter';
-import { getDegreeList, Signup } from '../../../../utils/useApi';
-import images from '../../../../assets/images';
 import Loader from '../../../Loader';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs'
-import AnimatedHeader from '../../../AnimatedHeader';
+import LinearGradient from 'react-native-linear-gradient';
+import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
-import { RFValue } from "react-native-responsive-fontsize";
+import MHeader from '../../../../components/Mheader';
+import MFooter from '../../../../components/Mfooter';
+import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
-
+import { getTitleList, Signup } from '../../../../utils/useApi';
+import images from '../../../../assets/images';
 const { width, height } = Dimensions.get('window');
 
-export default function HospitalityHotelWorkSignUp({ navigation }) {
+export default function HospitalityRestaurantWorkSignup({ navigation }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -45,12 +46,12 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
     name: ''
   });
   const [signature, setSignature] = useState({content: ''});
-  const [userRole, setuserRole] = useState('Clinician');
   const [showModal, setShowModal] = useState(false);
   const [showCalender, setShowCalendar] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
   const [sending, setSending] = useState(false);
+
   useEffect(() => {
     const isBirthdayValid = birthday instanceof Date && !isNaN(birthday.getTime());
     const areRequiredFieldsFilled =
@@ -64,15 +65,15 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
       password.trim() !== '' &&
       confirmPassword.trim() !== '' &&
       signature.content.trim() !== '' &&
-      isBirthdayValid; // Check if signature content exists
-
-    setIsButtonEnabled(areRequiredFieldsFilled); // Enable button if required fields are filled
+      isBirthdayValid;
+    setIsButtonEnabled(areRequiredFieldsFilled);
   }, [firstName, lastName, email, phoneNumber, title, birthday,
       ssNumber, verifySSNumber, password, confirmPassword, signature]);
   
   let signatureRef = useRef(null);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     const increaseAnimation = Animated.timing(fadeAnim, {
       toValue: 1,
@@ -92,13 +93,15 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
 
     Animated.loop(sequenceAnimation).start();
   }, [fadeAnim]);
+
   const [degrees, setDegree] = useState([]);
+
   const getDegree = async () => {
-    const response = await getDegreeList('degree');
+    const response = await getTitleList('Hotel');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push(item.degreeName);
+        tempArr.push(item.titleName);
       });
       tempArr.unshift('');
       setDegree(tempArr);
@@ -106,7 +109,7 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
       setDegree([]);
     }
   }
-
+  
   useEffect(() => {
     getDegree();
   }, []);
@@ -299,6 +302,13 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
     }
   };
 
+  const handleInputAddress = (field, value) => {
+    setAddress(prevState => ({
+      ...prevState,
+      [field]: value,
+    }));
+  };
+
   const showPswWrongAlert = () => {
     Alert.alert(
       'Warning!',
@@ -318,18 +328,6 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
   const onSaveEvent = (result) => {
     setSignature((prev) => ({...prev, content: result.encoded}));
   };
-
-  // const getSignature = () => {
-  //   if (signatureRef.current) {
-  //     signatureRef.current.saveImage();
-  //   }
-  // };
-
-  // const resetSignature = () => {
-  //   if (signatureRef.current) {
-  //     signatureRef.current.resetImage();
-  //   }
-  // };
   
   const formatPhoneNumber = (input) => {
     const cleaned = input.replace(/\D/g, '');
@@ -356,123 +354,30 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
     setPhoneNumber(formattedNumber);
   };
 
-  const handleBack = () => {
-    navigation.navigate('HospitalityHotelWorkSignIn');
+  const handleHospitalityHome = () => {
+    navigation.navigate('HospitalityHotelDashboard');
   };
 
-  const showWrongAlerts = () => {
-    Alert.alert(
-      'Warning!',
-      `You have to input all gaps!`,
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            console.log('OK pressed')
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
+  // const titles = ['Chef', 'Line Cook', 'Dishwasher', 'Host / Hostess'];
 
-  const successAlerts = () => {
-    Alert.alert(
-      "SignUp Success",
-      "",
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.navigate("ClientFinishSignup");
-          },
-        },
-      ],
-      { cancelable: false }
-    )
-  };
-
-  const handleInputAddress = (field, value) => {
-    setAddress(prevState => ({
-      ...prevState,
-      [field]: value,
-    }));
-  };
-
-  const handlePreSubmit = () => {
-    handleSubmit();
-    if (!isSubmitting) {
-      // setIsSubmitting(true);
-      // getSignature();
-      // setTimeout(() => {
-      //   handleSubmit();
-      // }, 2000);
-    }
-  };
-
-  const validation = () => {
-    // Create an array of checks for each field with corresponding error messages
-    const fieldChecks = [
-      { field: email, message: 'Email is required' },
-      { field: firstName, message: 'First name is required' },
-      { field: lastName, message: 'Last name is required' },
-      { field: phoneNumber, message: 'Phone number is required' },
-      { field: title, message: 'Title is required' },
-      { field: birthday, message: 'Birthday is required' },
-      { field: ssNumber, message: 'Social Security Number is required' },
-      { field: verifySSNumber, message: 'Verify Social Security Number is required' },
-      { field: address.streetAddress, message: 'Street address is required' },
-      { field: address.city, message: 'City is required' },
-      { field: address.state, message: 'State is required' },
-      { field: address.zip, message: 'ZIP code is required' },
-      { field: password, message: 'Password is required' },
-    ];
-  
-    // Check each field; if one is empty, show the corresponding alert and return false
-    for (const check of fieldChecks) {
-      if (check.field === '') {
-        Alert.alert(
-          'Warning!',
-          check.message,
-          [{ text: 'OK', onPress: () => console.log(`${check.message} alert acknowledged`) }],
-          { cancelable: false }
-        );
-        return false; // Return false if any validation fails
-      }
-    }
-  
-    // Check if password and confirmPassword match
-    if (password !== confirmPassword) {
-      showPswWrongAlert();
+  const validateInputs = () => {
+    if (!firstName || !lastName) {
+      Alert.alert('Validation Error', 'First and Last Name are required.');
       return false;
     }
-
-    if (signature.content === '') {
-      Alert.alert(
-        'Warning!',
-        "signature required",
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              console.log('OK pressed');
-            },
-          },
-        ],
-        { cancelable: false }
-      );
+    if (!email) {
+      Alert.alert('Validation Error', 'Email is required.');
       return false;
     }
-  
-    return true; // Return true if all fields are valid
+    if (!password || password !== confirmPassword) {
+      Alert.alert('Validation Error', 'Passwords do not match.');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async () => {
-    if (!validation()) {
-      setIsSubmitting(false); // Validation failed, stop submission
-      return;
-    }
-    try {
+    if (validateInputs()) {
       setSending(true);
       const credentials = {
         firstName,
@@ -487,15 +392,26 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
         address,
         photoImage,
         signature: signature.content,
-        userRole,
+        userRole: "hotelWorker"
       };
 
-      const response = await Signup(credentials, 'clinical');
-
+      const response = await Signup(credentials, 'hotel_user');
       if (!response?.error) {
         setSending(false);
-        successAlerts();
         setIsSubmitting(false);
+        Alert.alert(
+          "SignUp Success",
+          "",
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate("HospitalityHotelWorkSignIn");
+              },
+            },
+          ],
+          { cancelable: false }
+        );
       } else {
         setSending(false);
         setIsSubmitting(false);
@@ -557,25 +473,11 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
           );
         }
       }
-    } catch (error) {
-      setSending(false);
+    } else {
       setIsSubmitting(false);
-      console.error('Signup failed: ', error);
-      Alert.alert(
-        'Failure!',
-        'Network Error',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              console.log('OK pressed');
-            },
-          },
-        ],
-        { cancelable: false }
-      );
+      return;
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -802,7 +704,8 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
               <View style={{flexDirection: 'row'}}>
                 <Text style={{
                   backgroundColor: 'yellow', 
-                  marginBottom: RFValue(10), 
+                  marginBottom: RFValue(10),
+                  marginTop: RFValue(10), 
                   fontSize: RFValue(15), 
                   fontWeight: 'bold', 
                   color: 'black'}}> 
@@ -815,7 +718,7 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
                 autoCapitalize="none"
                 secureTextEntry={true}
                 style={[constStyles.signUpinput, {width: '100%'}]}
-                placeholder=""
+                placeholder="Password"
                 onChangeText={e => setPassword(e)}
                 value={password || ''}
               />
@@ -824,7 +727,7 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
                 autoCapitalize="none"
                 secureTextEntry={true}
                 style={[constStyles.signUpinput, {width: '100%'}]}
-                placeholder=""
+                placeholder="Confirm Password"
                 onChangeText={e => setConfirmPassword(e)}
                 value={confirmPassword || ''}
               />
@@ -850,19 +753,24 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
             </View>
 
             <View style={[styles.btn, {marginTop: RFValue(20)}]}>
-              <HButton style={styles.subBtn} 
-                onPress={ handlePreSubmit }>
-                Submit
-              </HButton>
+              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                <LinearGradient
+                  colors={['#A1E9F1', '#B980EC']}
+                  style={styles.gradientButton}
+                >
+                  <Text style={styles.buttonText}>Submit</Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
 
             <Text style={{textDecorationLine: 'underline', color: '#2a53c1', fontSize: RFValue(14), marginBottom: 20}}
-              onPress={handleBack}
+              onPress={handleHospitalityHome}
             >
               Back to 🏚️ Hospitality Home
             </Text>
           </View>
         </View>
+
         {fileTypeSelectModal && (
           <Modal
             visible={fileTypeSelectModal} // Changed from Visible to visible
@@ -911,267 +819,275 @@ export default function HospitalityHotelWorkSignUp({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    button: {
-        borderRadius: 10,
-        backgroundColor: 'red',
-        padding: 20,
-    },
-    container: {
-        marginBottom: 0,
-        backgroundColor: 'rgba(155, 155, 155, 0.61)'
-    },
-    scroll: {
-        marginTop: height * 0.15,
-    },
-    backTitle: {
-        backgroundColor: 'black',
-        width: '90%',
-        height: 55,
-        marginLeft: '5%',
-        position: 'absolute',
-        marginTop: 10,
-        borderRadius: 10
-    },
-    title: {
-        fontSize: 18,
-        color: 'white',
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginTop: 10,
-        marginLeft: '5%',
-        padding: 15,
-        width: '90%',
-        backgroundColor: 'transparent'
-    },
-    smalltitle:{
-        color: 'black', 
-        paddingLeft: 5, 
-        fontSize: RFValue(13)
-    },
-    textStyle: {
-        color: 'black'
-    },
-    marker: {
-        width: 5,
-        height: 5,
-        borderRadius: 5,
-        backgroundColor: 'white',
-        borderColor: 'black',
-        borderWidth: 1,
-        marginRight: 10,
-        marginTop: 17
-    },
-    
-    modal: {
-        width: '90%',
-        borderRadius: 10,
-        marginBottom: 100,
-        margin: '5%',
-        borderWidth: 1,
-        borderColor: 'grey',
-        overflow: 'hidden',
-        shadowColor: 'black', // Shadow color
-        shadowOffset: { width: 0, height: 10 }, // Shadow offset
-        shadowOpacity: 0.1, // Shadow opacity
-        shadowRadius: 3, // Shadow radius
-        elevation: 0, // Elevation for Android devices
-        backgroundColor: '#ffffffa8',
-    },
-    intro: {
-        marginTop: 30,
-        paddingHorizontal: 20
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalsContainer: {
-        paddingTop: 30,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    viewContainer: {
-        backgroundColor: '#f2f2f2',
-        borderRadius: 30,
-        elevation: 5,
-        width: '90%',
-        marginLeft: '5%',
-        flexDirection: 'flex-start',
-        borderWidth: 3,
-        borderColor: '#7bf4f4',
-        marginBottom: 100
-    },
-    modalBody: {
-        backgroundColor: '#e3f2f1',
-        borderRadius: 10,
-        borderColor: '#c6c5c5',
-        borderWidth: 2,
-        paddingHorizontal: 20,
-        paddingVertical: 20
-    },
-    calendarContainer: {
-        backgroundColor: 'white',
-        borderRadius: 5,
-        elevation: 5,
-        width: '60%',
-        height: '30%',
-        marginLeft: '20',
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        padding: 20
-    },
-    
-    subject: {
-        padding: RFValue(5),
-        backgroundColor: '#77f9ff9c',
-        borderRadius: 2,
-        borderColor: 'black',
-        width: width * 0.65,
-        color: 'black',
-        fontWeight: 'bold',
-        marginTop: RFValue(20),
-        fontSize: RFValue(14),
-        borderRadius: RFValue(5),
-        textAlign: 'center'
-    },
-    mark: {
-        width: '70%',
-        height: 75,
-        marginLeft: '15%',
-    },
-    homepage: {
-        width: '45%',
-        height: 130,
-        marginTop: 10,
-        marginLeft: '25%',
-    },
-    
-    middleText: {
-        fontSize: 16,
-        margin: 0,
-        lineHeight: 16,
-        color: 'black'
-    },
-    authInfo: {
-        marginLeft: 20,
-        marginRight: 20,
+  button: {
+    width : "70%",
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
 
-    },
-    buttonWrapper: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        gap: 10,
-        marginBottom: 130
-    },
-    btn: {flexDirection: 'column',
-        gap: 20,
-        marginBottom: 30,
-    },
-    subBtn: {
-        padding: RFValue(10),
-        backgroundColor: '#A020F0',
-        color: 'white',
-        fontSize: RFValue(16),
-    },
-    drinksButton: {
-        fontSize: 18,
-        padding: 15,
-        borderWidth: 3,
-        borderColor: 'white',
+  gradientButton: {
+    height: RFValue(40), // Adjust the button height here
+    paddingVertical: 0, // Remove padding to maintain consistent height
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5, // For shadow on Android
+  },
+  container: {
+    marginBottom: 0,
+    backgroundColor: 'rgba(155, 155, 155, 0.61)'
+  },
+  scroll: {
+    marginTop: height * 0.15,
+  },
+  backTitle: {
+    backgroundColor: 'black',
+    width: '90%',
+    height: 55,
+    marginLeft: '5%',
+    position: 'absolute',
+    marginTop: 10,
+    borderRadius: 10
+  },
+  title: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 10,
+    marginLeft: '5%',
+    padding: 15,
+    width: '90%',
+    backgroundColor: 'transparent'
+  },
+  smalltitle:{
+    color: 'black', 
+    paddingLeft: 5, 
+    fontSize: RFValue(13)
+  },
+  textStyle: {
+    color: 'black'
+  },
+  marker: {
+    width: 5,
+    height: 5,
+    borderRadius: 5,
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 1,
+    marginRight: 10,
+    marginTop: 17
+  },
+  
+  modal: {
+    width: '90%',
+    borderRadius: 10,
+    marginBottom: 100,
+    margin: '5%',
+    borderWidth: 1,
+    borderColor: 'grey',
+    overflow: 'hidden',
+    shadowColor: 'black', // Shadow color
+    shadowOffset: { width: 0, height: 10 }, // Shadow offset
+    shadowOpacity: 0.1, // Shadow opacity
+    shadowRadius: 3, // Shadow radius
+    elevation: 0, // Elevation for Android devices
+    backgroundColor: '#ffffffa8',
+  },
+  intro: {
+    marginTop: 30,
+    paddingHorizontal: 20
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalsContainer: {
+    paddingTop: 30,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  viewContainer: {
+    backgroundColor: '#f2f2f2',
+    borderRadius: 30,
+    elevation: 5,
+    width: '90%',
+    marginLeft: '5%',
+    flexDirection: 'flex-start',
+    borderWidth: 3,
+    borderColor: '#7bf4f4',
+    marginBottom: 100
+  },
+  modalBody: {
+    backgroundColor: '#e3f2f1',
+    borderRadius: 10,
+    borderColor: '#c6c5c5',
+    borderWidth: 2,
+    paddingHorizontal: 20,
+    paddingVertical: 20
+  },
+  calendarContainer: {
+    backgroundColor: 'white',
+    borderRadius: 5,
+    elevation: 5,
+    width: '60%',
+    height: '30%',
+    marginLeft: '20',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    padding: 20
+  },
+  
+  subject: {
+    padding: RFValue(5),
+    backgroundColor: '#77f9ff9c',
+    borderRadius: 2,
+    borderColor: 'black',
+    width: width * 0.65,
+    color: 'black',
+    fontWeight: 'bold',
+    marginTop: RFValue(20),
+    fontSize: RFValue(14),
+    borderRadius: RFValue(5),
+    textAlign: 'center'
+  },
+  mark: {
+    width: '70%',
+    height: 75,
+    marginLeft: '15%',
+  },
+  homepage: {
+    width: '45%',
+    height: 130,
+    marginTop: 10,
+    marginLeft: '25%',
+  },
+  
+  middleText: {
+    fontSize: 16,
+    margin: 0,
+    lineHeight: 16,
+    color: 'black'
+  },
+  authInfo: {
+    marginLeft: 20,
+    marginRight: 20,
 
-    },
-    checkbox: {
-        width: 20,
-        height: 20,
-        borderWidth: 1,
-        borderColor: '#000000',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 10,
-    },
-    checkmark: {
-        color: '#000',
-    },
-    signature: {
-        flex: 1,
-        width: '100%',
-        height: 150,
-    },
-    chooseFile: {
-        width: '40%', 
-        height: 30, 
-        flexDirection: 'row', 
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f0f0f0',
-        borderWidth: 1,
-        borderColor: 'black'
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    calendarContainer: {
-        backgroundColor: 'white',
-        borderRadius: 5,
-        elevation: 5,
-        width: '60%',
-        height: '30%',
-        marginLeft: '20',
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        padding: 20
-    },
-    cameraContain: {
-            flex: 1,
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            flexDirection: 'row'
-        },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 10,
-        height: '20%',
-        padding: 20,
-        borderBottomColor: '#c4c4c4',
-        borderBottomWidth: 1,
-    },
-    headerText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: 'black'
-    },
-    closeButton: {
-        color: 'red',
-    },
-    body: {
-        marginTop: 10,
-        paddingHorizontal:20,
-    },
-    pressBtn:{
-        top: 0,
-        right: 0,
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        paddingRight: 10
-    },
-    btnSheet: {
-        height: RFValue(80),
-        width: RFValue(80),
-        justifyContent: "center",
-        alignItems: "center",
-        borderRadius: 10,
-        shadowOpacity: 0.5,
-        shadowRadius: 10,
-        margin: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 3, height: 3 },
-        marginVertical: 14, padding: 5,
-    },
+  },
+  buttonWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 130
+  },
+  btn: {flexDirection: 'column',
+    gap: 20,
+    marginBottom: 30,
+  },
+  subBtn: {
+    padding: RFValue(10),
+    backgroundColor: '#A020F0',
+    color: 'white',
+    fontSize: RFValue(16),
+  },
+  drinksButton: {
+    fontSize: 18,
+    padding: 15,
+    borderWidth: 3,
+    borderColor: 'white',
+
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: '#000000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  checkmark: {
+    color: '#000',
+  },
+  signature: {
+    flex: 1,
+    width: '100%',
+    height: 150,
+  },
+  chooseFile: {
+    width: '40%', 
+    height: 30, 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
+    borderWidth: 1,
+    borderColor: 'black'
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  calendarContainer: {
+    backgroundColor: 'white',
+    borderRadius: 5,
+    elevation: 5,
+    width: '60%',
+    height: '30%',
+    marginLeft: '20',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    padding: 20
+  },
+  cameraContain: {
+		flex: 1,
+		alignItems: 'flex-start',
+		justifyContent: 'center',
+		flexDirection: 'row'
+	},
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    height: '20%',
+    padding: 20,
+    borderBottomColor: '#c4c4c4',
+    borderBottomWidth: 1,
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black'
+  },
+  closeButton: {
+    color: 'red',
+  },
+  body: {
+    marginTop: 10,
+    paddingHorizontal:20,
+  },
+  pressBtn:{
+    top: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingRight: 10
+  },
+  btnSheet: {
+    height: RFValue(80),
+    width: RFValue(80),
+		justifyContent: "center",
+		alignItems: "center",
+		borderRadius: 10,
+		shadowOpacity: 0.5,
+		shadowRadius: 10,
+		margin: 5,
+		shadowColor: '#000',
+		shadowOffset: { width: 3, height: 3 },
+		marginVertical: 14, padding: 5,
+	},
 });
-
