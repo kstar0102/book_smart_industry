@@ -7,7 +7,7 @@ import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
 import { useAtom } from 'jotai';
-import { firstNameAtom, lastNameAtom, contactPhoneAtom, contactEmailAtom, avatarAtom } from '../../../../context/FacilityAuthProvider'
+import { firstNameAtom, lastNameAtom, contactPhoneAtom, contactEmailAtom, avatarAtom } from '../../../../context/HotelHireProvider'
 import { RFValue } from 'react-native-responsive-fontsize';
 
 
@@ -31,7 +31,7 @@ export default function HospitalityHotelHireHome ({ navigation }) {
   ];
 
   const handleEdit = () => {
-    navigation.navigate('HospitalityRestaurantHireEditProfile');
+    navigation.navigate('HospitalityHotelHireProfile');
   };
 
   return (
@@ -49,7 +49,7 @@ export default function HospitalityHotelHireHome ({ navigation }) {
             <View style={styles.bottomBar}/>
           </View>
           <View style={styles.imageButton}>
-            <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityRestaurantHirePostShift')} />
+            <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityHotelHirePostShift')} />
             <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityHotelHireEditShift')} />
             <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityHotelHireEditShift')} />
             <ImageButton title={"APPROVE TIMESHEETS"} onPress={() => handleNavigate('HospitalityHotelHireEditShift')} />

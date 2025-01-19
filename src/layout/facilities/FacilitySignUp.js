@@ -265,32 +265,6 @@ export default function FacilitySignUp({ navigation }) {
   };
 
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  //Alert
-  const showAlert = () => {
-    Alert.alert(
-      'Warning!',
-      "The Password doesn't matched. Please try again.",
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            setConfirmPassword('');
-            console.log('OK pressed')
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  const handlePassword = () => {
-    if (credentials.password !== confirmPassword ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
  
   //------------------------------------------Phone Input----------------
   const formatPhoneNumber = (input) => {

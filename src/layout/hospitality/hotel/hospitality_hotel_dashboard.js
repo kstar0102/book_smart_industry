@@ -14,7 +14,7 @@ export default function HospitalityHotelDashboard({ navigation }) {
   };
 
   const handleHire = () => {
-    console.log('Hire button pressed'); // Add navigation or functionality as needed
+    navigation.navigate('HospitalityHotelHireSignIn');
   };
 
   return (

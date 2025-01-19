@@ -10,17 +10,23 @@ import {
   Modal,
   Animated,
   Easing,
+  StatusBar,
+  Image
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
-import HButton from '../../../../components/Hbutton';
 import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import Loader from '../../../Loader';
 import { useFocusEffect } from '@react-navigation/native';
+import DocumentPicker from 'react-native-document-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs'
+import { Signup } from '../../../../utils/useApi';
+import images from '../../../../assets/images';
 
 const { width, height } = Dimensions.get('window');
 
@@ -79,7 +85,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
     },
     confirmPassword: '',
     signature: '',
-    userRole: 'Facilities'
+    userRole: 'hotelManager'
   });
 
   const handleCredentials = (target, e) => {
@@ -92,36 +98,69 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
     } else {
       setCredentials({ ...credentials, address: { ...credentials.address, [target]: e } })
     }
-  }
+  };
+
   const toggleFileTypeSelectModal = () => {
     setFiletypeSelectModal(!fileTypeSelectModal);
   };
+
   // const [title, setTitle] = useState('');
   // const [isModalVisible, setModalVisible] = useState(false);
 
   // const titles = ['Front Desk', 'Housekeeping'];
 
-  const validateInputs = () => {
-    if (!firstName || !lastName) {
-      Alert.alert('Validation Error', 'First and Last Name are required.');
+  const validation = () => {
+    // Create an array of checks for each required field with corresponding error messages
+    const fieldChecks = [
+      { field: credentials.companyName, message: 'Company Name is required' },
+      { field: credentials.contactEmail, message: 'Contact Email is required' },
+      { field: credentials.firstName, message: 'First Name is required' },
+      { field: credentials.lastName, message: 'Last Name is required' },
+      { field: credentials.contactPhone, message: 'Contact Phone is required' },
+      { field: credentials.password, message: 'Password is required' },
+      { field: credentials.confirmPassword, message: 'Password is required' },
+      { field: credentials.address?.street, message: 'Street Address is required' },
+      { field: credentials.address?.city, message: 'City is required' },
+      { field: credentials.address?.state, message: 'State is required' },
+      { field: credentials.address?.zip, message: 'ZIP code is required' },
+    ];
+  
+    // Iterate over the field checks and show an alert for the first empty field
+    for (const check of fieldChecks) {
+      if (!check.field || check.field === '') {
+        Alert.alert(
+          'Validation Error',
+          check.message,
+          [{ text: 'OK', onPress: () => console.log(`${check.message} alert acknowledged`) }],
+          { cancelable: false }
+        );
+        return false; // Return false if any field is invalid
+      }
+    }
+
+    if (credentials.password !== credentials.confirmPassword) {
+      showPswWrongAlert();
       return false;
     }
-    if (!email) {
-      Alert.alert('Validation Error', 'Email is required.');
-      return false;
-    }
-    if (!password || password !== confirmPassword) {
-      Alert.alert('Validation Error', 'Passwords do not match.');
-      return false;
-    }
-    return true;
+  
+    return true; // Return true if all fields are valid
   };
 
-  const handleSubmit = () => {
-    if (validateInputs()) {
-      console.log('Sign Up successful'); // Replace with API logic
-      Alert.alert('Success', 'You have successfully registered!');
-    }
+  const showPswWrongAlert = () => {
+    Alert.alert(
+      'Warning!',
+      "The Password doesn't matched. Please try again.",
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            setPassword('');
+            setConfirmPassword('');
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   const formatPhoneNumber = (input) => {
@@ -323,6 +362,105 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
     }
   };
 
+  const handleSubmit = async () => {
+    if (isSubmitting) {
+      return;
+    }
+    console.log('clicked');
+
+    if (!validation()) {
+      setIsSubmitting(false);
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      setSending(true);
+      const response = await Signup(credentials, "hotel_manager");
+      console.log(response);
+      if (!response?.error) {
+        setSending(false);
+        navigation.navigate('HospitalityHotelHireSignIn');
+      } else {
+        setIsSubmitting(false);
+        setSending(false);
+        if (response.error.status == 500) {
+          Alert.alert(
+            'Warning!',
+            "Can't register now",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else if (response.error.status == 409) {
+          Alert.alert(
+            'Alert',
+            "The Email is already registered",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else if (response.error.status == 405) {
+          Alert.alert(
+            'Alert',
+            "User not approved",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        } else {
+          Alert.alert(
+            'Failure!',
+            'Network Error',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  console.log('OK pressed');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        }
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      setSending(false);
+      console.error('Signup failed: ', error);
+      Alert.alert(
+        'Failure!',
+        'Network Error',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed');
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
       <MHeader navigation={navigation} back={true} />
@@ -497,7 +635,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
             </View>
 
             <View style={[styles.btn, { marginTop: 20 }]}>
-              <TouchableOpacity onPress={() => {}} style={styles.button}>
+              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
@@ -556,7 +694,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
           </Modal>
         )}
       </ScrollView>
-      {sending && <Loader />}
+      <Loader visible={sending} />
       <MFooter />
     </View>
   );

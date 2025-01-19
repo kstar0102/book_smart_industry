@@ -40,7 +40,8 @@ export default function HospitalityRestaurantHireEditProfile({ navigation }) {
     socialSecurityNumber: '123123123',
     address: address,
     avatar: avatar,
-  })
+    userRole: 'restaurantManager'
+  });
 
   const handleCredentials = (target, e) => {
     if (target !== "street" && target !== "street2" && target !== "city" && target !== "state" && target !== "zip") {
@@ -305,7 +306,7 @@ export default function HospitalityRestaurantHireEditProfile({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <MSubNavbar navigation={navigation} name={"HospitalityRestaurantHireLogin"} />
+      <MSubNavbar navigation={navigation} name={"Restaurant"} />
       <ScrollView style = {styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.authInfo}>

@@ -7,6 +7,7 @@ import { firstNameAtom as adminFirstNameAtom } from '../context/AdminAuthProvide
 import { firstNameAtom as facilityFirstNameAtom } from '../context/FacilityAuthProvider';
 import { firstNameAtom as restaurantWorkFirstNameAtom } from '../context/RestaurantWorkProvider';
 import { firstNameAtom as restaurantHireFirstNameAtom } from '../context/RestaurantHireProvider';
+import { firstNameAtom as hotelHireFirstNameAtom } from '../context/HotelHireProvider';
 import { RFValue } from "react-native-responsive-fontsize";
 import { Dimensions } from 'react-native';
 
@@ -20,8 +21,9 @@ export default function SubNavbar({name, navigation}) {
   else if (name === "FacilityLogin") userRole = 'facilities';
   else if (name === "HospitalityRestaurantWorkLogin") userRole = 'restaurantWork';
   else if (name === "HospitalityRestaurantHireLogin") userRole = 'restaurantManager';
+  else if (name === "HospitalityHotelHireSignIn") userRole = 'hotelManager';
 
-  const [firstName, setFirstName] = useAtom(userRole === 'clinical' ? clinicalFirstNameAtom : userRole === 'admin' ? adminFirstNameAtom : userRole === 'facilities' ? facilityFirstNameAtom : userRole === 'restaurantManager' ? restaurantHireFirstNameAtom : restaurantWorkFirstNameAtom);
+  const [firstName, setFirstName] = useAtom(userRole === 'clinical' ? clinicalFirstNameAtom : userRole === 'admin' ? adminFirstNameAtom : userRole === 'facilities' ? facilityFirstNameAtom : userRole === 'restaurantManager' ? restaurantHireFirstNameAtom : userRole === 'hotelManager' ? hotelHireFirstNameAtom : restaurantWorkFirstNameAtom);
   
   const handleNavigate = (navigateUrl) => {
     navigation.navigate(navigateUrl, {userRole: userRole});

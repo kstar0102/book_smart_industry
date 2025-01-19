@@ -8,7 +8,7 @@ import MFooter from '../../../../components/Mfooter';
 import { Update } from '../../../../utils/useApi';
 import MSubNavbar from '../../../../components/MSubNavbar';
 import Loader from '../../../Loader';
-import { firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom } from '../../../../context/FacilityAuthProvider'
+import { firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom } from '../../../../context/HotelHireProvider'
 import { useAtom } from 'jotai';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
@@ -40,7 +40,8 @@ export default function HospitalityHotelHireProfile({ navigation }) {
     socialSecurityNumber: '123123123',
     address: address,
     avatar: avatar,
-  })
+    userRole: 'hotelManager'
+  });
 
   const handleCredentials = (target, e) => {
     if (target !== "street" && target !== "street2" && target !== "city" && target !== "state" && target !== "zip") {
@@ -276,11 +277,12 @@ export default function HospitalityHotelHireProfile({ navigation }) {
     if (credentials.contactEmail === '' || 
       credentials.firstName === '' || 
       credentials.lastName ==='') {
-        showAlerts('all gaps')
+        showAlerts('all gaps');
     } else {
       try {
         setLoading(true);
-        const response = await Update(credentials, "facilities");
+        const response = await Update(credentials, "hotel_manager");
+        console.log(JSON.stringify(response));
         setFirstName(response.user.firstName);
         setLastName(response.user.lastName);
         setContactEmail(response.user.contactEmail);
@@ -289,10 +291,10 @@ export default function HospitalityHotelHireProfile({ navigation }) {
         setAddress(response.user.address);
         setAvatar(response.user.avatar);
         setLoading(false);
-        navigation.navigate('FacilityProfile');
+        navigation.navigate('HospitalityHotelHireHome');
       } catch (error) {
         setLoading(false);
-        console.error('Signup failed: ', error)
+        console.error('Signup failed: ', error);
       }
     }
   }
@@ -305,7 +307,7 @@ export default function HospitalityHotelHireProfile({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <MSubNavbar navigation={navigation} name={"Facilities"} />
+      <MSubNavbar navigation={navigation} name={"Restaurant"} />
       <ScrollView style = {styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.authInfo}>
@@ -314,7 +316,7 @@ export default function HospitalityHotelHireProfile({ navigation }) {
                 <TextInput
                   style={[styles.input, {width: '100%'}]}
                   placeholder="Last"
-                  onChangeText={e => handleCredentials('lastName', e)}
+                  onChangeText={e => handleCredentials('companyName', e)}
                   value={credentials.companyName || ''}
                 />
             </View>
