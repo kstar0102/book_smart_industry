@@ -470,7 +470,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon 2";
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = X45RH92AKG;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BookSmart/Info.plist;
@@ -479,13 +479,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.15;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.book.smart;
+				PRODUCT_BUNDLE_IDENTIFIER = app.book.smartindustry;
 				PRODUCT_NAME = BookSmart;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -500,7 +500,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon 2";
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = X45RH92AKG;
 				INFOPLIST_FILE = BookSmart/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -508,13 +508,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.15;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.book.smart;
+				PRODUCT_BUNDLE_IDENTIFIER = app.book.smartindustry;
 				PRODUCT_NAME = BookSmart;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
