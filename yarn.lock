@@ -1387,7 +1387,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-env@npm:^7.26.0":
+"@babel/preset-env@npm:^7.20.0":
   version: 7.26.0
   resolution: "@babel/preset-env@npm:7.26.0"
   dependencies:
@@ -3069,12 +3069,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"BS Hospitality@workspace:.":
+"BookSmart@workspace:.":
   version: 0.0.0-use.local
-  resolution: "BS Hospitality@workspace:."
+  resolution: "BookSmart@workspace:."
   dependencies:
     "@babel/core": ^7.20.0
-    "@babel/preset-env": ^7.26.0
+    "@babel/preset-env": ^7.20.0
     "@babel/runtime": ^7.25.6
     "@react-native-async-storage/async-storage": ^1.24.0
     "@react-native-community/checkbox": ^0.5.17
