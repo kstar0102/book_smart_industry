@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert, ScrollView, Pressable } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { View, Text, StyleSheet, 
+  TextInput, TouchableOpacity, Image, 
+  Alert, ScrollView, Pressable } from 'react-native';
+// import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../../../Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUniqueId } from 'react-native-device-info';
@@ -11,6 +13,7 @@ import { useFocusEffect } from '@react-navigation/native';
 const { width, height } = Dimensions.get('window');
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
+import HButton from '../../../../components/Hbutton';
 import constStyles from '../../../../assets/styles';
 import { 
   firstNameAtom, 
@@ -275,27 +278,33 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
             </View>
 
             <View style={styles.btn}>
-              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+              {/* <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
                 >
                   <Text style={styles.buttonText}>Sign In</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              <HButton style={constStyles.loginSubBtn} onPress={ handleSubmit }>
+                Sign In
+              </HButton>
              
               <View style = {{marginTop : RFValue(20)}}/>
               <Text style={constStyles.loginMiddleText}>Need an account?</Text>
               <View style = {{marginTop : RFValue(5)}}/>
 
-              <TouchableOpacity onPress={handleSignUpNavigate} style={styles.button}>
+              <HButton style={constStyles.loginSubBtn} onPress={ handleSignUpNavigate }>
+                Sign Up
+              </HButton>
+              {/* <TouchableOpacity onPress={handleSignUpNavigate} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
                 >
                   <Text style={styles.buttonText}>Sign up</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
         </View>

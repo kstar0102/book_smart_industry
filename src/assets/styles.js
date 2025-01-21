@@ -111,9 +111,12 @@ const constStyles = StyleSheet.create({
     signUpinput: {
         backgroundColor: 'white', 
         fontSize: RFValue(14),
-        height: RFValue(30),
+        height: RFValue(35),
         borderWidth: 1, 
         borderColor: 'hsl(0, 0%, 86%)',
+        marginBottom: 0, 
+        paddingVertical: 0,
+        // paddingLeft: 10
     },
 
     signUpsmalltitle:{
@@ -172,7 +175,38 @@ const constStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: RFValue(10),
-    }
+    },
+
+    homeImageStyle: {
+        width: width * 0.65,
+        height: height * 0.25,
+        marginTop: 30,
+        resizeMode: 'cover'
+    },
+
+    dashboardbuttonWrapper: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 15,
+        width: '90%',
+    },
+
+    dashboardbutton: {
+        marginHorizontal: 5,
+        fontSize: RFValue(14),
+    },
+
+    scroll: {
+        marginTop: height * 0.15,
+    },
+
+    dashboardsubheading : {
+        fontSize: RFValue(17),
+        color: 'black',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        margin : RFValue(20)
+    },
 
 })
 

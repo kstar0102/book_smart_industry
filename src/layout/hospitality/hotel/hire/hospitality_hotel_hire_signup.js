@@ -18,6 +18,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
+import HButton from '../../../../components/Hbutton';
 import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import Loader from '../../../Loader';
@@ -474,7 +475,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
               <Text style={constStyles.signUpSubtitle}> Company Name <Text style={{ color: 'red' }}>*</Text> </Text>
               <View style={{ flexDirection: 'row', width: '100%', gap: RFValue(5) }}>
                 <TextInput
-                  style={[constStyles.signUpinput, { width: '100%' }]}
+                  style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
@@ -487,13 +488,13 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
               <Text style={constStyles.signUpSubtitle}> Contact Name <Text style={{ color: 'red' }}>*</Text> </Text>
               <View style={{ flexDirection: 'row', width: '100%', gap: 5 }}>
                 <TextInput
-                  style={[constStyles.signUpinput, { width: '50%' }]}
+                  style={[constStyles.signUpinput, { width: '50%', paddingLeft: RFValue(10) }]}
                   placeholder="First"
                   onChangeText={e => handleCredentials('firstName', e)}
                   value={credentials.firstName || ''}
                 />
                 <TextInput
-                  style={[constStyles.signUpinput, { width: '50%' }]}
+                  style={[constStyles.signUpinput, { width: '50%', paddingLeft: RFValue(10) }]}
                   placeholder="Last"
                   onChangeText={e => handleCredentials('lastName', e)}
                   value={credentials.lastName || ''}
@@ -504,7 +505,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
               <Text style={constStyles.signUpSubtitle}> Contact Email <Text style={{ color: 'red' }}>*</Text> </Text>
               <View style={{ flexDirection: 'row', width: '100%', gap: 5 }}>
                 <TextInput
-                  style={[constStyles.signUpinput, { width: '100%' }]}
+                  style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
@@ -519,10 +520,10 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
               <View style={{ flexDirection: 'row', width: '100%', gap: 5 }}>
                 <TextInput
                   value={credentials.contactPhone}
-                  style={[constStyles.signUpinput, {width: '100%'}]}
+                  style={[constStyles.signUpinput, {width: '100%', paddingLeft: RFValue(10)}]}
                   onChangeText={e => handlePhoneNumberChange(e)}
                   keyboardType="phone-pad"
-                  placeholder=""
+                  placeholder="(___) ___-____"
                 />
               </View>
             </View>
@@ -544,7 +545,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
                 autoCorrect={false}
                 autoCapitalize="none"
                 secureTextEntry={true}
-                style={[constStyles.signUpinput, { width: '100%' }]}
+                style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                 placeholder="Password"
                 onChangeText={e => handleCredentials('password', e)}
                 value={credentials.password || ''}
@@ -553,7 +554,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
                 autoCorrect={false}
                 autoCapitalize="none"
                 secureTextEntry={true}
-                style={[constStyles.signUpinput, { width: '100%' }]}
+                style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                 placeholder="Confirm Password"
                 onChangeText={e => handleCredentials('confirmPassword', e)}
                 value={credentials.confirmPassword || ''}
@@ -565,7 +566,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
               <View style={{ flexDirection: 'column', width: '100%', gap: 5 }}>
                 <View style={{ width: '100%', marginBottom: RFValue(10) }}>
                   <TextInput
-                    style={[constStyles.signUpinput, { width: '100%', marginBottom: 0 }]}
+                    style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                     placeholder=""
                     autoCorrect={false}
                     autoCapitalize="none"
@@ -576,7 +577,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
                 </View>
                 <View style={{ width: '100%', marginBottom: RFValue(10) }}>
                   <TextInput
-                    style={[constStyles.signUpinput, { width: '100%', marginBottom: 0 }]}
+                    style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                     placeholder=""
                     autoCorrect={false}
                     autoCapitalize="none"
@@ -598,7 +599,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
                   <View style={[constStyles.signUpinput, { width: '20%' }]}>
                     <TextInput
                       placeholder=""
-                      style={[constStyles.signUpinput, { width: '100%', marginBottom: 0 }]}
+                      style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                       onChangeText={e => handleCredentials('state', e)}
                       value={credentials.address.state || ''}
                     />
@@ -607,7 +608,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
                   <View style={[constStyles.signUpinput, { width: '30%' }]}>
                     <TextInput
                       placeholder=""
-                      style={[constStyles.signUpinput, { width: '100%', marginBottom: 0 }]}
+                      style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                       onChangeText={e => handleCredentials('zip', e)}
                       value={credentials.address.zip || ''}
                     />
@@ -624,7 +625,7 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
                   <Text style={{ fontWeight: '400', padding: 0, fontSize: RFValue(12), color: 'black' }}>Choose File</Text>
                 </TouchableOpacity>
                 <TextInput
-                  style={[constStyles.signUpinput, { width: '70%', color: 'black' }]}
+                  style={[constStyles.signUpinput, { width: '70%', color: 'black', paddingLeft: RFValue(10) }]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
@@ -635,14 +636,18 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
             </View>
 
             <View style={[styles.btn, { marginTop: 20 }]}>
-              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+              {/* <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
                 >
                   <Text style={styles.buttonText}>Submit</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              <HButton style={styles.subBtn} 
+                onPress={ handleSubmit }>
+                Submit
+              </HButton>
             </View>
 
             <Text style={{ textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 20 }}

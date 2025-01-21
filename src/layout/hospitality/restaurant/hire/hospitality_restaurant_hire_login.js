@@ -257,27 +257,35 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
             </View>
 
             <View style={styles.btn}>
-              <TouchableOpacity onPress={handleSignIn} style={styles.button}>
+              {/* <TouchableOpacity onPress={handleSignIn} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
                 >
                   <Text style={styles.buttonText}>Sign In</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+
+              <HButton style={constStyles.loginSubBtn} onPress={ handleSignIn }>
+                Sign In
+              </HButton>
              
               <View style = {{marginTop : RFValue(20)}}/>
               <Text style={constStyles.loginMiddleText}>Need an account?</Text>
               <View style = {{marginTop : RFValue(5)}}/>
 
-              <TouchableOpacity onPress={handleSignUpNavigate} style={styles.button}>
+              {/* <TouchableOpacity onPress={handleSignUpNavigate} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
                 >
                   <Text style={styles.buttonText}>Sign up</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              
+              <HButton style={constStyles.loginSubBtn} onPress={ handleSignUpNavigate }>
+                Sign Up
+              </HButton>
             </View>
           </View>
         </View>

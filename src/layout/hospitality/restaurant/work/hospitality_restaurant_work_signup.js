@@ -14,6 +14,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
+import HButton from '../../../../components/Hbutton';
 import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import { getTitleList, Signup } from '../../../../utils/useApi';
@@ -481,7 +482,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
       <MHeader navigation={navigation} back={true} />
-      <ScrollView style = {styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView style = {constStyles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.intro}>
             <AnimatedHeader title="REGISTER HERE!" />
@@ -625,7 +626,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
                 />
               </View>
             </View>
-            <View style={styles.email}>
+            <View>
               <Text style={constStyles.signUpSubtitle}> Address <Text style={{color: 'red'}}>*</Text> </Text>
               <View style={{flexDirection: 'column', width: '100%', gap: 5}}>
                 <View style={{width: '100%', marginBottom: 10}}>
@@ -751,14 +752,18 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
 
             <View style={[styles.btn, {marginTop: RFValue(20)}]}>
-              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+              {/* <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
                 >
                   <Text style={styles.buttonText}>Submit</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+              <HButton style={styles.subBtn} 
+                onPress={ handleSubmit }>
+                Submit
+              </HButton>
             </View>
 
             <Text style={{textDecorationLine: 'underline', color: '#2a53c1', fontSize: RFValue(14), marginBottom: 20}}
@@ -817,35 +822,22 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  button: {
-    width : "70%",
-    marginBottom: 10,
-    alignSelf: 'flex-start',
-  },
-
-  gradientButton: {
-    height: RFValue(40), // Adjust the button height here
-    paddingVertical: 0, // Remove padding to maintain consistent height
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5, // For shadow on Android
-  },
+  // button: {
+  //   width : "70%",
+  //   marginBottom: 10,
+  //   alignSelf: 'flex-start',
+  // },
+  // gradientButton: {
+  //   height: RFValue(40), // Adjust the button height here
+  //   paddingVertical: 0, // Remove padding to maintain consistent height
+  //   borderRadius: 10,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   elevation: 5, // For shadow on Android
+  // },
   container: {
     marginBottom: 0,
     backgroundColor: 'rgba(155, 155, 155, 0.61)'
-  },
-  scroll: {
-    marginTop: height * 0.15,
-  },
-  backTitle: {
-    backgroundColor: 'black',
-    width: '90%',
-    height: 55,
-    marginLeft: '5%',
-    position: 'absolute',
-    marginTop: 10,
-    borderRadius: 10
   },
   title: {
     fontSize: 18,
@@ -866,17 +858,6 @@ const styles = StyleSheet.create({
   textStyle: {
     color: 'black'
   },
-  marker: {
-    width: 5,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: 'white',
-    borderColor: 'black',
-    borderWidth: 1,
-    marginRight: 10,
-    marginTop: 17
-  },
-  
   modal: {
     width: '90%',
     borderRadius: 10,
@@ -950,36 +931,12 @@ const styles = StyleSheet.create({
     borderRadius: RFValue(5),
     textAlign: 'center'
   },
-  mark: {
-    width: '70%',
-    height: 75,
-    marginLeft: '15%',
-  },
-  homepage: {
-    width: '45%',
-    height: 130,
-    marginTop: 10,
-    marginLeft: '25%',
-  },
-  
-  middleText: {
-    fontSize: 16,
-    margin: 0,
-    lineHeight: 16,
-    color: 'black'
-  },
   authInfo: {
     marginLeft: 20,
     marginRight: 20,
-
   },
-  buttonWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 10,
-    marginBottom: 130
-  },
-  btn: {flexDirection: 'column',
+  btn: {
+    flexDirection: 'column',
     gap: 20,
     marginBottom: 30,
   },
@@ -988,25 +945,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#A020F0',
     color: 'white',
     fontSize: RFValue(16),
-  },
-  drinksButton: {
-    fontSize: 18,
-    padding: 15,
-    borderWidth: 3,
-    borderColor: 'white',
-
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1,
-    borderColor: '#000000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  checkmark: {
-    color: '#000',
   },
   signature: {
     flex: 1,
@@ -1022,12 +960,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     borderWidth: 1,
     borderColor: 'black'
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   calendarContainer: {
     backgroundColor: 'white',
@@ -1060,32 +992,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black'
   },
-  closeButton: {
-    color: 'red',
-  },
   body: {
     marginTop: 10,
     paddingHorizontal:20,
   },
-  pressBtn:{
-    top: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingRight: 10
-  },
-  btnSheet: {
-    height: RFValue(80),
-    width: RFValue(80),
-		justifyContent: "center",
-		alignItems: "center",
-		borderRadius: 10,
-		shadowOpacity: 0.5,
-		shadowRadius: 10,
-		margin: 5,
-		shadowColor: '#000',
-		shadowOffset: { width: 3, height: 3 },
-		marginVertical: 14, padding: 5,
-	},
 });

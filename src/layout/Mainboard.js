@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 4, // Slightly rounded corners
     alignItems: 'center', // Center align text horizontally
     justifyContent: 'center', // Center align text vertically
-    width: RFValue(120), // Set fixed width
+    width: RFValue(110), // Set fixed width
     marginTop: 10, // Add spacing between buttons if needed
   },
 

@@ -6,6 +6,8 @@ import { Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 import MFooter from '../../../components/Mfooter';
 import MHeader from '../../../components/Mheader';
+import HButton from '../../../components/Hbutton';
+import constStyles from '../../../assets/styles';
 import images from '../../../assets/images';
 
 export default function HospitalityRestaurantDashboard({ navigation }) {
@@ -22,12 +24,21 @@ export default function HospitalityRestaurantDashboard({ navigation }) {
       <MHeader navigation={navigation} back={true}/>
       <Image
         source={images.hospitality_icon}
-        style={styles.homepage}
+        style={constStyles.homeImageStyle}
         resizeMode="contain"
       />
 
-      <Text style={styles.subheading}>Are you looking to work or hire?</Text>
-      <View style={styles.buttonContainer}>
+      <Text style={constStyles.dashboardsubheading}>Are you looking to work or hire?</Text>
+      <View style={constStyles.dashboardbuttonWrapper}>
+        <HButton style={constStyles.dashboardbutton} onPress={ handleWork }>
+          Work
+        </HButton>
+
+        <HButton style={constStyles.dashboardbutton} onPress={ handleHire }>
+          Hire
+        </HButton>
+      </View>
+      {/* <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={handleWork} style={styles.button}>
           <LinearGradient
             colors={['#A1E9F1', '#B980EC']}
@@ -44,7 +55,7 @@ export default function HospitalityRestaurantDashboard({ navigation }) {
             <Text style={styles.buttonText}>Hire</Text>
           </LinearGradient>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <MFooter />
     </SafeAreaView>
   );
@@ -56,46 +67,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-  },
-  heading: {
-    fontSize: RFValue(24),
-    textAlign: 'center',
-    color: 'black',
-    marginBottom: 20,
-  },
-  subheading: {
-    fontSize: RFValue(17),
-    color: 'black',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    margin : RFValue(20)
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  button: {
-    flex: 1,
-    marginHorizontal: 10,
-  },
-  gradientButton: {
-    paddingVertical: 10,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-  },
-  buttonText: {
-    fontSize: RFValue(16),
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-
-  homepage: {
-    width: width * 0.65,
-    height: height * 0.25,
-    marginTop: 30,
-    resizeMode: 'cover'
   },
 });

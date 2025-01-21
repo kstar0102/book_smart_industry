@@ -14,6 +14,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
+import HButton from '../../../../components/Hbutton';
 import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import { getTitleList, Signup } from '../../../../utils/useApi';
@@ -753,14 +754,19 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
 
             <View style={[styles.btn, {marginTop: RFValue(20)}]}>
-              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+              {/* <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <LinearGradient
                   colors={['#A1E9F1', '#B980EC']}
                   style={styles.gradientButton}
                 >
                   <Text style={styles.buttonText}>Submit</Text>
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+
+              <HButton style={styles.subBtn} 
+                onPress={ handleSubmit }>
+                Submit
+              </HButton>
             </View>
 
             <Text style={{textDecorationLine: 'underline', color: '#2a53c1', fontSize: RFValue(14), marginBottom: 20}}
