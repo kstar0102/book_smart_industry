@@ -10,7 +10,8 @@ import { useAtom } from 'jotai';
 import { 
     firstNameAtom, 
     lastNameAtom, 
-    emailAtom, 
+    emailAtom,
+    titleAtom,
     userRoleAtom} from '../../../../context/HotelWorkProvider';
 import { RFValue } from "react-native-responsive-fontsize";
 import { Dimensions } from 'react-native';
@@ -31,7 +32,7 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
   const userInfo = [
     {title: 'Name', content: firstName + ' ' + lastName},
     {title: 'Email', content: email},
-    {title: 'User Roles', content: userRole},
+    {title: 'User Roles', content: "Hotel - " + titleAtom},
     // {title: 'Caregiver', content: caregiver},
   ];
 

@@ -137,6 +137,7 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
       { field: credentials.address?.city, message: 'City is required' },
       { field: credentials.address?.state, message: 'State is required' },
       { field: credentials.address?.zip, message: 'ZIP code is required' },
+      { field: credentials.signature, message: 'Signature is required' },
     ];
   
     // Iterate over the field checks and show an alert for the first empty field
@@ -157,13 +158,10 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
       return false;
     }
   
-    return true;
+    return true; // Return true if all fields are valid
   };
 
   const handleSubmit = async () => {
-    console.log('submit');
-    console.log(isSubmitting);
-    console.log(validation());
     if (isSubmitting) {
       return;
     }

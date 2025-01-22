@@ -7,7 +7,7 @@ import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
 import AnimatedHeader from '../../../AnimatedHeader';
-import { firstNameAtom, lastNameAtom, emailAtom, userRoleAtom, caregiverAtom } from '../../../../context/RestaurantWorkProvider';
+import { firstNameAtom, lastNameAtom, emailAtom, userRoleAtom, titleAtom } from '../../../../context/RestaurantWorkProvider';
 import { useAtom } from 'jotai';
 import { RFValue } from "react-native-responsive-fontsize";
 import { Dimensions } from 'react-native';
@@ -28,7 +28,7 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
   const userInfo = [
     {title: 'Name', content: firstName + ' ' + lastName},
     {title: 'Email', content: email},
-    {title: 'User Roles', content: userRole},
+    {title: 'User Roles', content: "Restaurant - " + titleAtom},
   ];
 
   return (

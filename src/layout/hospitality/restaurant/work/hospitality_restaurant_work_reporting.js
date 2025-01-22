@@ -171,7 +171,7 @@ export default function HospitalityRestaurantWorkReporting ({ navigation }) {
         <SubNavbar navigation={navigation} name={'HospitalityRestaurantWorkLogin'}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <View style={styles.topView}>
-            <AnimatedHeader title="RESTAURAND WORK REPORTING" />
+            <AnimatedHeader title="RESTAURANT WORK REPORTING" />
             <View style={styles.bottomBar}/>
           </View>
           <View style={styles.imageButton}>

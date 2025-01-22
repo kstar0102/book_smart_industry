@@ -359,26 +359,65 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     navigation.navigate('HospitalityHotelDashboard');
   };
 
-  // const titles = ['Chef', 'Line Cook', 'Dishwasher', 'Host / Hostess'];
+  const validation = () => {
+    // Create an array of checks for each field with corresponding error messages
+    const fieldChecks = [
+      { field: email, message: 'Email is required' },
+      { field: firstName, message: 'First name is required' },
+      { field: lastName, message: 'Last name is required' },
+      { field: phoneNumber, message: 'Phone number is required' },
+      { field: title, message: 'Title is required' },
+      { field: birthday, message: 'Birthday is required' },
+      { field: ssNumber, message: 'Social Security Number is required' },
+      { field: verifySSNumber, message: 'Verify Social Security Number is required' },
+      { field: address.streetAddress, message: 'Street address is required' },
+      { field: address.city, message: 'City is required' },
+      { field: address.state, message: 'State is required' },
+      { field: address.zip, message: 'ZIP code is required' },
+      { field: password, message: 'Password is required' },
+    ];
+  
+    // Check each field; if one is empty, show the corresponding alert and return false
+    for (const check of fieldChecks) {
+      if (check.field === '') {
+        Alert.alert(
+          'Warning!',
+          check.message,
+          [{ text: 'OK', onPress: () => console.log(`${check.message} alert acknowledged`) }],
+          { cancelable: false }
+        );
+        return false; // Return false if any validation fails
+      }
+    }
+  
+    // Check if password and confirmPassword match
+    if (password !== confirmPassword) {
+      showPswWrongAlert();
+      return false;
+    }
 
-  const validateInputs = () => {
-    if (!firstName || !lastName) {
-      Alert.alert('Validation Error', 'First and Last Name are required.');
+    if (signature.content === '') {
+      Alert.alert(
+        'Warning!',
+        "signature required",
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              console.log('OK pressed');
+            },
+          },
+        ],
+        { cancelable: false }
+      );
       return false;
     }
-    if (!email) {
-      Alert.alert('Validation Error', 'Email is required.');
-      return false;
-    }
-    if (!password || password !== confirmPassword) {
-      Alert.alert('Validation Error', 'Passwords do not match.');
-      return false;
-    }
-    return true;
+  
+    return true; // Return true if all fields are valid
   };
 
   const handleSubmit = async () => {
-    if (validateInputs()) {
+    if (validation()) {
       setSending(true);
       const credentials = {
         firstName,
@@ -497,7 +536,9 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
           </View>
           <View style={styles.authInfo}>
-            <Text style={styles.subject}>CONTACT INFORMATION</Text>
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center' }}>
+              <Text style={styles.subject}>CONTACT INFORMATION</Text>
+            </View>
             <View>
               <Text style={constStyles.signUpSubtitle}> Name <Text style={{color: 'red'}}>*</Text> </Text>
               <View style={{flexDirection: 'row', width: '100%', gap: 5}}>

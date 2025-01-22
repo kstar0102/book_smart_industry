@@ -330,6 +330,7 @@ export default function FacilitySignUp({ navigation }) {
       { field: credentials.address?.city, message: 'City is required' },
       { field: credentials.address?.state, message: 'State is required' },
       { field: credentials.address?.zip, message: 'ZIP code is required' },
+      { field: credentials.signature, message: 'Signature is required' },
     ];
   
     // Iterate over the field checks and show an alert for the first empty field
