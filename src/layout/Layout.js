@@ -105,6 +105,7 @@ import HospitalityHotelHireHome from './hospitality/hotel/hire/hospitality_hotel
 import HospitalityHotelHireProfile from './hospitality/hotel/hire/hospitality_hotel_hire_profile.js';
 import HospitalityHotelHireEditShift from './hospitality/hotel/hire/hospitality_hotel_hire_ediftshift.js';
 import HospitalityHotelHirePostShift from './hospitality/hotel/hire/hospitality_hotel_hire_postshift.js';
+import HospitalityRestaurantWorkPemission from './hospitality/restaurant/work/hospitality_restaurant_work_permission.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -221,6 +222,12 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityHotelWorkSignIn'
         component = {HospitalityHotelWorkSignIn}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkPemission'
+        component = {HospitalityRestaurantWorkPemission}
         options={{headerShown: false}}
       />
 
