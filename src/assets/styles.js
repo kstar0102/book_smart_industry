@@ -81,6 +81,14 @@ const constStyles = StyleSheet.create({
         borderRadius: RFValue(10)
     },
 
+    hospitalityAdminButtion : {
+        fontSize: RFValue(12),
+        padding: RFValue(10),
+        borderColor: 'transparent',
+        borderRadius: RFValue(10),
+        width: RFValue(200)
+    },
+
     forgotInputText: {
         backgroundColor: 'white', 
         height: RFValue(30), 
@@ -164,7 +172,7 @@ const constStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         gap: RFValue(10),
-        marginBottom: RFValue(130)
+        marginBottom: RFValue(110)
     },
 
     signIncheckbox : {

@@ -290,7 +290,13 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
             </View>
           </View>
         </View>
-        <View style = {{height : RFValue(55)}}/>
+        <View style={constStyles.signInButtonWrapper}>
+          <HButton
+            onPress={() => navigation.navigate('AdminLogin')}
+            style={[constStyles.hospitalityAdminButtion, { fontSize: RFValue(12) }]}>
+            Admin Login
+          </HButton>
+        </View>
       </ScrollView>
       <Loader visible={request}/>
       <MFooter />

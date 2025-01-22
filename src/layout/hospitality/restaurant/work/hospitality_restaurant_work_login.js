@@ -81,6 +81,10 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
     navigation.navigate('HospitalityRestaurantWorkHome');
   };
 
+  const handleTermsNavigate = () => {
+    navigation.navigate('HospitalityRestaurantWorkPemission');
+  }
+
   const handleSubmit = async () => {
     if (loginEmail == "") {
       Alert.alert(
@@ -147,7 +151,8 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
         // } else {
         //   handleSignInNavigate('ClientPermission');
         // }
-        handleSignInNavigate('HospitalityRestaurantWorkHome');
+        // handleSignInNavigate('HospitalityRestaurantWorkHome');
+        handleTermsNavigate();
       } else {
         setRequest(false);
         if (response.error.status == 401) {
@@ -216,7 +221,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
   return (
     <View style={styles.container}>
       <MHeader navigation={navigation} back={true}/>
-      <ScrollView style = {styles.scroll}
+      <ScrollView style = {constStyles.scroll}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.modal}>
@@ -297,18 +302,16 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
               <HButton style={constStyles.loginSubBtn} onPress={ handleSignUpNavigate }>
                 Sign Up
               </HButton>
-              {/* <TouchableOpacity onPress={handleSignUpNavigate} style={styles.button}>
-                <LinearGradient
-                  colors={['#A1E9F1', '#B980EC']}
-                  style={styles.gradientButton}
-                >
-                  <Text style={styles.buttonText}>Sign up</Text>
-                </LinearGradient>
-              </TouchableOpacity> */}
             </View>
           </View>
         </View>
-        <View style = {{height : RFValue(55)}}/>
+        <View style={constStyles.signInButtonWrapper}>
+          <HButton
+            onPress={() => navigation.navigate('AdminLogin')}
+            style={[constStyles.hospitalityAdminButtion, { fontSize: RFValue(12) }]}>
+            Admin Login
+          </HButton>
+        </View>
       </ScrollView>
       <Loader visible={request}/>
       <MFooter />
@@ -334,10 +337,6 @@ const styles = StyleSheet.create({
 
   container: {
     marginBottom: 0,
-  },
-
-  scroll: {
-    marginTop: height * 0.15,
   },
 
   modal: {

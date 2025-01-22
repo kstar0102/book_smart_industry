@@ -37,12 +37,12 @@ export default function Dashboard ({ navigation }) {
         <HButton
           onPress={ handleClient }
           style={styles.button}>
-          WORK
+          CLINICIAN
         </HButton>
         <HButton
           onPress={ handleFacility }
           style={styles.button}>
-          HIRE
+          FACILITIES
         </HButton>
       </View>
       <MFooter />
