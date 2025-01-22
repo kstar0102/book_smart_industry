@@ -135,11 +135,11 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#D32F2F', // Red background color
     paddingVertical: 5, // Vertical padding for height
-    paddingHorizontal: 3, // Horizontal padding for width
+    paddingHorizontal: 0.5, // Horizontal padding for width
     borderRadius: 4, // Slightly rounded corners
     alignItems: 'center', // Center align text horizontally
     justifyContent: 'center', // Center align text vertically
-    width: RFValue(110), // Set fixed width
+    width: RFValue(101), // Set fixed width
     marginTop: 10, // Add spacing between buttons if needed
   },
 
