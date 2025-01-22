@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 30,
     width: '100%',
-    paddingHorizontal: 10,
+    paddingHorizontal: 1,
   },
   iconContainer: {
     alignItems: 'center',
