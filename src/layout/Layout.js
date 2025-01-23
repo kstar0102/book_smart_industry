@@ -109,6 +109,10 @@ import HospitalityHotelHireEditShift from './hospitality/hotel/hire/hospitality_
 import HospitalityHotelHirePostShift from './hospitality/hotel/hire/hospitality_hotel_hire_postshift.js';
 import HospitalityRestaurantWorkPemission from './hospitality/restaurant/work/hospitality_restaurant_work_permission.js';
 import HospitalityHotelHireTerms from './hospitality/hotel/hire/hospitality_hotel_hire_terms.js';
+import HospitalityRestaurantWorkPhone from './hospitality/restaurant/work/hospitality_restaurant_work_phone.js';
+import HospitalityRestaurantWorkPhoneVerify from './hospitality/restaurant/work/hospitality_restaurant_work_phoneverify.js';
+import HospitalityHotelWorkPhone from './hospitality/hotel/work/hospitality_hotel_work_phone.js';
+import HospitalityHotelWorkPhoneVerify from './hospitality/hotel/work/hospitality_hotel_work_phoneverify.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -227,6 +231,18 @@ function Layout() {
         component = {HospitalityHotelWorkMyShift}
         options={{headerShown: false}}
       />
+      
+      <Stack.Screen 
+        name= 'HospitalityHotelWorkPhone'
+        component = {HospitalityHotelWorkPhone}
+        options={{headerShown: false}}
+      />
+      
+      <Stack.Screen 
+        name= 'HospitalityHotelWorkPhoneVerify'
+        component = {HospitalityHotelWorkPhoneVerify}
+        options={{headerShown: false}}
+      />
 
       <Stack.Screen 
         name= 'HospitalityHotelWorkHome'
@@ -261,6 +277,18 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityRestaurantWorkBookShift'
         component = {HospitalityRestaurantWorkBookShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkPhone'
+        component = {HospitalityRestaurantWorkPhone}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkPhoneVerify'
+        component = {HospitalityRestaurantWorkPhoneVerify}
         options={{headerShown: false}}
       />
 

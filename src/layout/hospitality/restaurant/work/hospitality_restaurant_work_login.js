@@ -146,7 +146,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
 
         if (response.user.AcknowledgeTerm) {
           if (response.phoneAuth) {
-            // handleSignInNavigate('ClientPhone');
+            handleSignInNavigate('HospitalityRestaurantWorkPhone');
           } else {
             handleSignInNavigate('HospitalityRestaurantWorkHome');
           }

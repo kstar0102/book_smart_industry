@@ -140,7 +140,7 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
 
         if (response.user.AcknowledgeTerm) {
           if (response.phoneAuth) {
-            // handleSignInNavigate('ClientPhone');
+            handleSignInNavigate('HospitalityHotelWorkPhone');
           } else {
             handleSignInNavigate('HospitalityHotelWorkHome');
           }
