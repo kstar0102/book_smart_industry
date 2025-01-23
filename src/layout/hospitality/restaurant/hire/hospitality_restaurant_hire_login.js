@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 import images from '../../../../assets/images';
@@ -11,7 +10,7 @@ import MFooter from '../../../../components/Mfooter';
 import constStyles from '../../../../assets/styles';
 import HButton from '../../../../components/Hbutton';
 import { useAtom } from 'jotai';
-import { aicAtom, firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, entryDateAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom, passwordAtom } from '../../../../context/RestaurantHireProvider'
+import { aicAtom, firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, entryDateAtom, AcknowledgementAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom, passwordAtom } from '../../../../context/RestaurantHireProvider'
 import { Signin } from '../../../../utils/useApi';
 
 const { width, height } = Dimensions.get('window');
@@ -34,6 +33,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
   const [address, setAddress]= useAtom(addressAtom);
   const [password, setPassword] = useAtom(passwordAtom);
   const [aic, setAIC] = useAtom(aicAtom);
+  const [acknowledge, setAcknowledgeTerm] = useAtom(AcknowledgementAtom);
 
   useEffect(() => {
     const getCredentials = async() => {
@@ -53,8 +53,8 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
     navigation.navigate('HospitalityRestaurantHireSignUp');
   };
 
-  const handleSignInNavigate = () => {
-    navigation.navigate('HospitalityRestaurantHireHome');
+  const handleSignInNavigate = (url) => {
+    navigation.navigate(url);
   };
 
   const handleSignIn = async () => {
@@ -109,6 +109,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
         setAvatar(response?.user.avatar);
         setUserRole(response?.user.userRole);
         setPassword(response?.user.password);
+        setAcknowledgeTerm(response?.user.AcknowledgeTerm);
 
         await AsyncStorage.setItem('restaurantHirePhoneNumber', response?.user.contactPhone);
 
@@ -117,18 +118,11 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
           await AsyncStorage.setItem('restaurantHirePSW', loginPW);
         }
 
-        // if (response.user.clinicalAcknowledgeTerm) {
-        //   if (response.phoneAuth) {
-        //     handleSignInNavigate('ClientPhone');
-        //   } else {
-        //     handleSignInNavigate('MyHome');
-        //   }
-        // } else {
-        //   handleSignInNavigate('ClientPermission');
-        // }
-        // navigation.navigate('HospitalityRestaurantHireHome');
-        navigation.navigate('HospitalityHotelWorkTerms');
-        
+        if (response.user.clinicalAcknowledgeTerm) {
+          handleSignInNavigate('HospitalityRestaurantHireHome');
+        } else {
+          handleSignInNavigate('HospitalityRestaurantHireTerms');
+        }
       } else {
         setRequest(false);
         if (response.error.status == 401) {
@@ -375,4 +369,3 @@ const styles = StyleSheet.create({
   },
   
 });
-

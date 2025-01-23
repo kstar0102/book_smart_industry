@@ -23,7 +23,8 @@ import {
   userRoleAtom, 
   phoneNumberAtom,
   passwordAtom,
-  aicAtom
+  aicAtom,
+  AcknowledgeTerm
  } from '../../../../context/RestaurantWorkProvider';
 import { useAtom } from 'jotai';
 import { Signin } from '../../../../utils/useApi';
@@ -43,6 +44,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
   const [email, setEmail] = useAtom(emailAtom);
   const [userRole, setUserRole]= useAtom(userRoleAtom);
   const [password, setPassword] = useAtom(passwordAtom);
+  const [acknowledgeTerm, setAcknowledgeTerm] = useAtom(AcknowledgeTerm);
 
   const fetchDeviceInfo = async () => {
     try {
@@ -77,8 +79,8 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
     navigation.navigate('HospitalityRestaurantWorkSignup');
   };
 
-  const handleSignInNavigate = () => {
-    navigation.navigate('HospitalityRestaurantWorkHome');
+  const handleSignInNavigate = (url) => {
+    navigation.navigate(url);
   };
 
   const handleTermsNavigate = () => {
@@ -132,7 +134,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
         setTitle(response.user.title);
         setPhoneNumber(response.user.phoneNumber);
         setUserRole(response.user.userRole);
-        // setClinicalAcknowledgement(response.user.clinicalAcknowledgeTerm);
+        setAcknowledgeTerm(response.user.AcknowledgeTerm);
         setPassword(response.user.password);
 
         await AsyncStorage.setItem('restaurantWorkPhoneNumber', response.user.phoneNumber);
@@ -142,17 +144,15 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
           await AsyncStorage.setItem('restaurantWorkPSW', loginPW);
         }
 
-        // if (response.user.clinicalAcknowledgeTerm) {
-        //   if (response.phoneAuth) {
-        //     handleSignInNavigate('ClientPhone');
-        //   } else {
-        //     handleSignInNavigate('MyHome');
-        //   }
-        // } else {
-        //   handleSignInNavigate('ClientPermission');
-        // }
-        // handleSignInNavigate('HospitalityRestaurantWorkHome');
-        handleTermsNavigate();
+        if (response.user.AcknowledgeTerm) {
+          if (response.phoneAuth) {
+            // handleSignInNavigate('ClientPhone');
+          } else {
+            handleSignInNavigate('HospitalityRestaurantWorkHome');
+          }
+        } else {
+          handleSignInNavigate('HospitalityRestaurantWorkPemission');
+        }
       } else {
         setRequest(false);
         if (response.error.status == 401) {

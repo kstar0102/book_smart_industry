@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert, TextInput, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 import images from '../../../../assets/images';
 import { Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const { width, height } = Dimensions.get('window');
 import MHeader from '../../../../components/Mheader';
 import MFooter from '../../../../components/Mfooter';
 import constStyles from '../../../../assets/styles';
 import HButton from '../../../../components/Hbutton';
 import { useAtom } from 'jotai';
-import { aicAtom, firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, contactPasswordAtom, entryDateAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom, passwordAtom } from '../../../../context/HotelHireProvider'
+import { aicAtom, firstNameAtom, lastNameAtom, companyNameAtom, contactPhoneAtom, AcknowledgementAtom, contactPasswordAtom, entryDateAtom, addressAtom,  contactEmailAtom, avatarAtom, userRoleAtom, passwordAtom } from '../../../../context/HotelHireProvider'
 import { Signin } from '../../../../utils/useApi';
 
+const { width, height } = Dimensions.get('window');
 
 export default function HospitalityHotelHireSignIn({ navigation }) {
-  const [device, setDevice] = useState('');
   const [loginEmail, setLoginEmail] =  useState('');
   const [loginPW, setLoginPW] = useState('');
   const [checked, setChecked] = useState(false);
@@ -35,6 +33,7 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
   const [address, setAddress]= useAtom(addressAtom);
   const [password, setPassword] = useAtom(passwordAtom);
   const [aic, setAIC] = useAtom(aicAtom);
+  const [acknowledge, setAcknowledgeTerm] = useAtom(AcknowledgementAtom);
 
   const handleToggle = async () => {
     setChecked(!checked);
@@ -54,8 +53,8 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
     navigation.navigate('HospitalityHotelHireSignUp');
   };
 
-  const handleSignInNavigate = () => {
-    navigation.navigate('HospitalityHotelHireHome');
+  const handleSignInNavigate = (url) => {
+    navigation.navigate(url);
   };
 
   const handleSignIn = async () => {
@@ -110,6 +109,7 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
         setAvatar(response?.user.avatar);
         setUserRole(response?.user.userRole);
         setPassword(response?.user.password);
+        setAcknowledgeTerm(response?.user.Acknowledgement);
 
         await AsyncStorage.setItem('hotelHirePhoneNumber', response?.user.contactPhone);
 
@@ -118,16 +118,11 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
           await AsyncStorage.setItem('hotelHirePSW', loginPW);
         }
 
-        // if (response.user.clinicalAcknowledgeTerm) {
-        //   if (response.phoneAuth) {
-        //     handleSignInNavigate('ClientPhone');
-        //   } else {
-        //     handleSignInNavigate('MyHome');
-        //   }
-        // } else {
-        //   handleSignInNavigate('ClientPermission');
-        // }
-        navigation.navigate('HospitalityHotelHireTerms');
+        if (response.user.clinicalAcknowledgeTerm) {
+          handleSignInNavigate('HospitalityHotelHireHome');
+        } else {
+          handleSignInNavigate('HospitalityHotelHireTerms');
+        }
       } else {
         setRequest(false);
         if (response.error.status == 401) {

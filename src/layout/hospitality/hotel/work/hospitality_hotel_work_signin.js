@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert, ScrollView, Pressable } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import Loader from '../../../Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUniqueId } from 'react-native-device-info';
@@ -20,7 +19,8 @@ import {
   userRoleAtom, 
   phoneNumberAtom,
   passwordAtom,
-  aicAtom
+  aicAtom,
+  AcknowledgeTerm
  } from '../../../../context/HotelWorkProvider';
 import { useAtom } from 'jotai';
 import { Signin } from '../../../../utils/useApi';
@@ -36,6 +36,7 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
   const [email, setEmail] = useAtom(emailAtom);
   const [userRole, setUserRole]= useAtom(userRoleAtom);
   const [password, setPassword] = useAtom(passwordAtom);
+  const [acknowledge, setAcknowledgeTerm] = useAtom(AcknowledgeTerm);
 
   const [device, setDevice] = useState('');
   const [loginEmail, setLoginEmail] =  useState('');
@@ -76,8 +77,8 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
     navigation.navigate('HospitalityHotelWorkSignUp');
   };
 
-  const handleNavigate = () => {
-    navigation.navigate('HospitalityHotelWorkTerms');
+  const handleSignInNavigate = (url) => {
+    navigation.navigate(url);
   };
 
   const handleSubmit = async () => {
@@ -128,24 +129,24 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
         setPhoneNumber(response.user.phoneNumber);
         setUserRole(response.user.userRole);
         setPassword(response.user.password);
+        setAcknowledgeTerm(response.user.AcknowledgeTerm);
 
         await AsyncStorage.setItem('hotelWorkPhoneNumber', response.user.phoneNumber);
 
         if (checked) {
           await AsyncStorage.setItem('hotelWorkEmail', loginEmail);
-          await AsyncStorage.setItem('hotelWorkPSW', loginPW);
+          await AsyncStorage.setItem('hotelWorkPassword', loginPW);
         }
 
-        // if (response.user.clinicalAcknowledgeTerm) {
-        //   if (response.phoneAuth) {
-        //     handleSignInNavigate('ClientPhone');
-        //   } else {
-        //     handleSignInNavigate('MyHome');
-        //   }
-        // } else {
-        //   handleSignInNavigate('ClientPermission');
-        // }
-        handleNavigate();
+        if (response.user.AcknowledgeTerm) {
+          if (response.phoneAuth) {
+            // handleSignInNavigate('ClientPhone');
+          } else {
+            handleSignInNavigate('HospitalityHotelWorkHome');
+          }
+        } else {
+          handleSignInNavigate('HospitalityHotelWorkTerms');
+        }
       } else {
         setRequest(false);
         if (response.error.status == 401) {

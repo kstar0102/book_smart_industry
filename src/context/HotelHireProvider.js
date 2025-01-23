@@ -24,7 +24,7 @@ export const avatarAtom = atom({
 });
 export const passwordAtom = atom('');
 export const signatureAtom = atom('');
-export const facilityAcknowledgementAtom = atom(false)
+export const AcknowledgementAtom = atom(false)
 
 export const AuthContext = React.createContext();
 
