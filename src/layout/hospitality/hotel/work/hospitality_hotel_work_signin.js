@@ -77,7 +77,7 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
   };
 
   const handleNavigate = () => {
-    navigation.navigate('HospitalityHotelWorkHome');
+    navigation.navigate('HospitalityHotelWorkTerms');
   };
 
   const handleSubmit = async () => {

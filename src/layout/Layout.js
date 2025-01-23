@@ -99,6 +99,7 @@ import HospitalityHotelWorkReporting from './hospitality/hotel/work/hospitality_
 import HospitalityHotelWorkBookShift from './hospitality/hotel/work/hospitality_hotel_work_bookshift.js';
 import HospitalityHotelWorkApplyShift from './hospitality/hotel/work/hospitality_hotel_work_applyshift.js';
 import HospitalityHotelWorkUploadTimesheet from './hospitality/hotel/work/hospitality_hotel_work_uploadtimesheet.js';
+import HospitalityHotelWorkTerms from './hospitality/hotel/work/hospitality_hotel_work_terms.js';
 
 import HospitalityHotelHireSignIn from './hospitality/hotel/hire/hospitality_hotel_hire_signin.js';
 import HospitalityHotelHireSignUp from './hospitality/hotel/hire/hospitality_hotel_hire_signup.js';
@@ -107,6 +108,7 @@ import HospitalityHotelHireProfile from './hospitality/hotel/hire/hospitality_ho
 import HospitalityHotelHireEditShift from './hospitality/hotel/hire/hospitality_hotel_hire_ediftshift.js';
 import HospitalityHotelHirePostShift from './hospitality/hotel/hire/hospitality_hotel_hire_postshift.js';
 import HospitalityRestaurantWorkPemission from './hospitality/restaurant/work/hospitality_restaurant_work_permission.js';
+import HospitalityHotelHireTerms from './hospitality/hotel/hire/hospitality_hotel_hire_terms.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -139,6 +141,18 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityHotelHireEditShift'
         component = {HospitalityHotelHireEditShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityHotelHireTerms'
+        component = {HospitalityHotelHireTerms}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityHotelWorkTerms'
+        component = {HospitalityHotelWorkTerms}
         options={{headerShown: false}}
       />
 

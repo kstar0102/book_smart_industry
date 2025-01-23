@@ -127,7 +127,7 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
         // } else {
         //   handleSignInNavigate('ClientPermission');
         // }
-        navigation.navigate('HospitalityHotelHireHome');
+        navigation.navigate('HospitalityHotelHireTerms');
       } else {
         setRequest(false);
         if (response.error.status == 401) {

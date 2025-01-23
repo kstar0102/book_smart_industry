@@ -15,7 +15,7 @@ import { Update } from '../../../../utils/useApi';
 import { RFValue } from 'react-native-responsive-fontsize';
 const { width, height } = Dimensions.get('window');
 
-export default function HospitalityRestaurantHireTerms ({ navigation }) {
+export default function HospitalityHotelHireTerms ({ navigation }) {
   const [facilityAcknowledgement, setFacilityAcknowledgement] = useAtom(facilityAcknowledgementAtom);
   const items = [
     {label: 'Yes', value: 1},
