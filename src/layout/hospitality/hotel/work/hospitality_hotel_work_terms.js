@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, Image, Alert, Dimensions, TouchableOpacity, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, Image, Alert, Dimensions, Button } from 'react-native';
 import MFooter from '../../../../components/Mfooter';
 import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
@@ -64,7 +64,7 @@ export default function HospitalityHotelWorkTerms ({ navigation }) {
       return;
     }
     try {
-      const response = await Update(credentials, 'restau_user');
+      const response = await Update(credentials, 'hotel_user');
       if (!response?.error) {
         Alert.alert(
           'Success!',
@@ -80,7 +80,7 @@ export default function HospitalityHotelWorkTerms ({ navigation }) {
           { cancelable: false }
         );
         setAcknowledgement(response.user.AcknowledgeTerm);
-        navigation.navigate("HospitalityRestaurantWorkEditProfile");
+        navigation.navigate("HospitalityHotelWorkPhone");
       } else {
         Alert.alert(
           'Failed!',
@@ -117,7 +117,7 @@ export default function HospitalityHotelWorkTerms ({ navigation }) {
       <View style={styles.container}>
         <StatusBar translucent backgroundColor="transparent" />
         <MHeader navigation={navigation} back={true} />
-        <SubNavbar navigation={navigation} name={"FacilityLogin"} />
+        <SubNavbar navigation={navigation} name={"HospitalityHotelWorkSignIn"} />
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <Hyperlink linkDefault={true}>
             <View style={styles.permission}>
@@ -218,7 +218,7 @@ export default function HospitalityHotelWorkTerms ({ navigation }) {
                 <Text style={[styles.text, {fontWeight: 'bold', marginTop: 10}]}>IMPORTANT! BE SURE YOU HAVE SCROLLED THROUGH AND CAREFULLY READ ALL of the above Terms and Conditions of the Agreement before electronically signing and/or clicking “Agree” or similar button and/or USING THE SITE (“acceptance”). This Agreement is legally binding between you and BOOKSMART™. By electronically signing and/or clicking “Agree” or similar button and/or using the SITE, you AFFIRM THAT YOU ARE OF LEGAL AGE AND HAVE THE LEGAL CAPACITY TO ENTER INTO THE SERVICE AGREEMENT, AND YOU agree to abide by ALL of the Terms and Conditions stated or referenced herein. If you do not agree to abide by these Terms and Conditions, do NOT electronically sign and/or click an “Agree” or similar button and do not use the SITE. You must accept and abide by these Terms and Conditions in the Agreement as presented to you.</Text>
               </View>
               <View style={styles.titleBar}>
-                <Text style={[styles.text, {fontWeight: 'bold', marginTop: 0}]}>Facility Acknowledge Terms? Yes/No</Text>
+                <Text style={[styles.text, {fontWeight: 'bold', marginTop: 0}]}>Acknowledge Terms? Yes/No</Text>
                 <Dropdown
                   style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
                   placeholderStyle={styles.placeholderStyle}
@@ -238,9 +238,9 @@ export default function HospitalityHotelWorkTerms ({ navigation }) {
                     setValue(item.value);
                     setIsFocus(false);
                     if (item.value == 1) {
-                      setCredentials({...credentials, ["facilityAcknowledgeTerm"] : true, ["selectedoption"]: checked})
+                      setCredentials({...credentials, ["AcknowledgeTerm"] : true})
                     } else 
-                      setCredentials({...credentials, ["facilityAcknowledgeTerm"] : false, ["selectedoption"]: checked})
+                      setCredentials({...credentials, ["AcknowledgeTerm"] : false})
                   }}
                   renderLeftIcon={() => (
                     <View
@@ -253,7 +253,7 @@ export default function HospitalityHotelWorkTerms ({ navigation }) {
                 />
               </View>
               <View style={styles.titleBar}>
-                <Text style={[styles.text, {fontSize: RFValue(12), fontWeight: 'bold', marginTop: 0}]}>Facility Acknowledge Terms Signature <Text style={{color: '#f00'}}>*</Text></Text>
+                <Text style={[styles.text, {fontSize: RFValue(12), fontWeight: 'bold', marginTop: 0}]}>Acknowledge Terms Signature <Text style={{color: '#f00'}}>*</Text></Text>
               
                 {value == 1 && <View style={styles.titleBar}>
                   <Text style={[styles.text, {fontWeight: 'bold', marginBottom: 5}]}>Signature <Text style={{color: '#f00'}}>*</Text></Text>

@@ -6,15 +6,14 @@ import { Text } from 'react-native-paper';
 import HButton from '../../../../components/Hbutton'
 import MFooter from '../../../../components/Mfooter';
 import MHeader from '../../../../components/Mheader';
-import { emailAtom } from '../../../../context/HotelWorkProvider';
-import { verifyPhoneAtom } from '../../../../context/BackProvider';
+import { emailAtom, phoneNumberAtom } from '../../../../context/HotelWorkProvider';
 import { PhoneSms } from '../../../../utils/useApi';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 const { width, height } = Dimensions.get('window');
 
 export default function HospitalityHotelWorkPhone ({ navigation }) {
-  const [verifyPhone, setVerifyPhone] = useAtom(verifyPhoneAtom);
+  const [verifyPhone, setVerifyPhone] = useAtom(phoneNumberAtom);
   const [email, setEmail] = useAtom(emailAtom);
   const [isAlreadyHas, setIsAlreadyHas] = useState(false);
   const [credentials, setCredentials] = useState({
@@ -133,7 +132,7 @@ export default function HospitalityHotelWorkPhone ({ navigation }) {
             <Text style={{textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 100, fontSize: RFValue(16), textAlign: 'left', width: '90%'}}
               onPress={handleBack}
             >
-              Back to 🏚️ Caregiver Home
+              Back to 🏚️ Hotel Login
             </Text>
           </View>
         </ScrollView>
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'white', 
-    height: 40,
+    height: RFValue(30),
     marginBottom: 10, 
     borderWidth: 1, 
     borderColor: 'hsl(0, 0%, 86%)',

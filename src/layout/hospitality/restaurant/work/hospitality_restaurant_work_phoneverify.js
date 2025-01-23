@@ -7,8 +7,8 @@ import MHeader from '../../../../components/Mheader';
 import { useFocusEffect } from '@react-navigation/native';
 import { getUniqueId } from 'react-native-device-info';
 import { useAtom } from 'jotai';
-import { emailAtom } from '../../../../context/ClinicalAuthProvider';
-import { verifyPhoneAtom, deviceNumberAtom } from '../../../../context/BackProvider';
+import { emailAtom, phoneNumberAtom } from '../../../../context/RestaurantWorkProvider';
+import { deviceNumberAtom } from '../../../../context/BackProvider';
 import { VerifyPhoneCodeSend } from '../../../../utils/useApi';
 import {
   CodeField,
@@ -21,7 +21,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 const CELL_COUNT = 6;
 
 export default function HospitalityRestaurantWorkPhoneVerify ({ navigation }) {
-  const [verifyPhone, setVerifyPhone] = useAtom(verifyPhoneAtom);
+  const [verifyPhone, setVerifyPhone] = useAtom(phoneNumberAtom);
   const [device, setDevice] = useAtom(deviceNumberAtom);
   const [email, setEmail] = useAtom(emailAtom);
 
@@ -144,10 +144,10 @@ export default function HospitalityRestaurantWorkPhoneVerify ({ navigation }) {
                 Submit
               </HButton>
             </View>
-            <Text style={{textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 100, textAlign: 'left', width: '90%'}}
+            <Text style={{textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 50, textAlign: 'left', width: '90%'}}
               onPress={handleBack}
             >
-              Back to 🏚️ Caregiver Home
+              Back to 🏚️ Restaurant Login
             </Text>
           </View>
         </View>
