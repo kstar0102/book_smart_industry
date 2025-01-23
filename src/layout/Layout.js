@@ -88,6 +88,7 @@ import HospitalityRestaurantHirePostShift from './hospitality/restaurant/hire/ho
 import HospitalityRestaurantHireEditShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_editshift.js';
 import HospitalityRestaurantHireEditProfile from './hospitality/restaurant/hire/hospitality_restaurant_hire_editprofile.js';
 import HospitalityRestaurantHireForgot from './hospitality/restaurant/hire/hospitality_restaurant_hire_forgot.js';
+import HospitalityRestaurantHireTerms from './hospitality/restaurant/hire/hospitality_restaurant_hire_terms.js';
 
 import HospitalityHotelWorkSignIn from './hospitality/hotel/work/hospitality_hotel_work_signin.js';
 import HospitalityHotelWorkSignUp from './hospitality/hotel/work/hospitality_hotel_work_signup.js';
@@ -138,6 +139,12 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityHotelHireEditShift'
         component = {HospitalityHotelHireEditShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireTerms'
+        component = {HospitalityRestaurantHireTerms}
         options={{headerShown: false}}
       />
 

@@ -126,7 +126,9 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
         // } else {
         //   handleSignInNavigate('ClientPermission');
         // }
-        navigation.navigate('HospitalityRestaurantHireHome');
+        // navigation.navigate('HospitalityRestaurantHireHome');
+        navigation.navigate('HospitalityRestaurantHireTerms');
+        
       } else {
         setRequest(false);
         if (response.error.status == 401) {
