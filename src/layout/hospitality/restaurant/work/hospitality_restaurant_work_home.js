@@ -19,6 +19,7 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
   const [firstName, setFirstName] = useAtom(firstNameAtom);
   const [lastName, setLastName] = useAtom(lastNameAtom);
   const [email, setEmail] = useAtom(emailAtom);
+  const [title, setTitle] = useAtom(titleAtom);
   const [userRole, setUserRole] = useAtom(userRoleAtom);
 
   const handleNavigate = (navigateUrl) => {
@@ -28,7 +29,7 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
   const userInfo = [
     {title: 'Name', content: firstName + ' ' + lastName},
     {title: 'Email', content: email},
-    {title: 'User Roles', content: "Restaurant - " + titleAtom},
+    {title: 'User Roles', content: "Restaurant - " + title},
   ];
 
   return (
