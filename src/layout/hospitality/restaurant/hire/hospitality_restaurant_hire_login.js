@@ -118,7 +118,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
           await AsyncStorage.setItem('restaurantHirePSW', loginPW);
         }
 
-        if (response.user.clinicalAcknowledgeTerm) {
+        if (response.user.AcknowledgeTerm) {
           handleSignInNavigate('HospitalityRestaurantHireHome');
         } else {
           handleSignInNavigate('HospitalityRestaurantHireTerms');
