@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, StatusBar, Text, TouchableOpacity, Modal, TouchableWithoutFeedback, Dimensions } from 'react-native';
+import { View, StyleSheet, StatusBar, Text, TouchableOpacity, Modal, Image, TouchableWithoutFeedback, Dimensions } from 'react-native';
 import { Card } from 'react-native-paper';
 import { useAtom } from 'jotai';
 import { firstNameAtom, lastNameAtom,  } from '../context/AdminAuthProvider';
+import { RFValue } from 'react-native-responsive-fontsize';
+import images from '../assets/images';
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,6 +12,7 @@ export default function AHeader({currentPage, navigation}) {
   const [firstName, setFirstName] = useAtom(firstNameAtom);
   const [lastName, setLastName] = useAtom(lastNameAtom);
   const [modal, setModal] = useState(false);
+  const [curTab, setCurTab] = useState('');
   const toggleModal = () => {
     setModal(!modal);
   };
@@ -46,16 +49,124 @@ export default function AHeader({currentPage, navigation}) {
                   <Text style={styles.headerText}>{firstName + ' ' + lastName}</Text>
                 </View>
                 <View style={styles.body}>
-                  <View style={styles.modalBody}>
-                    <Text style={[styles.subTitle, currentPage === 0 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminDashboard')}>📊 Admin Dashboard</Text>
-                    <Text style={[styles.subTitle, currentPage === 1 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllJobShiftListing')}>📋 All Job  / Shift Listings</Text>
-                    <Text style={[styles.subTitle, currentPage === 2 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminCompany')}>💼 Admin / Company Profile</Text>
-                    <Text style={[styles.subTitle, currentPage === 3 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminHome')}>🏚️ Admin Home</Text>
-                    <Text style={[styles.subTitle, currentPage === 4 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllCaregivers')}>👩‍⚕️ All Caregivers</Text>
-                    <Text style={[styles.subTitle, currentPage === 5 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminAllUser')}>🎯 Admin - All Users </Text>
-                    <Text style={[styles.subTitle, currentPage === 6 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminFacilities')}>🏢 All Facilities</Text>
-                    <Text style={[styles.subTitle, currentPage === 7 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('CaregiverTimeSheet')}>Caregiver Timesheet</Text>
-                  </View>
+                  {curTab === '' && (
+                    <View style={styles.modalBody}>
+                      <View style={{ width: 'auto', height: 30, marginVertical: 10 }}>
+                        <TouchableOpacity
+                          style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                          onPress={() => setCurTab('Healthcare')}
+                        >
+                          <Image
+                            source={images.healthcare}
+                            style={{ width: 40, height: 40 }}
+                            resizeMode="contain"
+                          />
+                          <Text style={styles.title}>HEALTHCARE</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={{ width: 'auto', height: 30, marginVertical: 10 }}>
+                        <TouchableOpacity
+                          style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                          onPress={() => setCurTab('Hospitality')}
+                        >
+                          <Image
+                            source={images.hospital}
+                            style={{ width: 40, height: 40 }}
+                            resizeMode="contain"
+                          />
+                          <Text style={styles.title}>Hospitality</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={{ width: 'auto', height: 30, marginVertical: 10 }}>
+                        <TouchableOpacity
+                          style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                          onPress={() => setCurTab('Construction')}
+                        >
+                          <Image
+                            source={images.construction}
+                            style={{ width: 40, height: 40 }}
+                            resizeMode="contain"
+                          />
+                          <Text style={styles.title}>Construction</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  )}
+                  {curTab === 'Healthcare' && (
+                    <View style={styles.modalBody}>
+                      <View style={{ width: 'auto', height: 30, marginBottom: 20 }}>
+                        <TouchableOpacity
+                          style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                          onPress={() => setCurTab('')}
+                        >
+                          <Image
+                            source={images.healthcare}
+                            style={{ width: 40, height: 40 }}
+                            resizeMode="contain"
+                          />
+                          <Text style={styles.title}>HEALTHCARE</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={[styles.subTitle, currentPage === 0 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminDashboard')}>📊 Admin Dashboard</Text>
+                      <Text style={[styles.subTitle, currentPage === 1 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllJobShiftListing')}>📋 All Job  / Shift Listings</Text>
+                      <Text style={[styles.subTitle, currentPage === 2 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminCompany')}>💼 Admin / Company Profile</Text>
+                      <Text style={[styles.subTitle, currentPage === 3 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminHome')}>🏚️ Admin Home</Text>
+                      <Text style={[styles.subTitle, currentPage === 4 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllCaregivers')}>👩‍⚕️ All Caregivers</Text>
+                      <Text style={[styles.subTitle, currentPage === 5 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminAllUser')}>🎯 Admin - All Users </Text>
+                      <Text style={[styles.subTitle, currentPage === 6 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminFacilities')}>🏢 All Facilities</Text>
+                      <Text style={[styles.subTitle, currentPage === 7 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('CaregiverTimeSheet')}>Caregiver Timesheet</Text>
+                    </View>
+                  )}
+                  {curTab === 'Hospitality' && (
+                    <View style={styles.modalBody}>
+                      <View style={{ width: 'auto', height: 30, marginBottom: 20 }}>
+                        <TouchableOpacity
+                          style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                          onPress={() => setCurTab('')}
+                        >
+                          <Image
+                            source={images.hospital}
+                            style={{ width: 40, height: 40 }}
+                            resizeMode="contain"
+                          />
+                          <Text style={styles.title}>Hospitality</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={[styles.subTitle, currentPage === 0 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminDashboard')}>📊 Admin Dashboard</Text>
+                      <Text style={[styles.subTitle, currentPage === 1 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllJobShiftListing')}>📋 All Job  / Shift Listings</Text>
+                      <Text style={[styles.subTitle, currentPage === 2 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminCompany')}>💼 Admin / Company Profile</Text>
+                      <Text style={[styles.subTitle, currentPage === 3 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminHome')}>🏚️ Admin Home</Text>
+                      <Text style={[styles.subTitle, currentPage === 4 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllCaregivers')}>👩‍⚕️ All Independent Contractors</Text>
+                      <Text style={[styles.subTitle, currentPage === 5 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminAllUser')}>🎯 Admin - All Users </Text>
+                      <Text style={[styles.subTitle, currentPage === 6 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminFacilities')}>🏢 All Hotels & Restaurants</Text>
+                      <Text style={[styles.subTitle, currentPage === 7 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('CaregiverTimeSheet')}>Contractor Timesheet</Text>
+                    </View>
+                  )}
+                  {curTab === 'Construction' && (
+                    <View style={styles.modalBody}>
+                      <View style={{ width: 'auto', height: 30, marginBottom: 20 }}>
+                        <TouchableOpacity
+                          style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}
+                          onPress={() => setCurTab('')}
+                        >
+                          <Image
+                            source={images.construction}
+                            style={{ width: 40, height: 40 }}
+                            resizeMode="contain"
+                          />
+                          <Text style={styles.title}>Construction</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={[styles.subTitle, currentPage === 0 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminDashboard')}>📊 Admin Dashboard</Text>
+                      <Text style={[styles.subTitle, currentPage === 1 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllJobShiftListing')}>📋 All Job  / Shift Listings</Text>
+                      <Text style={[styles.subTitle, currentPage === 2 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminCompany')}>💼 Admin / Company Profile</Text>
+                      <Text style={[styles.subTitle, currentPage === 3 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminHome')}>🏚️ Admin Home</Text>
+                      <Text style={[styles.subTitle, currentPage === 4 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AllCaregivers')}>👩‍⚕️ All Caregivers</Text>
+                      <Text style={[styles.subTitle, currentPage === 5 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminAllUser')}>🎯 Admin - All Users </Text>
+                      <Text style={[styles.subTitle, currentPage === 6 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('AdminFacilities')}>🏢 All Facilities</Text>
+                      <Text style={[styles.subTitle, currentPage === 7 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('CaregiverTimeSheet')}>Caregiver Timesheet</Text>
+                    </View>
+                  )}
                 </View>
               </View>
             </TouchableWithoutFeedback>
@@ -116,7 +227,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingTop: 10,
     width: '100%'
   },
@@ -129,8 +240,14 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     paddingVertical: 10,
+    marginLeft: 10,
     color: 'blue',
     fontSize: 18,
+    width: '100%'
+  },
+  title: {
+    color: 'black',
+    fontSize: RFValue(20),
     width: '100%'
   }
 });
