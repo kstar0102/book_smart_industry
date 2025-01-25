@@ -9,7 +9,6 @@ import Loader from '../../../Loader';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs'
-import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import MHeader from '../../../../components/Mheader';
@@ -19,6 +18,7 @@ import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import { getTitleList, Signup } from '../../../../utils/useApi';
 import images from '../../../../assets/images';
+
 const { width, height } = Dimensions.get('window');
 
 export default function HospitalityRestaurantWorkSignup({ navigation }) {
@@ -41,11 +41,14 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     state: '',
     zip: '',
   });
-  const [photoImage, setPhotoImage] = useState({
+  const [resume, setResume] = useState({
     content: '',
     type: '',
     name: ''
   });
+  const [exp1, setExp1] = useState('');
+  const [exp2, setExp2] = useState('');
+  const [exp3, setExp3] = useState('');
   const [signature, setSignature] = useState({content: ''});
   const [showModal, setShowModal] = useState(false);
   const [showCalender, setShowCalendar] = useState(false);
@@ -132,11 +135,6 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     setFiletypeSelectModal(!fileTypeSelectModal);
   };
 
-  const handleChangeFileType = (mode) => {
-    setFiletype(mode);
-    toggleFileTypeSelectModal();
-  };
-
   const openCamera = async () => {
     const options = {
       mediaType: 'photo', // Use 'video' for video capture
@@ -182,7 +180,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
           const fileUri = response.assets[0].uri;
           const fileContent = await RNFS.readFile(fileUri, 'base64');
           
-          setPhotoImage({
+          setResume({
             content: fileContent,
             type: 'image',
             name: response.assets[0].fileName,
@@ -236,7 +234,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
           const pickedImage = response.assets[0].uri;
           const fileContent = await RNFS.readFile(pickedImage, 'base64');
           
-          setPhotoImage({
+          setResume({
             content: fileContent,
             type: 'image',
             name: response.assets[0].fileName,
@@ -292,7 +290,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
       } else {
         fileType = 'unknown';
       }
-      setPhotoImage({content: `${fileContent}`, type: fileType, name: res[0].name});
+      setResume({content: `${fileContent}`, type: fileType, name: res[0].name});
       toggleFileTypeSelectModal();
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -430,9 +428,10 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
         socialSecurityNumber: ssNumber,
         verifiedSocialSecurityNumber: verifySSNumber,
         address,
-        photoImage,
+        resume,
         signature: signature.content,
-        userRole: "hotelWorker"
+        userRole: "hotelWorker",
+        relevantExep: JSON.stringify([exp1, exp2, exp3])
       };
 
       const response = await Signup(credentials, 'hotel_user');
@@ -440,8 +439,8 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
         setSending(false);
         setIsSubmitting(false);
         Alert.alert(
-          "SignUp Success",
-          "",
+          "Registration Successful",
+          "Please check your email for the next steps.",
           [
             {
               text: 'OK',
@@ -727,7 +726,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
             
             <View>
-              <Text style={constStyles.signUpSubtitle}> Upload Pic. (Optional)</Text>
+              <Text style={constStyles.signUpSubtitle}> Upload Resume. (Optional)</Text>
               <View style={{flexDirection: 'row', width: '100%'}}>
                 <TouchableOpacity title="Select File" onPress={toggleFileTypeSelectModal} style={styles.chooseFile}>
                   <Text style={{fontWeight: '400', padding: 0, fontSize: RFValue(12), color: 'black'}}>Choose File</Text>
@@ -737,7 +736,31 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
-                  value={photoImage.name || ''}
+                  value={resume.name || ''}
+                />
+              </View>
+            </View>
+
+            <View style={styles.email}>
+              <Text style={constStyles.signUpSubtitle}> Relevant Experiences <Text style={{color: 'red'}}>*</Text> </Text>
+              <View style={{flexDirection: 'column', width: '100%', gap: 5}}>
+                <TextInput
+                  style={[constStyles.signUpinput, {width: '100%'}]}
+                  placeholder=""
+                  onChangeText={e => setExp1(e)}
+                  value={exp1 || ''}
+                />
+                <TextInput
+                  style={[constStyles.signUpinput, {width: '100%'}]}
+                  placeholder=""
+                  onChangeText={e => setExp2(e)}
+                  value={exp2 || ''}
+                />
+                <TextInput
+                  style={[constStyles.signUpinput, {width: '100%'}]}
+                  placeholder=""
+                  onChangeText={e => setExp3(e)}
+                  value={exp3 || ''}
                 />
               </View>
             </View>

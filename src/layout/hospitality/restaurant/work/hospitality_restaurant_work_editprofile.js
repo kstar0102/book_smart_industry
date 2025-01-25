@@ -29,13 +29,16 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [address, setAddress] = useState('');
-  const [photoImage, setPhotoImage] = useState('');
+  const [resume, setresume] = useState('');
   const [title, setTitle] = useState('');
   const [birthdays, setBirthdays] = useState(new Date());
   const [socialSecurityNumber, setSocialSecurityNumber] = useState('');
   const [sfileType, setFiletype] = useState('');
   const [fileTypeSelectModal, setFiletypeSelectModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [exp1, setExp1] = useState('');
+  const [exp2, setExp2] = useState('');
+  const [exp3, setExp3] = useState('');
 
   const [ credentials, setCredentials ] = useState({
     firstName: firstName,
@@ -46,7 +49,8 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
     birthday: birthdays,
     socialSecurityNumber: socialSecurityNumber,
     address: address,
-    photoImage: photoImage,
+    resume: resume,
+    relevantExep: JSON.stringify([exp1, exp2, exp3])
   });
 
   const getData = async () => {
@@ -63,6 +67,14 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
             } else {
               updatedCredentials[key] = new Date();
               setBirthdays(new Date());
+            }
+          } else if (key === 'relevantExep') {
+            if (result.userData[key]) {
+              const expes = JSON.parse(result.userData[key]);
+              setExp1(expes[0]);
+              setExp2(expes[1]);
+              setExp3(expes[2]);
+              updatedCredentials[key] = result.userData[key];
             }
           } else if (typeof updatedCredentials[key] === 'object') {
             updatedCredentials[key] = { ...updatedCredentials[key], ...result.userData[key] };
@@ -234,6 +246,11 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
       setDegree([]);
     }
   };
+
+  useEffect(() => {
+    const temp = JSON.stringify([exp1, exp2, exp3]);
+    handleCredentials('relevantExep', temp);
+  }, [exp1, exp2, exp3]);
 
   const handleCredentials = (target, e) => {
     if (target !== "streetAddress" && target !== "streetAddress2" && target !== "city" && target !== "state" && target !== "zip") {
@@ -524,8 +541,6 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
       setLoading(true);
       try {
         const response = await Update(credentials, 'restau_user');
-        console.log(response);
-        console.log(credentials);
         if (!response?.error) {
           console.log('successfully Updated')
           setLoading(false);
@@ -777,18 +792,18 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
               </View>
             </View>
             <View>
-              <Text style={constStyles.loginSubTitle}> Pic. (Optional)</Text>
-              {credentials.photoImage.name !== "" && <View style={{marginBottom: 10}}>
+              <Text style={constStyles.loginSubTitle}> Resume. (Optional)</Text>
+              {credentials.resume.name !== "" && <View style={{marginBottom: 10}}>
                 <Text style={constStyles.profileChoosenText}
-                  onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'photoImage' })}
-                >{credentials.photoImage.name} &nbsp;&nbsp;</Text>
+                  onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'resume' })}
+                >{credentials.resume.name} &nbsp;&nbsp;</Text>
                 <Text style={constStyles.profileChoosenText}
-                  onPress = {() => handleRemove('photoImage')}
+                  onPress = {() => handleRemove('resume')}
                 >remove</Text>
               </View>}
               
               <View style={{flexDirection: 'row', width: '100%'}}>
-                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('photoImage')} style={styles.chooseFile}>
+                <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('resume')} style={styles.chooseFile}>
                   <Text style={{fontWeight: '400', padding: 0, fontSize: RFValue(12), color: 'black'}}>Choose File</Text>
                 </TouchableOpacity>
                 <TextInput
@@ -796,7 +811,30 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
-                  value={credentials.photoImage.name || ''}
+                  value={credentials.resume.name || ''}
+                />
+              </View>
+            </View>
+            <View>
+              <Text style={constStyles.loginSubTitle}> Relevant Experiences <Text style={{color: 'red'}}>*</Text> </Text>
+              <View style={{flexDirection: 'column', width: '100%', gap: 5}}>
+                <TextInput
+                  style={[constStyles.signUpinput, {width: '100%'}]}
+                  placeholder=""
+                  onChangeText={e => setExp1(e)}
+                  value={exp1 || ''}
+                />
+                <TextInput
+                  style={[constStyles.signUpinput, {width: '100%'}]}
+                  placeholder=""
+                  onChangeText={e => setExp2(e)}
+                  value={exp2 || ''}
+                />
+                <TextInput
+                  style={[constStyles.signUpinput, {width: '100%'}]}
+                  placeholder=""
+                  onChangeText={e => setExp3(e)}
+                  value={exp3 || ''}
                 />
               </View>
             </View>
