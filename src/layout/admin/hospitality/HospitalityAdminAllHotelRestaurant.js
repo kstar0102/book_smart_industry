@@ -491,11 +491,11 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
           <View style={styles.bottomBar} />
         </View>
         <View style={{ marginTop: 30, flexDirection: 'row', width: '90%', marginLeft: '5%', gap: 10 }}>
-          <TouchableOpacity style={[styles.subBtn, { width: 'auto' }]} onPress={() => navigation.navigate('AddNewFacility')}>
+          <TouchableOpacity style={[styles.subBtn, { width: 'auto' }]} onPress={() => navigation.navigate('HospitalityAddNewHire')}>
             <View style={{ backgroundColor: 'white', borderRadius: 10, width: 16, height: 16, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
               <Text style={{ fontWeight: 'bold', color: '#194f69', textAlign: 'center', lineHeight: 15 }}>+</Text>
             </View>
-            <Text style={styles.profileTitle}>Add A New Facility</Text>
+            <Text style={styles.profileTitle}>Add A New Restaurant & Hotel</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.profile}>

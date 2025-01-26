@@ -121,6 +121,7 @@ import HospitalityAllContactors from './admin/hospitality/HospitalityAllContacto
 import HospitalityAdminAllUsers from './admin/hospitality/HospitalityAdminAllUsers.js';
 import HospitalityAdminAllHotelRestaurant from './admin/hospitality/HospitalityAdminAllHotelRestaurant.js';
 import HospitalityAdminCaregiverTimeSheet from './admin/hospitality/HospitalityAdminCaregiverTimeSheet.js';
+import HospitalityAddNewHire from './admin/hospitality/HospitalityAddNewHire.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -147,6 +148,12 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityHomePage'
         component = {HospitalityHomePage}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAddNewHire'
+        component = {HospitalityAddNewHire}
         options={{headerShown: false}}
       />
 
