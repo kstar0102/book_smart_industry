@@ -50,6 +50,7 @@ export default function Mainboard ({ navigation }) {
             style={styles.iconImage}
             resizeMode="contain"
           />
+          <View style = {{height : RFValue(1.15)}}/>
           <TouchableOpacity
             style={styles.button}
             onPress={handleHealthCare}

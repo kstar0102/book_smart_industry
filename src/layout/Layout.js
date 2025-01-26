@@ -114,6 +114,14 @@ import HospitalityRestaurantWorkPhoneVerify from './hospitality/restaurant/work/
 import HospitalityHotelWorkPhone from './hospitality/hotel/work/hospitality_hotel_work_phone.js';
 import HospitalityHotelWorkPhoneVerify from './hospitality/hotel/work/hospitality_hotel_work_phoneverify.js';
 
+import HospitalityAdminDashboard from './admin/hospitality/HospitalityAdminDashboard.js';
+import HospitalityAllJobShiftList from './admin/hospitality/HospitalityAllJobShiftList.js';
+import HospitalityAdminAddJob from './admin/hospitality/HospitalityAdminAddJobShift.js';
+import HospitalityAllContactors from './admin/hospitality/HospitalityAllContactors.js';
+import HospitalityAdminAllUsers from './admin/hospitality/HospitalityAdminAllUsers.js';
+import HospitalityAdminAllHotelRestaurant from './admin/hospitality/HospitalityAdminAllHotelRestaurant.js';
+import HospitalityAdminCaregiverTimeSheet from './admin/hospitality/HospitalityAdminCaregiverTimeSheet.js';
+
 const Stack = createNativeStackNavigator();
 
 function Layout() {
@@ -141,10 +149,52 @@ function Layout() {
         component = {HospitalityHomePage}
         options={{headerShown: false}}
       />
+
+      <Stack.Screen 
+        name= 'HospitalityAdminCaregiverTimeSheet'
+        component = {HospitalityAdminCaregiverTimeSheet}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAdminAllHotelRestaurant'
+        component = {HospitalityAdminAllHotelRestaurant}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAdminAllUsers'
+        component = {HospitalityAdminAllUsers}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAdminAddJob'
+        component = {HospitalityAdminAddJob}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAllContactors'
+        component = {HospitalityAllContactors}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAllJobShiftList'
+        component = {HospitalityAllJobShiftList}
+        options={{headerShown: false}}
+      />
       
       <Stack.Screen 
         name= 'HospitalityHotelHireEditShift'
         component = {HospitalityHotelHireEditShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAdminDashboard'
+        component = {HospitalityAdminDashboard}
         options={{headerShown: false}}
       />
 
