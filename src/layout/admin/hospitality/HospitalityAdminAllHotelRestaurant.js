@@ -8,7 +8,7 @@ import images from '../../../assets/images';
 import MFooter from '../../../components/Mfooter';
 import SubNavbar from '../../../components/SubNavbar';
 import AHeader from '../../../components/Aheader';
-import { getAllFacility, getFacilityInfo, updatePassword, updateUserInfo } from '../../../utils/useApi';
+import { getAllHotelAndRestaurants, getHotelAndRestaurantInfo, updatePassword, updateUserInfo } from '../../../utils/useApi';
 import AnimatedHeader from '../../AnimatedHeader';
 import Loader from '../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -156,20 +156,12 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
     setFilters(newFilters);
   };
 
-  const handleRemoveFilter = (index) => {
-    const newFilters = [...filters];
-    newFilters.splice(index, 1);
-    getData({ search: search, page: curPage, filters: newFilters }, true);
-    setFilters(newFilters);
-  };
-
   const handleSubmit = () => {
     setIsSubmitted(true);
     toggleAddFilterModal();
     const requestData = { search: search, page: curPage, filters: filters };
     getData(requestData, true);
   };
-
 
   const addFilter = () => {
     setFilters([...filters, { logic: 'and', field: 'AIC-ID', condition: 'is', value: '', valueType: 'text' }]);
@@ -216,12 +208,12 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
     setFilters(newFilters);
   };
 
-  const getData = async (requestData = { search: search, page: curPage, filters: filters }, isFilter = isSubmitted ) => {
+  const getData = async (requestData = { search: search, page: curPage }, isFilter = isSubmitted ) => {
     if (!isFilter) {
       requestData.filters = [];
     }
     setLoading(true);
-    let data = await getAllFacility(requestData, 'facilities');
+    let data = await getAllHotelAndRestaurants(requestData, 'hospitality');
     if(!data) {
       setData(['No Data'])
     } else {
@@ -248,7 +240,7 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
   const handleReset = (event) => {
     event.persist();
     setSearch(''); 
-    getData({ search: '', page: curPage, filters: filters});
+    getData({ search: '', page: curPage });
   };
   
   const handleSearch = (event) => {
@@ -403,7 +395,7 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
       return;
     }
 
-    let response = await updatePassword({ userId: cellData[0], userRole: 'Facilities', password, tmpPassword }, 'admin');
+    let response = await updatePassword({ userId: cellData[0], userRole: cellData[7], password, tmpPassword }, 'hospitality');
     getData();
     toggleRestPWModal();
   };
@@ -420,12 +412,10 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
 
   const handleShowFacilityInfoModal = async (data) => {
     setLoading(true);
-    let response = await getFacilityInfo({ userId: data[0] }, 'facilities');
+    let response = await getHotelAndRestaurantInfo({ userId: data[0], userRole: data[7] }, 'hospitality');
     if (!response.error) {
       let shiftsData = response.jobData;
       shiftsData.unshift(shiftsTableHeader);
-      console.log(response.userData);
-      console.log(response.jobData);
       setFacility(response.userData);
       setShifts(shiftsData);
       toggleUserProfileModal();
@@ -491,11 +481,17 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
           <View style={styles.bottomBar} />
         </View>
         <View style={{ marginTop: 30, flexDirection: 'row', width: '90%', marginLeft: '5%', gap: 10 }}>
-          <TouchableOpacity style={[styles.subBtn, { width: 'auto' }]} onPress={() => navigation.navigate('HospitalityAddNewHire')}>
+          <TouchableOpacity style={[styles.subBtn, { width: 'auto' }]} onPress={() => navigation.navigate('HospitalityAddNewHotel')}>
             <View style={{ backgroundColor: 'white', borderRadius: 10, width: 16, height: 16, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
               <Text style={{ fontWeight: 'bold', color: '#194f69', textAlign: 'center', lineHeight: 15 }}>+</Text>
             </View>
-            <Text style={styles.profileTitle}>Add A New Restaurant & Hotel</Text>
+            <Text style={styles.profileTitle}>Add A New Hotel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.subBtn, { width: 'auto' }]} onPress={() => navigation.navigate('HospitalityAddNewHotel')}>
+            <View style={{ backgroundColor: 'white', borderRadius: 10, width: 16, height: 16, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+              <Text style={{ fontWeight: 'bold', color: '#194f69', textAlign: 'center', lineHeight: 15 }}>+</Text>
+            </View>
+            <Text style={styles.profileTitle}>Add A New Restaurant</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.profile}>
@@ -1311,7 +1307,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
-    fontSize: RFValue(16),
+    fontSize: RFValue(14),
   },
   input: {
     backgroundColor: 'white', 

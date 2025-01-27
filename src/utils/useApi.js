@@ -41,6 +41,24 @@ export const getAllFacility = async (userData, endpoint) => {
   }
 }
 
+export const getAllHotelAndRestaurants = async (userData, endpoint) => {
+  try {
+    const existingToken = await AsyncStorage.getItem('token');
+    const response = await axios.post(`api/${endpoint}/getAllHotelAndRestaurants`, userData, {
+      headers: {
+        Authorization: `Bearer ${existingToken}`
+      }
+    });
+    if (response.data.token) {
+      await AsyncStorage.setItem('token', response.data.token);
+    }
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return {error: error};
+  }
+}
+
 export const ForgotPassword = async (credentials, endpoint) => {
   try {
     console.log("login");
@@ -236,6 +254,26 @@ export const getFacilityInfo = async (data, endpoint) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
     const response = await axios.post(`api/${endpoint}/getFacilityInfo`, data, {
+      headers: {
+        Authorization: `Bearer ${existingToken}`
+      }
+    });
+
+    if (response.status === 200) {
+      if (response.data.token) {
+        await AsyncStorage.setItem('token', response.data.token);
+      }
+    } 
+    return response.data;
+  } catch (error) {
+    return {error: error}
+  }
+}
+
+export const getHotelAndRestaurantInfo = async (data, endpoint) => {
+  try {
+    const existingToken = await AsyncStorage.getItem('token');
+    const response = await axios.post(`api/${endpoint}/getHotelAndRestaurantInfo`, data, {
       headers: {
         Authorization: `Bearer ${existingToken}`
       }

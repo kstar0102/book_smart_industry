@@ -116,13 +116,15 @@ import HospitalityHotelWorkPhoneVerify from './hospitality/hotel/work/hospitalit
 
 import HospitalityAdminDashboard from './admin/hospitality/HospitalityAdminDashboard.js';
 import HospitalityAllJobShiftList from './admin/hospitality/HospitalityAllJobShiftList.js';
-import HospitalityAdminAddJob from './admin/hospitality/HospitalityAdminAddJobShift.js';
+import HospitalityAdminAddHotelJob from './admin/hospitality/HospitalityAdminAddHotelJob.js';
+import HospitalityAddRestaurantJob from './admin/hospitality/HospitalityAdminAddRestaurantJob.js';
 import HospitalityAllContactors from './admin/hospitality/HospitalityAllContactors.js';
 import HospitalityAdminAllUsers from './admin/hospitality/HospitalityAdminAllUsers.js';
 import HospitalityAdminAllHotelRestaurant from './admin/hospitality/HospitalityAdminAllHotelRestaurant.js';
 import HospitalityAdminCaregiverTimeSheet from './admin/hospitality/HospitalityAdminCaregiverTimeSheet.js';
-import HospitalityAddNewHire from './admin/hospitality/HospitalityAddNewHire.js';
+import HospitalityAddNewHotel from './admin/hospitality/HospitalityAddNewHotel.js';
 import HospitalityVerifyCation from './admin/hospitality/HospitalityVerifycation.js';
+import HospitalityAddNewRestaurant from './admin/hospitality/HospitalityAddNewRestaurant.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -153,8 +155,8 @@ function Layout() {
       />
 
       <Stack.Screen 
-        name= 'HospitalityAddNewHire'
-        component = {HospitalityAddNewHire}
+        name= 'HospitalityAddNewHotel'
+        component = {HospitalityAddNewHotel}
         options={{headerShown: false}}
       />
 
@@ -177,8 +179,20 @@ function Layout() {
       />
 
       <Stack.Screen 
-        name= 'HospitalityAdminAddJob'
-        component = {HospitalityAdminAddJob}
+        name= 'HospitalityAddNewRestaurant'
+        component = {HospitalityAddNewRestaurant}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAddRestaurantJob'
+        component = {HospitalityAddRestaurantJob}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAdminAddHotelJob'
+        component = {HospitalityAdminAddHotelJob}
         options={{headerShown: false}}
       />
 

@@ -1,38 +1,38 @@
+import { Alert, StyleSheet, View, Image, Button, Text, ScrollView, TouchableOpacity, Dimensions, Modal, StatusBar } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { Alert, StyleSheet, View, Image, Button, Text, Dimensions, ScrollView, TouchableOpacity, Modal, StatusBar } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import { Dropdown } from 'react-native-element-dropdown';
 import DatePicker from 'react-native-date-picker';
+import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
+import { TextInput } from 'react-native-paper';
 import moment from 'moment';
-import images from '../../../assets/images';
+import { useAtom } from 'jotai';
 import HButton from '../../../components/Hbutton';
 import MHeader from '../../../components/Mheader';
 import MFooter from '../../../components/Mfooter';
-import { PostJob, getDegreeList, addDegreeItem, Clinician, getLocationList, addLocationItem } from '../../../utils/useApi';
+import images from '../../../assets/images';
 import SubNavbar from '../../../components/SubNavbar';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { addTitle, addLocationItem, getTitleList, getLocationList, PostJob } from '../../../utils/useApi';
+import { companyNameAtom, aicAtom } from '../../../context/HotelHireProvider'
 import Loader from '../../Loader';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const { width, height } = Dimensions.get('window');
 
-export default function HospitalityAdminAddJob ({ navigation }) {
-  const [loading, setLoading] = useState(false);
-  const [facility, setFacility] = useState([]);
-  const [facilityValue, setFacilityValue] = useState('');
-  const [isFacilityFocus, setIsFacilityFocus] = useState(false);
+export default function HospitalityAdminAddHotelJob({ navigation }) {
+  const [facility, setFacility] = useAtom(companyNameAtom);
+  const [facilityId, setFacilityId] = useAtom(aicAtom);
+  const [degree, setDegree] = useState([])
   const [degreeValue, setDegreeValue] = useState(null);
   const [isDegreeFocus, setIsDegreeFocus] = useState(false);
   const [locationValue, setLocationValue] = useState(null);
-  const [showAddDegreeModal, setShowAddDegreeModal] = useState(false);
-  const [showAddLocationModal, setShowAddLocationModal] = useState(false);
   const [isLocationFocus, setIsLocationFocus] = useState(false);
+  const [degreeItem, setDegreeItem] = useState('');
+  const [showAddDegreeModal, setShowAddDegreeModal] = useState(false);
   const [shiftFromDay, setShiftFromDay] = useState(new Date());
   const [showCalender, setShowCalendar] = useState(false);
-  const [degreeItem, setDegreeItem] = useState('');
+  const [showAddLocationModal, setShowAddLocationModal] = useState(false);
+  const [loading, setloading] = useState(false);
   const [locationItem, setLocationItem] = useState('');
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
-  const [degree, setDegree] = useState([]);
   const [location, setLocation] = useState([]);
   const [startHour, setStartHour] = useState(1);
   const [endHour, setEndHour] = useState(9);
@@ -50,15 +50,15 @@ export default function HospitalityAdminAddJob ({ navigation }) {
   const [endDate, setEndDate] = useState(moment(new Date()).format("MM/DD/YYYY"));
 
   const [ credentials, setCredentials ] = useState({
-    facility: '',
+    jobNum: '',
     degree: '',
     shiftTime: "",
     shiftDate: moment(new Date()).format("MM/DD/YYYY"),
-    jobNum: '',
     location: '',
     payRate: '',
     bonus: '',
-    facilityId: '',
+    facility: facility,
+    facilityId: facilityId
   });
   const hours = [
     {label: '1', value: 1},
@@ -85,18 +85,13 @@ export default function HospitalityAdminAddJob ({ navigation }) {
     {label: 'PM', value: 'PM'}
   ];
 
-  useEffect(() => {
-    const areRequiredFieldsFilled = 
-      credentials.facility.trim() !== '' &&
-      credentials.degree.trim() !== '' &&
-      credentials.shiftTime.trim() !== '' &&
-      credentials.shiftDate.trim() !== '';
-
-    setIsButtonEnabled(areRequiredFieldsFilled);
-  }, [credentials]);
-
   const formatTime = (hour, minute, type) => {
     return `${hour}:${minute.toString().padStart(2, '0')} ${type}`;
+  };
+
+  const convertTo24HourFormat = (hour, minute, type) => {
+    const adjustedHour = type === 'PM' && hour !== 12 ? hour + 12 : type === 'AM' && hour === 12 ? 0 : hour;
+    return adjustedHour * 60 + minute; // Convert to minutes for easier comparison
   };
 
   const formatDateTime = (date, hour, minute, type) => {
@@ -182,31 +177,18 @@ export default function HospitalityAdminAddJob ({ navigation }) {
     credentials.shiftDate,
     endDate,
   ]);
-  
-  useEffect(() => {
-    setCredentials({...credentials, ['facility']: facilityValue});
-  }, [credentials.facilityId]);
 
-  const getData = async () => {
-    setLoading(true);
-    let data = await Clinician('facilities/getFacilityList', 'Admin');
-    setLoading(false);
-    if(!data?.error) {
-      const uniqueValues = new Set();
-      const transformed = [];
-  
-      data.forEach(subarray => {
-        const value = subarray[2];
-        if (!uniqueValues.has(value)) {
-          uniqueValues.add(value);
-          transformed.push({ label: value, value: value, id: subarray[0] });
-        }
+  const getDegree = async () => {
+    const response = await getTitleList('Hotel');
+    if (!response?.error) {
+      let tempArr = [];
+      response.data.map(item => {
+        tempArr.push({ label: item.titleName, value: item.titleName });
       });
-  
-      transformed.unshift({ label: 'Select...', value: 'Select...', id: '' });
-      setFacility(transformed);
+      tempArr.unshift({ label: 'Select...', value: 'Select...' });
+      setDegree(tempArr);
     } else {
-      console.log('get list failure');
+      setDegree([]);
     }
   };
 
@@ -224,23 +206,8 @@ export default function HospitalityAdminAddJob ({ navigation }) {
     }
   };
 
-  const getDegree = async () => {
-    const response = await getDegreeList('degree');
-    if (!response?.error) {
-      let tempArr = [];
-      response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
-      });
-      tempArr.unshift({ label: 'Select...', value: 'Select...' });
-      setDegree(tempArr);
-    } else {
-      setDegree([]);
-    }
-  }
-
   useFocusEffect(
     React.useCallback(() => {
-      getData();
       getDegree();
       getLocation();
     }, [])
@@ -254,9 +221,10 @@ export default function HospitalityAdminAddJob ({ navigation }) {
     } else {
       setCredentials({...credentials, [target]: e});
     }
-  };
+  }
 
-  const toggleShowAddDegreeModal = () => {
+  const toggleAddDegreeModal = () => {
+    console.log('star');
     setShowAddDegreeModal(!showAddDegreeModal);
   };
 
@@ -284,57 +252,44 @@ export default function HospitalityAdminAddJob ({ navigation }) {
     );
   };
 
-  const showAlerts1 = (name) => {
-    Alert.alert(
-      'Warning!',
-      `You have to select ${name}!`,
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            console.log('OK pressed')
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
   const handleSubmit = async () => {
-    if (credentials.facility === '') {
-      showAlerts1('Facility');
-    } else if (credentials.degree === '') {
-      showAlerts1('Degree');
+    setloading(true);
+    if (credentials.degree === '') {
+      setloading(false);
+      showAlerts('Degree');
     } else if (credentials.shift === '') {
-      showAlerts('Shift')
+      setloading(false);
+      showAlerts('Shift');
     } else if (credentials.shiftDate === '') {
-      showAlerts('Shift Date')
+      setloading(false);
+      showAlerts('Shift Date');
     } else {
-      setIsButtonEnabled(true);
       try {
-        const response = await PostJob(credentials, 'jobs');
-        navigation.goBack();
+        const response = await PostJob(credentials, 'hotel/jobs');
+        console.log(response);
+        setloading(false);
+        navigation.navigate('HospitalityHotelHireHome');
       } catch (error) {
-        setIsButtonEnabled(false);
-        console.error('Job Shift failed: ', error);
+        setloading(false);
+        console.error('Job Shift failed: ', error)
       }
     }
   };
 
-  const handleAddDegree = async (item) => {
-    const response = await addDegreeItem({ item }, 'degree');
+  const handleAddDegree = async () => {
+    let response = await addTitle({ item: degreeItem, type: "Hotel" });
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
+        tempArr.push({ label: item.titleName, value: item.titleName });
       });
       tempArr.unshift({ label: 'Select...', value: 'Select...' });
       setDegree(tempArr);
     } else {
       setDegree([]);
     }
-    setShowAddDegreeModal(!showAddDegreeModal)
-    setDegreeItem('')
+    setDegreeItem('');
+    toggleAddDegreeModal();
   };
 
   const handleAddLocation = async () => {
@@ -355,49 +310,28 @@ export default function HospitalityAdminAddJob ({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
+      <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <SubNavbar navigation={navigation} name={"FacilityLogin"} />
-      <ScrollView style = {styles.scroll} showsVerticalScrollIndicator={false}>
+      <SubNavbar navigation={navigation} name={"HospitalityRestaurantHireLogin"} />
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
-          <View style= {{width: '80%', marginLeft: '10%', marginTop: 20}}>
-            <Text style={styles.headBar}>Hospitality Add A New Job / Shift</Text>
+          <View style= {{width: '100%',  marginTop: 20, paddingHorizontal: RFValue(20)}}>
+            <Text style={styles.headBar}>
+              Add A New Job / Shift
+            </Text>
           </View>
           <View style={styles.authInfo}>
             <View>
-              <Text style={styles.subtitle}> Select Facility <Text style={{color: 'red'}}>*</Text></Text>
-              <Dropdown
-                style={[styles.dropdown, isFacilityFocus && { borderColor: 'blue' }]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                itemTextStyle={styles.itemTextStyle}
-                iconStyle={styles.iconStyle}
-                data={facility}
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder={'Select...'}
-                value={facilityValue}
-                onFocus={() => setIsFacilityFocus(true)}
-                onBlur={() => setIsFacilityFocus(false)}
-                onChange={item => {
-                  setFacilityValue(item.value);
-                  setIsFacilityFocus(false);
-                  setCredentials({...credentials, ['facilityId']: item.id});
-                }}
-                renderLeftIcon={() => (
-                  <View
-                    style={styles.icon}
-                    color={isFacilityFocus ? 'blue' : 'black'}
-                    name="Safety"
-                    size={20}
-                  />
-                )}
+              <Text style={styles.subtitle}> Job # </Text>
+              <TextInput
+                style={[styles.input, {width: '100%'}]}
+                placeholder=""
+                onChangeText={e => handleCredentials('jobNum', e)}
+                value={credentials.jobNum || ''}
               />
             </View>
             <View>
-              <Text style={styles.subtitle}> Degree/Discipline <Text style={{color: 'red'}}>*</Text></Text>
+              <Text style={styles.subtitle}> Degree/Discipline </Text>
               <Dropdown
                 style={[styles.dropdown, isDegreeFocus && { borderColor: 'blue' }]}
                 placeholderStyle={styles.placeholderStyle}
@@ -409,14 +343,14 @@ export default function HospitalityAdminAddJob ({ navigation }) {
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
-                placeholder={'Select ...'}
+                placeholder={''}
                 value={degreeValue}
                 onFocus={() => setIsDegreeFocus(true)}
                 onBlur={() => setIsDegreeFocus(false)}
                 onChange={item => {
-                  setDegreeValue(item?.value);
+                  setDegreeValue(item.value);
                   setIsDegreeFocus(false);
-                  handleCredentials('degree', item?.label)
+                  handleCredentials('degree', item.label)
                 }}
                 renderLeftIcon={() => (
                   <View
@@ -427,13 +361,13 @@ export default function HospitalityAdminAddJob ({ navigation }) {
                   />
                 )}
               />
-              <TouchableOpacity style={styles.addItems} onPress={toggleShowAddDegreeModal}>
+              <TouchableOpacity style={styles.addItems} onPress={toggleAddDegreeModal}>
                 <Image source={images.plus} style={{width: 15, height: 15}} />
                 <Text style={[styles.text, {color: '#2a53c1', marginTop: 0}]}>Add a new options</Text>
               </TouchableOpacity>
             </View>
             <View>
-              <Text style={styles.subtitle}>Time <Text style={{color: 'red'}}>*</Text> </Text>
+              <Text style={styles.subtitle}> Shift <Text style={{color: 'red'}}>*</Text> </Text>
               <View>
                 <View style={{flexDirection: 'column', width: '100%', gap: 5, position: 'relative'}}>
                   <TouchableOpacity onPress={() => {setShowCalendar(true), console.log(showCalender)}} style={{width: '100%', height: 40, zIndex: 1}}></TouchableOpacity>
@@ -659,15 +593,6 @@ export default function HospitalityAdminAddJob ({ navigation }) {
               </View>
             </View>
             <View>
-              <Text style={styles.subtitle}> Job # </Text>
-              <TextInput
-                style={[styles.input, {width: '100%'}]}
-                placeholder=""
-                onChangeText={e => handleCredentials('jobNum', e)}
-                value={credentials.jobNum || ''}
-              />
-            </View>
-            <View>
               <Text style={styles.subtitle}> Location </Text>
               <Dropdown
                 style={[styles.dropdown, isLocationFocus && { borderColor: 'blue' }]}
@@ -704,7 +629,7 @@ export default function HospitalityAdminAddJob ({ navigation }) {
               </TouchableOpacity>
             </View>
             <View>
-              <Text style={styles.subtitle}> Pay Rate </Text>
+              <Text style={styles.subtitle}> Hourly Rate </Text>
               <TextInput
                 style={[styles.input, {width: '100%'}]}
                 placeholder=""
@@ -722,10 +647,7 @@ export default function HospitalityAdminAddJob ({ navigation }) {
               />
             </View>
             <View style={[styles.btn, {marginTop: 20}]}>
-              <HButton style={[
-                styles.subBtn, 
-                  { backgroundColor: isButtonEnabled ? '#6a1b9a' : '#c1c1c1' }
-                ]} onPress={ handleSubmit} disabled={!isButtonEnabled} >
+              <HButton style={styles.subBtn} onPress={ handleSubmit }>
                 Submit
               </HButton>
             </View>
@@ -743,9 +665,9 @@ export default function HospitalityAdminAddJob ({ navigation }) {
         <View style={styles.modalContainer}>
           <View style={styles.calendarContainer}>
             <View style={styles.header}>
-              <Text style={[styles.headerText, { color: 'black' }]}>Add a new option</Text>
-              <TouchableOpacity style={{width: 20, height: 20, }} onPress={toggleShowAddDegreeModal}>
-                <Image source = {images.close} style={{width: 20, height: 20,}}/>
+              <Text style={styles.headerText}>Add a new option</Text>
+              <TouchableOpacity style={{width: RFValue(20), height: RFValue(20), }} onPress={toggleAddDegreeModal}>
+                <Image source = {images.close} style={{width: RFValue(20), height: RFValue(20),}}/>
               </TouchableOpacity>
             </View>
             <View style={styles.body}>
@@ -757,7 +679,7 @@ export default function HospitalityAdminAddJob ({ navigation }) {
                     onChangeText={e => setDegreeItem(e)}
                     value={degreeItem}
                   />
-                  <HButton style={[styles.subBtn, { width: 'auto', paddingVertical: 5 }]} onPress={() => handleAddDegree(degreeItem)}>
+                  <HButton style={[styles.subBtn, { width: 'auto', paddingHorizontal: 10, paddingVertical: 5, fontWeight: '100', fontSize: RFValue(14) }]} onPress={handleAddDegree}>
                     Submit
                   </HButton>
                 </View>
@@ -808,19 +730,25 @@ export default function HospitalityAdminAddJob ({ navigation }) {
 
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
-    fontSize: RFValue(16),
+    fontSize: 16,
+    // paddingVertical: 4,
+    // paddingHorizontal: 10,
     borderRadius: 4,
     color: 'black',
+    // paddingRight: 30,
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: 'hsl(0, 0%, 86%)',
     margin: 0,
   },
   inputAndroid: {
-    fontSize: RFValue(8),
+    fontSize: 8,
+    // paddingHorizontal: 10,
+    // paddingVertical: 0,
     margin: 0,
     borderRadius: 10,
     color: 'black',
+    // paddingRight: 30,
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: 'hsl(0, 0%, 86%)',
@@ -833,19 +761,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fffff8'
   },
   scroll: {
-    marginTop: height * 0.22
+    marginTop: height * 0.22,
   },
   headBar: {
     textAlign: 'center',
     backgroundColor: '#BC222F',
     color: 'white',
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: RFValue(10),
+    borderRadius: RFValue(10),
     fontSize: RFValue(18),
     fontWeight: 'bold'
   },
   text: {
-    fontSize: RFValue(14),
+    fontSize: 14,
     color: 'hsl(0, 0%, 29%)',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -856,7 +784,7 @@ const styles = StyleSheet.create({
     width: '90%',
     borderRadius: 10,
     margin: '5%',
-    marginBottom: 100,
+    marginBottom: 150,
     borderWidth: 1,
     borderColor: 'grey',
     overflow: 'hidden',
@@ -869,8 +797,8 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'white', 
-    height: 30, 
-    marginBottom: 10, 
+    height: RFValue(30), 
+    marginBottom: RFValue(10), 
     borderWidth: 1, 
     borderColor: 'hsl(0, 0%, 86%)',
   },
@@ -884,7 +812,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 30,
     marginLeft: '10%',
-    fontSize: RFValue(20),
+    fontSize: 20,
     borderRadius: 5,
   },
   mark: {
@@ -904,12 +832,12 @@ const styles = StyleSheet.create({
     fontSize: RFValue(16),
     color: 'black',
     textAlign: 'left',
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: RFValue(10),
+    paddingBottom: RFValue(10),
     fontWeight: 'bold'
   },
   middleText: {
-    fontSize: RFValue(16),
+    fontSize: 16,
     margin: 0,
     lineHeight: 16,
     color: 'black'
@@ -927,20 +855,21 @@ const styles = StyleSheet.create({
   },
   btn: {
     flexDirection: 'column',
-    gap: 20
+    gap: 20,
   },
   subBtn: {
     marginTop: 0,
     padding: 10,
     backgroundColor: '#A020F0',
     color: 'white',
-    fontSize: RFValue(16),
+    fontSize: 16,
   },
   drinksButton: {
-    fontSize: RFValue(18),
+    fontSize: 18,
     padding: 15,
     borderWidth: 3,
     borderColor: 'white',
+
   },
   checkbox: {
     width: 20,
@@ -979,8 +908,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   headerText: {
-    fontSize: RFValue(18),
+    fontSize: RFValue(16),
     fontWeight: 'bold',
+    color: "black"
   },
   closeButton: {
     color: 'red',
@@ -1023,7 +953,7 @@ const styles = StyleSheet.create({
     top: 8,
     zIndex: 999,
     paddingHorizontal: 8,
-    fontSize: RFValue(14),
+    fontSize: 14,
   },
   placeholderStyle: {
     color: 'black',
@@ -1052,7 +982,7 @@ const styles = StyleSheet.create({
     gap: 10
   },
   middleText: {
-    fontSize: RFValue(14),
+    fontSize: 14,
     margin: 0,
     lineHeight: 16,
     color: 'black'

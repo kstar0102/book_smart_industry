@@ -1,21 +1,41 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Alert, Animated, Easing, StyleSheet, View, Text, Dimensions, ScrollView, TouchableOpacity, Modal, StatusBar, Image } from 'react-native';
-import { TextInput } from 'react-native-paper';
-import images from '../../../assets/images';
-import HButton from '../../../components/Hbutton';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Modal,
+  Animated,
+  Easing,
+  StatusBar,
+  Image
+} from 'react-native';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { Dimensions } from 'react-native';
 import MHeader from '../../../components/Mheader';
 import MFooter from '../../../components/Mfooter';
-import { Signup } from '../../../utils/useApi';
-// Choose file
+import HButton from '../../../components/Hbutton';
+import AnimatedHeader from '../../AnimatedHeader';
+import constStyles from '../../../assets/styles';
+import Loader from '../../Loader';
+import { useFocusEffect } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs'
-import { RFValue } from 'react-native-responsive-fontsize';
+import { Signup } from '../../../utils/useApi';
+import images from '../../../assets/images';
 
 const { width, height } = Dimensions.get('window');
 
-export default function HospitalityAddNewHire({ navigation }) {
+export default function HospitalityAddNewHotel({ navigation }) {
+  const [fileType, setFiletype] = useState('');
+  const [fileTypeSelectModal, setFiletypeSelectModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     const increaseAnimation = Animated.timing(fadeAnim, {
@@ -37,8 +57,11 @@ export default function HospitalityAddNewHire({ navigation }) {
     Animated.loop(sequenceAnimation).start();
   }, [fadeAnim]);
 
-  const [fileType, setFiletype] = useState('');
-  const [fileTypeSelectModal, setFiletypeSelectModal] = useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsSubmitting(false);
+    }, [])
+  );
 
   //--------------------------------------------Credentials-----------------------------
   const [credentials, setCredentials] = useState({
@@ -62,8 +85,8 @@ export default function HospitalityAddNewHire({ navigation }) {
     },
     confirmPassword: '',
     signature: '',
-    userRole: 'Facilities'
-  })
+    userRole: 'hotelManager'
+  });
 
   const handleCredentials = (target, e) => {
     if (target !== "street" && target !== "street2" && target !== "city" && target !== "state" && target !== "zip") {
@@ -75,15 +98,103 @@ export default function HospitalityAddNewHire({ navigation }) {
     } else {
       setCredentials({ ...credentials, address: { ...credentials.address, [target]: e } })
     }
-  }
+  };
+
   const toggleFileTypeSelectModal = () => {
     setFiletypeSelectModal(!fileTypeSelectModal);
   };
+
+  // const [title, setTitle] = useState('');
+  // const [isModalVisible, setModalVisible] = useState(false);
+
+  // const titles = ['Front Desk', 'Housekeeping'];
+
+  const validation = () => {
+    // Create an array of checks for each required field with corresponding error messages
+    const fieldChecks = [
+      { field: credentials.companyName, message: 'Company Name is required' },
+      { field: credentials.contactEmail, message: 'Contact Email is required' },
+      { field: credentials.firstName, message: 'First Name is required' },
+      { field: credentials.lastName, message: 'Last Name is required' },
+      { field: credentials.contactPhone, message: 'Contact Phone is required' },
+      { field: credentials.password, message: 'Password is required' },
+      { field: credentials.confirmPassword, message: 'Password is required' },
+      { field: credentials.address?.street, message: 'Street Address is required' },
+      { field: credentials.address?.city, message: 'City is required' },
+      { field: credentials.address?.state, message: 'State is required' },
+      { field: credentials.address?.zip, message: 'ZIP code is required' },
+      { field: credentials.signature, message: 'Signature is required' },
+    ];
   
-  const handleChangeFileType = (mode) => {
-    setFiletype(mode);
-    toggleFileTypeSelectModal();
+    // Iterate over the field checks and show an alert for the first empty field
+    for (const check of fieldChecks) {
+      if (!check.field || check.field === '') {
+        Alert.alert(
+          'Validation Error',
+          check.message,
+          [{ text: 'OK', onPress: () => console.log(`${check.message} alert acknowledged`) }],
+          { cancelable: false }
+        );
+        return false; // Return false if any field is invalid
+      }
+    }
+
+    if (credentials.password !== credentials.confirmPassword) {
+      showPswWrongAlert();
+      return false;
+    }
+  
+    return true; // Return true if all fields are valid
   };
+
+  const showPswWrongAlert = () => {
+    Alert.alert(
+      'Warning!',
+      "The Password doesn't matched. Please try again.",
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            setPassword('');
+            setConfirmPassword('');
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const formatPhoneNumber = (input) => {
+    // Remove all non-numeric characters from the input
+    const cleaned = input.replace(/\D/g, '');
+
+    // If the cleaned input has 1 or 2 characters, return it as is
+    if (cleaned.length === 1 || cleaned.length === 2) {
+        return cleaned;
+    }
+
+    // Apply the desired phone number format
+    let formattedNumber = '';
+    if (cleaned.length >= 3) {
+        formattedNumber = `(${cleaned.slice(0, 3)})`;
+    }
+    if (cleaned.length > 3) {
+        formattedNumber += ` ${cleaned.slice(3, 6)}`;
+    }
+    if (cleaned.length > 6) {
+        formattedNumber += `-${cleaned.slice(6, 10)}`;
+    }
+    return formattedNumber;
+  };
+
+  const handlePhoneNumberChange = (text) => {
+    const formattedNumber = formatPhoneNumber(text); 
+    handleCredentials('contactPhone', formattedNumber);
+  };
+
+  const handleHospitalityHome = () => {
+    navigation.navigate('HospitalityAdminAllHotelRestaurant');
+  }
 
   const openCamera = async () => {
     const options = {
@@ -240,7 +351,8 @@ export default function HospitalityAddNewHire({ navigation }) {
       } else {
         fileType = 'unknown';
       }
-      handleCredentials('avatar', { content: `${fileContent}`, type: fileType, name: res[0].name });
+  
+      handleCredentials('avatar', {content: `${fileContent}`, type: fileType, name: res[0].name});
       toggleFileTypeSelectModal();
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -251,146 +363,27 @@ export default function HospitalityAddNewHire({ navigation }) {
     }
   };
 
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  //Alert
-  const showAlert = () => {
-    Alert.alert(
-      'Warning!',
-      "The Password doesn't matched. Please try again.",
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            console.log('');
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  const handlePassword = () => {
-    if (credentials.password !== confirmPassword ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
- 
-  //------------------------------------------Phone Input----------------
-  const formatPhoneNumber = (input) => {
-    // Remove all non-numeric characters from the input
-    const cleaned = input.replace(/\D/g, '');
-
-    // If the cleaned input has 1 or 2 characters, return it as is
-    if (cleaned.length === 1 || cleaned.length === 2) {
-        return cleaned;
-    }
-
-    // Apply the desired phone number format
-    let formattedNumber = '';
-    if (cleaned.length >= 3) {
-        formattedNumber = `(${cleaned.slice(0, 3)})`;
-    }
-    if (cleaned.length > 3) {
-        formattedNumber += ` ${cleaned.slice(3, 6)}`;
-    }
-    if (cleaned.length > 6) {
-        formattedNumber += `-${cleaned.slice(6, 10)}`;
-    }
-    return formattedNumber;
-  };
-
-  const handlePhoneNumberChange = (text) => {
-    const formattedNumber = formatPhoneNumber(text); 
-    handleCredentials('contactPhone', formattedNumber);
-  };
-
-  const handleBack = () => {
-    navigation.navigate('AdminFacilities');
-  }
-
-  //Alert
-  const showAlerts = (name) => {
-    Alert.alert(
-      'Warning!',
-      `You have to input ${name}!`,
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            console.log('OK pressed')
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
-  const validation = () => {
-    // Create an array of checks for each required field with corresponding error messages
-    const fieldChecks = [
-      { field: credentials.companyName, message: 'Company Name is required' },
-      { field: credentials.contactEmail, message: 'Contact Email is required' },
-      { field: credentials.firstName, message: 'First Name is required' },
-      { field: credentials.lastName, message: 'Last Name is required' },
-      { field: credentials.contactPhone, message: 'Contact Phone is required' },
-      { field: credentials.password, message: 'Password is required' },
-      { field: credentials.confirmPassword, message: 'Password is required' },
-      { field: credentials.address?.street, message: 'Street Address is required' },
-      { field: credentials.address?.city, message: 'City is required' },
-      { field: credentials.address?.state, message: 'State is required' },
-      { field: credentials.address?.zip, message: 'ZIP code is required' },
-    ];
-  
-    // Iterate over the field checks and show an alert for the first empty field
-    for (const check of fieldChecks) {
-      if (!check.field || check.field === '') {
-        Alert.alert(
-          'Validation Error',
-          check.message,
-          [{ text: 'OK', onPress: () => console.log(`${check.message} alert acknowledged`) }],
-          { cancelable: false }
-        );
-        return false; // Return false if any field is invalid
-      }
-    }
-
-    if (credentials.password !== credentials.confirmPassword) {
-      showPswWrongAlert();
-      return false;
-    }
-  
-    return true; // Return true if all fields are valid
-  };
-
-  const showPswWrongAlert = () => {
-    Alert.alert(
-      'Warning!',
-      "The Password doesn't matched. Please try again.",
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            setPassword('');
-            setConfirmPassword('');
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
-
   const handleSubmit = async () => {
-    if (!validation()) {
+    if (isSubmitting) {
       return;
     }
+    console.log('clicked');
+
+    if (!validation()) {
+      setIsSubmitting(false);
+      return;
+    }
+    setIsSubmitting(true);
     try {
-      const response = await Signup(credentials, "facilities");
+      setSending(true);
+      const response = await Signup(credentials, "hotel_manager");
+      console.log(response);
       if (!response?.error) {
-        navigation.navigate('AdminFacilities');
+        setSending(false);
+        navigation.navigate('HospitalityAddNewHotel');
       } else {
+        setIsSubmitting(false);
+        setSending(false);
         if (response.error.status == 500) {
           Alert.alert(
             'Warning!',
@@ -450,6 +443,8 @@ export default function HospitalityAddNewHire({ navigation }) {
         }
       }
     } catch (error) {
+      setIsSubmitting(false);
+      setSending(false);
       console.error('Signup failed: ', error);
       Alert.alert(
         'Failure!',
@@ -465,22 +460,22 @@ export default function HospitalityAddNewHire({ navigation }) {
         { cancelable: false }
       );
     }
-  }
+  };
+
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.intro}>
-            <AnimatedHeader title="Add A New Restaurant & Hotel"/>
+            <AnimatedHeader title="REGISTER HERE!" />
           </View>
           <View style={styles.authInfo}>
             <View style={styles.email}>
-              <Text style={styles.subtitle}> Company Name <Text style={{ color: 'red' }}>*</Text>  </Text>
-              <View style={{ flexDirection: 'row', width: '100%', gap: 5 }}>
+              <Text style={constStyles.signUpSubtitle}> Company Name <Text style={{ color: 'red' }}>*</Text> </Text>
+              <View style={{ flexDirection: 'row', width: '100%', gap: RFValue(5) }}>
                 <TextInput
-                  style={[styles.input, { width: '100%' }]}
+                  style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
@@ -490,16 +485,16 @@ export default function HospitalityAddNewHire({ navigation }) {
               </View>
             </View>
             <View style={styles.email}>
-              <Text style={styles.subtitle}> Contact Name <Text style={{ color: 'red' }}>*</Text> </Text>
+              <Text style={constStyles.signUpSubtitle}> Contact Name <Text style={{ color: 'red' }}>*</Text> </Text>
               <View style={{ flexDirection: 'row', width: '100%', gap: 5 }}>
                 <TextInput
-                  style={[styles.input, { width: '50%' }]}
+                  style={[constStyles.signUpinput, { width: '50%', paddingLeft: RFValue(10) }]}
                   placeholder="First"
                   onChangeText={e => handleCredentials('firstName', e)}
                   value={credentials.firstName || ''}
                 />
                 <TextInput
-                  style={[styles.input, { width: '50%' }]}
+                  style={[constStyles.signUpinput, { width: '50%', paddingLeft: RFValue(10) }]}
                   placeholder="Last"
                   onChangeText={e => handleCredentials('lastName', e)}
                   value={credentials.lastName || ''}
@@ -507,10 +502,10 @@ export default function HospitalityAddNewHire({ navigation }) {
               </View>
             </View>
             <View style={styles.email}>
-              <Text style={styles.subtitle}> Contact Email <Text style={{ color: 'red' }}>*</Text> </Text>
+              <Text style={constStyles.signUpSubtitle}> Contact Email <Text style={{ color: 'red' }}>*</Text> </Text>
               <View style={{ flexDirection: 'row', width: '100%', gap: 5 }}>
                 <TextInput
-                  style={[styles.input, { width: '100%' }]}
+                  style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
@@ -521,14 +516,14 @@ export default function HospitalityAddNewHire({ navigation }) {
               </View>
             </View>
             <View style={styles.email}>
-              <Text style={styles.subtitle}> Contact Phone <Text style={{ color: 'red' }}>*</Text> </Text>
+              <Text style={constStyles.signUpSubtitle}> Contact Phone <Text style={{ color: 'red' }}>*</Text> </Text>
               <View style={{ flexDirection: 'row', width: '100%', gap: 5 }}>
                 <TextInput
                   value={credentials.contactPhone}
-                  style={[styles.input, {width: '100%'}]}
+                  style={[constStyles.signUpinput, {width: '100%', paddingLeft: RFValue(10)}]}
                   onChangeText={e => handlePhoneNumberChange(e)}
                   keyboardType="phone-pad"
-                  placeholder=""
+                  placeholder="(___) ___-____"
                 />
               </View>
             </View>
@@ -537,7 +532,8 @@ export default function HospitalityAddNewHire({ navigation }) {
                 <Text style={{
                   backgroundColor: 'yellow',
                   marginBottom: 10,
-                  fontSize: RFValue(16),
+                  // width: 140, 
+                  fontSize: 16,
                   fontWeight: 'bold',
                   color: 'black'
                 }}>
@@ -549,7 +545,7 @@ export default function HospitalityAddNewHire({ navigation }) {
                 autoCorrect={false}
                 autoCapitalize="none"
                 secureTextEntry={true}
-                style={[styles.input, { width: '100%' }]}
+                style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                 placeholder="Password"
                 onChangeText={e => handleCredentials('password', e)}
                 value={credentials.password || ''}
@@ -558,122 +554,110 @@ export default function HospitalityAddNewHire({ navigation }) {
                 autoCorrect={false}
                 autoCapitalize="none"
                 secureTextEntry={true}
-                style={[styles.input, { width: '100%' }]}
+                style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                 placeholder="Confirm Password"
                 onChangeText={e => handleCredentials('confirmPassword', e)}
                 value={credentials.confirmPassword || ''}
               />
-              <Text style={[styles.subtitle, { fontStyle: 'italic', fontSize: RFValue(14), color: 'red' }]}>Create your password to access the platform</Text>
+              <Text style={[constStyles.signUpSubtitle, { fontStyle: 'italic', fontSize: RFValue(14), color: 'red' }]}>Create your password to access the platform</Text>
             </View>
-            {/* <View style={styles.password}>
-              <View style={{ flexDirection: 'row' }}>
-                <Text style={{
-                  marginBottom: 10,
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  color: 'black'
-                }}>
-                  Enter Password Again
-                </Text>
-              </View>
-              <TextInput
-                autoCorrect={false}
-                autoCapitalize="none"
-                // secureTextEntry={true}
-                style={[styles.input, { width: '100%' }]}
-                placeholder=""
-                onChangeText={e => handleCredentials('contactPassword', e)}
-                value={credentials.contactPassword || ''}
-              />
-              <Text style={[styles.subtitle, { fontSize: 14, fontWeight: '400' }]}> Send yourself a copy of your login information! ( optional ) </Text>
-            </View> */}
             <View style={styles.email}>
-              <Text style={styles.subtitle}> Address <Text style={{color: 'red'}}>*</Text></Text>
+              <Text style={constStyles.signUpSubtitle}> Address <Text style={{color: 'red'}}>*</Text></Text>
               <View style={{ flexDirection: 'column', width: '100%', gap: 5 }}>
-                <View style={{ width: '100%', marginBottom: 10 }}>
+                <View style={{ width: '100%', marginBottom: RFValue(10) }}>
                   <TextInput
-                    style={[styles.input, { width: '100%', marginBottom: 0 }]}
+                    style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                     placeholder=""
                     autoCorrect={false}
                     autoCapitalize="none"
                     onChangeText={e => handleCredentials('street', e)}
                     value={credentials.address.street || ''}
                   />
-                  <Text style={{ color: 'black', paddingLeft: 5 }}>Street Address<Text style={{color: 'red'}}> *</Text></Text>
+                  <Text style={constStyles.signUpsmalltitle}>Street Address<Text style={{color: 'red'}}> *</Text></Text>
                 </View>
-                <View style={{ width: '100%', marginBottom: 10 }}>
+                <View style={{ width: '100%', marginBottom: RFValue(10) }}>
                   <TextInput
-                    style={[styles.input, { width: '100%', marginBottom: 0 }]}
+                    style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                     placeholder=""
                     autoCorrect={false}
                     autoCapitalize="none"
                     onChangeText={e => handleCredentials('street2', e)}
                     value={credentials.address.street2 || ''}
                   />
-                  <Text style={{ color: 'black', paddingLeft: 5 }}>Street Address2</Text>
+                  <Text style={constStyles.signUpsmalltitle}>Street Address2</Text>
                 </View>
-                <View style={{ flexDirection: 'row', width: '100%', gap: 5, marginBottom: 30 }}>
-                  <View style={[styles.input, { width: '45%' }]}>
+                <View style={{ flexDirection: 'row', width: '100%', gap: 5, marginBottom: RFValue(30) }}>
+                  <View style={[constStyles.signUpinput, { width: '45%' }]}>
                     <TextInput
                       placeholder=""
-                      style={[styles.input, { width: '100%', marginBottom: 0 }]}
+                      style={[constStyles.signUpinput, { width: '100%', marginBottom: 0 }]}
                       onChangeText={e => handleCredentials('city', e)}
                       value={credentials.address.city || ''}
                     />
-                    <Text style={{ color: 'black', paddingLeft: 5 }}>City<Text style={{color: 'red'}}> *</Text></Text>
+                    <Text style={constStyles.signUpsmalltitle}>City<Text style={{color: 'red'}}> *</Text></Text>
                   </View>
-                  <View style={[styles.input, { width: '20%' }]}>
+                  <View style={[constStyles.signUpinput, { width: '20%' }]}>
                     <TextInput
                       placeholder=""
-                      style={[styles.input, { width: '100%', marginBottom: 0 }]}
+                      style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                       onChangeText={e => handleCredentials('state', e)}
                       value={credentials.address.state || ''}
                     />
-                    <Text style={{ color: 'black', paddingLeft: 5 }}>State<Text style={{color: 'red'}}> *</Text></Text>
+                    <Text style={constStyles.signUpsmalltitle}>State<Text style={{color: 'red'}}> *</Text></Text>
                   </View>
-                  <View style={[styles.input, { width: '30%' }]}>
+                  <View style={[constStyles.signUpinput, { width: '30%' }]}>
                     <TextInput
                       placeholder=""
-                      style={[styles.input, { width: '100%', marginBottom: 0 }]}
+                      style={[constStyles.signUpinput, { width: '100%', marginBottom: 0, paddingLeft: RFValue(10) }]}
                       onChangeText={e => handleCredentials('zip', e)}
                       value={credentials.address.zip || ''}
                     />
-                    <Text style={{ color: 'black', paddingLeft: 5 }}>Zip<Text style={{color: 'red'}}> *</Text></Text>
+                    <Text style={constStyles.signUpsmalltitle}>Zip<Text style={{color: 'red'}}> *</Text></Text>
                   </View>
                 </View>
               </View>
             </View>
 
             <View style={styles.email}>
-              <Text style={styles.subtitle}> Logo / Pic</Text>
+              <Text style={constStyles.signUpSubtitle}> Logo / Pic</Text>
               <View style={{ flexDirection: 'row', width: '100%' }}>
                 <TouchableOpacity title="Select File" onPress={toggleFileTypeSelectModal} style={styles.chooseFile}>
-                  <Text style={{ fontWeight: '400', padding: 0, fontSize: RFValue(14), color: 'black' }}>Choose File</Text>
+                  <Text style={{ fontWeight: '400', padding: 0, fontSize: RFValue(12), color: 'black' }}>Choose File</Text>
                 </TouchableOpacity>
                 <TextInput
-                  style={[styles.input, { width: '70%', color: 'black' }]}
+                  style={[constStyles.signUpinput, { width: '70%', color: 'black', paddingLeft: RFValue(10) }]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
                   value={credentials.avatar.name || ''}
                 />
               </View>
-              <Text style={{ color: 'black' }}> "optional"</Text>
+              <Text style={constStyles.signUpsmalltitle}> "optional"</Text>
             </View>
 
             <View style={[styles.btn, { marginTop: 20 }]}>
-              <HButton style={styles.subBtn} onPress={handleSubmit}>
+              {/* <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                <LinearGradient
+                  colors={['#A1E9F1', '#B980EC']}
+                  style={styles.gradientButton}
+                >
+                  <Text style={styles.buttonText}>Submit</Text>
+                </LinearGradient>
+              </TouchableOpacity> */}
+              <HButton style={styles.subBtn} 
+                onPress={ handleSubmit }>
                 Submit
               </HButton>
             </View>
 
             <Text style={{ textDecorationLine: 'underline', color: '#2a53c1', marginBottom: 20 }}
-              onPress={handleBack}
+              onPress={handleHospitalityHome}
             >
-              Back to 🏚️ All Facilities
+              Back to 🏚️ Hospitality Home
             </Text>
           </View>
         </View>
+
         {fileTypeSelectModal && (
           <Modal
             visible={fileTypeSelectModal} // Changed from Visible to visible
@@ -685,15 +669,15 @@ export default function HospitalityAddNewHire({ navigation }) {
           >
             <StatusBar translucent backgroundColor='transparent' />
             <ScrollView style={styles.modalsContainer} showsVerticalScrollIndicator={false}>
-              <View style={[styles.viewContainer, { marginTop: '50%' }]}>
-                <View style={[styles.header, { height: 100 }]}>
-                  <Text style={styles.headerText}>Choose File</Text>
+              <View style={[styles.viewContainer, { marginTop: '40%' }]}>
+                <View style={[styles.header, { height: RFValue(100) }]}>
+                  <Text style={constStyles.signUpheaderText}>Choose File</Text>
                   <TouchableOpacity style={{ width: 20, height: 20 }} onPress={toggleFileTypeSelectModal}>
                     <Image source={images.close} style={{ width: 20, height: 20 }} />
                   </TouchableOpacity>
                 </View>
                 <View style={styles.body}>
-                  <View style={[styles.modalBody, { marginBottom: 20 }]}>
+                  <View style={[styles.modalBody, { marginBottom: RFValue(20) }]}>
                     <View style={styles.cameraContain}>
                       <TouchableOpacity activeOpacity={0.5} style={styles.btnSheet} onPress={openCamera}>
                         <Image source={images.camera} style={{ width: 50, height: 50 }} />
@@ -715,43 +699,26 @@ export default function HospitalityAddNewHire({ navigation }) {
           </Modal>
         )}
       </ScrollView>
+      <Loader visible={sending} />
       <MFooter />
     </View>
   );
 }
 
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    // paddingVertical: 4,
-    // paddingHorizontal: 10,
-    borderRadius: 4,
-    color: 'black',
-    // paddingRight: 30,
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'hsl(0, 0%, 86%)',
-    margin: 0,
-  },
-  inputAndroid: {
-    fontSize: 8,
-    // paddingHorizontal: 10,
-    // paddingVertical: 0,
-    margin: 0,
-    borderRadius: 10,
-    color: 'black',
-    // paddingRight: 30,
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'hsl(0, 0%, 86%)',
-  },
-});
-
 const styles = StyleSheet.create({
   button: {
+    width : "70%",
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
+
+  gradientButton: {
+    height: RFValue(40), // Adjust the button height here
+    paddingVertical: 0, // Remove padding to maintain consistent height
     borderRadius: 10,
-    backgroundColor: 'red',
-    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5, // For shadow on Android
   },
   container: {
     marginBottom: 0,
@@ -770,7 +737,7 @@ const styles = StyleSheet.create({
     borderRadius: 10
   },
   title: {
-    fontSize: RFValue(20),
+    fontSize: 20,
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -780,18 +747,8 @@ const styles = StyleSheet.create({
     width: '90%',
     backgroundColor: 'transparent'
   },
-  marker: {
-    width: 5,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: 'white',
-    borderColor: 'black',
-    borderWidth: 1,
-    marginRight: 10,
-    marginTop: 17
-  },
   text: {
-    fontSize: RFValue(14),
+    fontSize: 14,
     color: 'hsl(0, 0%, 29%)',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -802,7 +759,7 @@ const styles = StyleSheet.create({
     width: '90%',
     borderRadius: 10,
     margin: '5%',
-    marginBottom: 100,
+    marginBottom: 150,
     borderWidth: 1,
     borderColor: 'grey',
     overflow: 'hidden',
@@ -813,10 +770,23 @@ const styles = StyleSheet.create({
     elevation: 0, // Elevation for Android devices
     backgroundColor: '#ffffffa8',
   },
+  btnSheet: {
+    height: RFValue(80),
+    width: RFValue(80),
+		justifyContent: "center",
+		alignItems: "center",
+		borderRadius: 10,
+		shadowOpacity: 0.5,
+		shadowRadius: 10,
+		margin: 5,
+		shadowColor: '#000',
+		shadowOffset: { width: 3, height: 3 },
+		marginVertical: 14, padding: 5,
+	},
   intro: {
-    marginTop: 30,
-    paddingHorizontal: 20,
-    marginBottom: 20
+    marginTop: RFValue(30),
+    paddingHorizontal: RFValue(20),
+    marginBottom: RFValue(20)
   },
   input: {
     backgroundColor: 'white',
@@ -835,7 +805,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 30,
     marginLeft: '10%',
-    fontSize: RFValue(18),
+    fontSize: 18,
     borderRadius: 5,
   },
   mark: {
@@ -852,7 +822,7 @@ const styles = StyleSheet.create({
     marginLeft: '25%',
   },
   subtitle: {
-    fontSize: RFValue(16),
+    fontSize: 16,
     color: 'black',
     textAlign: 'left',
     paddingTop: 10,
@@ -860,7 +830,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   middleText: {
-    fontSize: RFValue(16),
+    fontSize: 16,
     margin: 0,
     lineHeight: 16,
     color: 'black'
@@ -886,31 +856,7 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#A020F0',
     color: 'white',
-    fontSize: RFValue(16),
-  },
-  drinksButton: {
-    fontSize: RFValue(18),
-    padding: 15,
-    borderWidth: 3,
-    borderColor: 'white',
-
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 1,
-    borderColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  checkmark: {
-    color: '#000',
-  },
-  signature: {
-    flex: 1,
-    width: '100%',
-    height: 150,
+    fontSize: 16,
   },
   chooseFile: {
     width: '30%',
@@ -966,21 +912,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
-    height: '20%',
+    height: '20%,',
     padding: 20,
     borderBottomColor: '#c4c4c4',
     borderBottomWidth: 1,
   },
-  headerText: {
-    fontSize: RFValue(18),
-    fontWeight: 'bold',
-    color: 'black'
-  },
+  
   textStyle: {
     color: 'black'
-  },
-  closeButton: {
-    color: 'red',
   },
   body: {
     marginTop: 10,
@@ -992,25 +931,5 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		flexDirection: 'row'
 	},
-  pressBtn:{
-    top: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingRight: 10
-  },
-  btnSheet: {
-    height: RFValue(80),
-    width: RFValue(80),
-		justifyContent: "center",
-		alignItems: "center",
-		borderRadius: 10,
-		shadowOpacity: 0.5,
-		shadowRadius: 10,
-		margin: 5,
-		shadowColor: '#000',
-		shadowOffset: { width: 3, height: 3 },
-		marginVertical: 14, padding: 5,
-	},
+  
 });
