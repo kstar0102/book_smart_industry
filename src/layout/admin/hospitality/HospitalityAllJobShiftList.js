@@ -7,8 +7,8 @@ import images from '../../../assets/images';
 import MFooter from '../../../components/Mfooter';
 import SubNavbar from '../../../components/SubNavbar';
 import { Table } from 'react-native-table-component';
-import { Jobs, Update, Clinician, removeJob, Job, setAwarded, updateHoursStatus, getAllUsersName, 
-    getBidIDs, PostJob, updateDocuments, getLocationList, getDegreeList } from '../../../utils/useApi';
+import { Jobs, removeJob, Job, setAwarded, updateHoursStatus, getAllContractorList, 
+    getContractorBidIds, PostJob, updateDocuments } from '../../../utils/useApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import AHeader from '../../../components/Aheader';
 import DatePicker from 'react-native-date-picker';
@@ -426,12 +426,12 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   }
 
   const getAccounts = async () => {
-    setLoading(true);
-    const data = await getAllUsersName();
+    const data = await getAllContractorList({ Role: selectedJobRole });
+    console.log(data);
     if (data) {
       let tempArr = [];
       data.map(item => {
-        tempArr.push({ label: item, value: item });
+        tempArr.push({ label: item.firstName + " " + item.lastName, value: item.firstName + " " + item.lastName });
       });
       setAccounts(tempArr);
     } else {
@@ -440,8 +440,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   const getBidderList = async () => {
-    setLoading(true);
-    const data = await getBidIDs();
+    const data = await getContractorBidIds({ Role: selectedJobRole });
     if (data) {
       let tempArr = [];
       data.map(item => {
@@ -457,8 +456,6 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     React.useCallback(() => {
       async function featch() {
         setLoading(true);
-        await getAccounts();
-        await getBidderList();
         await getData();
         setLoading(false);
       }
@@ -693,7 +690,8 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   const handleChangeAwardStatus = async (bidderId, jobId) => {
-    const response = await setAwarded({ jobId: jobId, bidderId: bidderId, status: awardedStatus }, 'jobs');
+    console.log(selectedBidder);
+    const response = await setAwarded({ jobId: jobId, role: selectedJobRole, bidId: bidderId, status: awardedStatus }, 'hospitality');
     if (!response?.error) {
       getData();
       setIsAwardJobModal(false);
@@ -712,7 +710,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   const handlechangeJobInfo = async () => {
-    let response = await PostJob({ jobId: selectedJob?.jobId, bid: selectedBidId, account: selectedAccount, entryDate: moment(entryDate).format("MM/DD/YYYY") }, 'jobs');
+    let response = await PostJob({ jobId: selectedJob?.jobId, role: selectedJobRole, bid: selectedBidId, account: selectedAccount, entryDate: moment(entryDate).format("MM/DD/YYYY") }, 'hospitality');
     toggleJobEditModal();
     getData();
   };
@@ -802,21 +800,20 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     }
   };
 
-  const handleShowJobDetailModal = async (id) => {
-    console.log(id);
+  const handleShowJobDetailModal = async (params) => {
     setLoading(true);
-    let data = await Job({ jobId: id }, 'jobs');
+    let data = await Job({ jobId: params[2], role: params[19] }, 'hospitality');
     if(data?.error) {
       setSelectedJob(null);
+      setSelectedJobRole(null);
       setSelectedBidders([]);
       setLoading(false);
     } else {
       let biddersList = data.bidders;
       biddersList.unshift(bidderTableHeader);
       setSelectedJob(data.jobData);
+      setSelectedJobRole(params[19]);
       setSelectedBidders(biddersList);
-      console.log('--------------------------------', data.jobData);
-      console.log('--------------------------------', biddersList);
       setIsJobDetailModal(true);
       setLoading(false);
     }
@@ -824,6 +821,8 @@ export default function HospitalityAllJobShiftList({ navigation }) {
 
   const handleShowJobEditModal = async () => {
     toggleJobDetailModal();
+    await getAccounts();
+    await getBidderList();
     toggleJobEditModal();
   };
 
@@ -889,7 +888,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                 onPress={() => {
                   console.log(item[6]);
                   toggleJobDetailModal();
-                  navigation.navigate("CaregiverProfile", {id: item[6]});
+                  navigation.navigate("HospitalityCaregiverProfile", { id: item[6], role: selectedJobRole });
                 }}
               >
                 <Text style={styles.profileTitle}>View</Text>
@@ -915,6 +914,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                   borderRadius: 20,
                 }}
                 onPress={() => {
+                  console.log(item);
                   handleShowJobAwardModal(item[6]);
                 }}
               >
@@ -974,7 +974,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   const handleUpdate = async () => {
     console.log(selectedJobId);
     console.log(selectedJobStatus);
-    let results = await PostJob({ jobId: selectedJobId, jobStatus: selectedJobStatus }, 'jobs');
+    let results = await PostJob({ jobId: selectedJobId, role: selectedJobRole, jobStatus: selectedJobStatus }, 'hospitality');
     if (!results?.error) {
       toggleJobStatusModal();
       getData();
@@ -1048,6 +1048,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
 
   const handleCellClick = async (data) => {
     setSelectedJobId(data[2]);
+    setSelectedJobRole(data[19]); 
     setSelectedJobStatus(data[9]);
     toggleJobStatusModal();
   };
@@ -1333,7 +1334,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                                     }}
                                     onPress={() => {
                                       console.log('job id => ', rowData[2]);
-                                      handleShowJobDetailModal(rowData[2]);
+                                      handleShowJobDetailModal(rowData);
                                     }}
                                   >
                                     <Text style={styles.profileTitle}>View</Text>
@@ -1700,7 +1701,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
             <View style={styles.modalContainer}>
               <View style={[styles.calendarContainer, { height: '80%' }]}>
                 <View style={[styles.header, { height: 80 }]}>
-                  <Text style={styles.headerText}>Facility View Job Details</Text>
+                  <Text style={styles.headerText}>View Job Details</Text>
                   <TouchableOpacity style={{width: 20, height: 20}} onPress={toggleJobDetailModal}>
                     <Image source = {images.close} style={{width: 20, height: 20}}/>
                   </TouchableOpacity>

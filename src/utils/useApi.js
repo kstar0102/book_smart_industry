@@ -525,6 +525,15 @@ export const getBidIDs = async () => {
   }
 };
 
+export const getContractorBidIds = async (data) => {
+  try {
+    const response = await axios.post(`api/hospitality/getContractorBidIds`, data);
+    return response.data.bidList;
+  } catch (error) {
+    return { error: error };
+  }
+};
+
 export const getAllUsersName = async () => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
@@ -537,6 +546,15 @@ export const getAllUsersName = async () => {
     if (response.data.token) {
       await AsyncStorage.setItem('token', response.data.token);
     }
+    return response.data.userList;
+  } catch (error) {
+    return { error: error };
+  }
+};
+
+export const getAllContractorList = async (data) => {
+  try {
+    const response = await axios.post(`api/hospitality/getAllContractorList`, data);
     return response.data.userList;
   } catch (error) {
     return { error: error };

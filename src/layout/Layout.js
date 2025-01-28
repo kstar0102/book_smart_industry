@@ -125,6 +125,7 @@ import HospitalityAdminCaregiverTimeSheet from './admin/hospitality/HospitalityA
 import HospitalityAddNewHotel from './admin/hospitality/HospitalityAddNewHotel.js';
 import HospitalityVerifyCation from './admin/hospitality/HospitalityVerifycation.js';
 import HospitalityAddNewRestaurant from './admin/hospitality/HospitalityAddNewRestaurant.js';
+import HospitalityCaregiverProfile from './admin/hospitality/HospitalityCaregiverProfile.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -175,6 +176,12 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityAdminAllUsers'
         component = {HospitalityAdminAllUsers}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityCaregiverProfile'
+        component = {HospitalityCaregiverProfile}
         options={{headerShown: false}}
       />
 
