@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
 
   btn: {
     flexDirection: 'row',
-    marginBottom: RFValue(25),
+    marginBottom: RFValue(30),
     justifyContent: 'space-between'
   },
   
