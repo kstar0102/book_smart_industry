@@ -7,8 +7,8 @@ import images from '../../../assets/images';
 import MFooter from '../../../components/Mfooter';
 import SubNavbar from '../../../components/SubNavbar';
 import { Table } from 'react-native-table-component';
-import { Jobs, Update, Clinician, removeJob, Job, setAwarded, updateHoursStatus, getAllUsersName, 
-    getBidIDs, PostJob, updateDocuments, getLocationList, getDegreeList } from '../../../utils/useApi';
+import { Jobs, removeJob, Job, setAwarded, updateHoursStatus, getAllContractorList, 
+    getContractorBidIds, PostJob, updateDocuments } from '../../../utils/useApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import AHeader from '../../../components/Aheader';
 import DatePicker from 'react-native-date-picker';
@@ -26,10 +26,12 @@ import { RFValue } from 'react-native-responsive-fontsize';
 const { width, height } = Dimensions.get('window');
 
 export default function HospitalityAllJobShiftList({ navigation }) {
-  const [data, setData] = useState([]);
+  const [restauJobData, setRestauJobData] = useState([]);
+  const [hotelJobData, setHotelJobData] = useState([]);
   const [isJobDetailModal, setIsJobDetailModal] = useState(false);
   const [isAwardJobModal, setIsAwardJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedJobRole, setSelectedJobRole] = useState(null);
   const [selectedJobId, setSelectedJobId] = useState(0);
   const [selectedBidders, setSelectedBidders] = useState([]);
   const [selectedBidder, setSelectedBidder] = useState([]);
@@ -59,14 +61,17 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   const [selectedJobStatus, setSelectedJobStatus] = useState('');
   const [uploadFileType, setUploadFileType] = useState('');
   const [isFileUploadModa, setIsFileUploadModal] = useState(false);
-  const [search, setSearch] = useState('');
-  const [curPage, setCurPage] = useState(1);
+  const [rSearch, setRSearch] = useState('');
+  const [hSearch, setHSearch] = useState('');
+  const [rPage, setRCurpage] = useState(1);
+  const [hPage, setHCurpage] = useState(1);
   const [addfilterModal, setAddFilterModal] = useState(false);
   const [isexport, setIsexport] = useState(false);
   const [showDate, setShowDate] = useState(false);
   const [valueOption, setValueOption] = useState([]);
   const [nurseList, setNurseList] = useState([]);
-  const [isFocus, setIsFocus] = useState(false);
+  const [isRFocus, setRIsFocus] = useState(false);
+  const [isHFocus, setHIsFocus] = useState(false);
   const [isLogicFocus, setIsLogicFocus] = useState(false);
   const [isFieldFocus, setIsFieldFocus] = useState(false);
   const [isConditionFocus, setIsConditionFocus] = useState(false);
@@ -319,19 +324,12 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     setFilters(newFilters);
   };
 
-  const handleRemoveFilter = (index) => {
-    const newFilters = [...filters];
-    newFilters.splice(index, 1);
-    getData({ search: search, page: curPage, filters: newFilters }, true);
-    setFilters(newFilters);
-  };
   const handleSubmit = () => {
     setIsSubmitted(true);
     toggleAddFilterModal();
-    const requestData = { search: search, page: curPage };
+    const requestData = { rSearch: rSearch, rPage: rPage, hSearch: hSearch, hPage: hPage };
     getData(requestData, true);
   };
-
 
   const handleFilterChange = (index, key, value) => {
     const newFilters = [...filters];
@@ -402,30 +400,38 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     'Delete'
   ];
 
-  const getData = async (requestData = { search: search, page: curPage }, isFilter = isSubmitted ) => {
+  const getData = async (requestData = { rSearch: rSearch, rPage: rPage, hSearch: hSearch, hPage: hPage }, isFilter = isSubmitted ) => {
     setLoading(true);
-    let result = await Jobs(requestData, 'jobs', 'Admin');
+    let result = await Jobs(requestData, 'hospitality', 'Admin');
     if(!result) {
       setLoading(false);
-      setData(['No Data'])
+      setRestauJobData(['No Data'])
     } else {
-      let pageContent = [];
-      for (let i = 1; i <= result.totalPageCnt; i++) {
-        pageContent.push({ label: 'Page ' + i, value: i });
+      let restauJobPageContent = [];
+      for (let i = 1; i <= result.totalRestauPageCnt; i++) {
+        restauJobPageContent.push({ label: 'Page ' + i, value: i });
       }
-      setPageList(pageContent);
-      setData(result.dataArray);
+
+      let hotelJobPageContent = [];
+      for (let i = 1; i <= result.totalHotelPageCnt; i++) {
+        hotelJobPageContent.push({ label: 'Page ' + i, value: i });
+      }
+
+      setRestauJobPageList(restauJobPageContent);
+      setRestauJobData(result.restauDataArray);
+      setHotelJobPageList(hotelJobPageContent);
+      setHotelJobData(result.hotelDataArray);
       setLoading(false);
     }
   }
 
   const getAccounts = async () => {
-    setLoading(true);
-    const data = await getAllUsersName();
+    const data = await getAllContractorList({ Role: selectedJobRole });
+    console.log(data);
     if (data) {
       let tempArr = [];
       data.map(item => {
-        tempArr.push({ label: item, value: item });
+        tempArr.push({ label: item.firstName + " " + item.lastName, value: item.firstName + " " + item.lastName });
       });
       setAccounts(tempArr);
     } else {
@@ -434,8 +440,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   const getBidderList = async () => {
-    setLoading(true);
-    const data = await getBidIDs();
+    const data = await getContractorBidIds({ Role: selectedJobRole });
     if (data) {
       let tempArr = [];
       data.map(item => {
@@ -447,59 +452,10 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     }
   };
 
-  const getLocation = async () => {
-    setLoading(true);
-    const response = await getLocationList('location');
-    if (!response?.error) {
-      let tempArr = [];
-      response.data.map(item => {
-        tempArr.push({ label: item.locationName, value: item.locationName });
-      });
-      tempArr.unshift({ label: 'Select...', value: 'Select...' });
-      setLocation(tempArr);
-    } else {
-      setLocation([]);
-    }
-  };
-
-  const getNurseList = async () => {
-    setLoading(true);
-    let result = await Clinician('clinical/getAllList', 'Clinical');
-    if (!result.error) {
-      let nurses = [];
-      for (let i = 0; i < result.length; i++) {
-        nurses.push({ label: result[i], value: result[i] });
-      }
-      setNurseList(nurses);
-    } else {
-      setNurseList([]);
-    }
-  };
-
-  const getDegree = async () => {
-    setLoading(true);
-    const response = await getDegreeList('degree');
-    if (!response?.error) {
-      let tempArr = [];
-      response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
-      });
-      tempArr.unshift({ label: 'Select...', value: 'Select...' });
-      setDegress(tempArr);
-    } else {
-      setDegress([]);
-    }
-  };
-
   useFocusEffect(
     React.useCallback(() => {
       async function featch() {
         setLoading(true);
-        await getAccounts();
-        await getBidderList();
-        // getLocation();
-        // getDegree();
-        // getNurseList();
         await getData();
         setLoading(false);
       }
@@ -513,7 +469,10 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   //---------------DropDown--------------
-  const [pageList, setPageList] = useState([
+  const [restauJobPageList, setRestauJobPageList] = useState([
+    {label: 'Page 1', value: 1}
+  ]);
+  const [hotelJobPageList, setHotelJobPageList] = useState([
     {label: 'Page 1', value: 1}
   ]);
 
@@ -522,7 +481,6 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     {label: 'No', value: false}
   ];
 
-  const [value, setValue] = useState(null);
   const [isFocus1, setIsFocus1] = useState(false); 
   const widths = [150, 130, 100, 150, 200, 120, 150, 200, 150, 150, 150, 80, 150, 200, 200, 150, 250, 250, 100];
   const [modal, setModal] = useState(false)
@@ -531,14 +489,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   }
   const [rowData, setRowData] = useState(null);
   const [modalItem, setModalItem] = useState(0);
-  const [showCalendar, setShowCalendar] = useState(false);
   const [label, setLabel] = useState(null);
-  const [date,setDate] = useState(new Date());
-
-  const handleDay = (day) => {
-    setDate(day);
-    setLabel(moment(day).format("MM/DD/YYYY"));
-  }
 
   const toggleHoursDetailModal = () => {
     setIsHoursDetailModal(!isHoursDetailModal);
@@ -739,7 +690,8 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   const handleChangeAwardStatus = async (bidderId, jobId) => {
-    const response = await setAwarded({ jobId: jobId, bidderId: bidderId, status: awardedStatus }, 'jobs');
+    console.log(selectedBidder);
+    const response = await setAwarded({ jobId: jobId, role: selectedJobRole, bidId: bidderId, status: awardedStatus }, 'hospitality');
     if (!response?.error) {
       getData();
       setIsAwardJobModal(false);
@@ -758,7 +710,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   const handlechangeJobInfo = async () => {
-    let response = await PostJob({ jobId: selectedJob?.jobId, bid: selectedBidId, account: selectedAccount, entryDate: moment(entryDate).format("MM/DD/YYYY") }, 'jobs');
+    let response = await PostJob({ jobId: selectedJob?.jobId, role: selectedJobRole, bid: selectedBidId, account: selectedAccount, entryDate: moment(entryDate).format("MM/DD/YYYY") }, 'hospitality');
     toggleJobEditModal();
     getData();
   };
@@ -785,9 +737,8 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     {label: 'Paid', value: 'Paid'},
   ];
 
-  const [isJobFocus, setJobIsFocus] = useState(false);
-
   const [suc, setSuc] = useState(0);
+
   const getLocalTimeOffset = () => {
     const date = new Date();
     const offsetInMinutes = date.getTimezoneOffset(); // Offset in minutes
@@ -795,10 +746,11 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     return offsetInHours;
   };
 
-  const handleRemove = async (id) => {
-    let results = await removeJob({ jobId: id }, 'jobs');
+  const handleRemove = async (id, role) => {
+    setLoading(true);
+    let results = await removeJob({ jobId: id, role: role }, 'hospitality');
+    setLoading(false);
     if (!results?.error) {
-      console.log('success');
       Alert.alert('Success!', 'Successfully Removed', [
         {
           text: 'OK',
@@ -826,42 +778,42 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     ""
   ];
 
-  const handleShowHoursModal = async (id) => {
-    console.log(id);
+  const handleShowHoursModal = async (param) => {
     setLoading(true);
-    let data = await Job({ jobId: id }, 'jobs');
+    console.log(param);
+    let data = await Job({ jobId: param[2], role: param[19] }, 'hospitality');
     if(!data) {
       setLoading(false);
       setSelectedJob(null);
     } else {
+      console.log(data.jobData);
       setSelectedJob(data.jobData);
+      setSelectedJobRole(param[19]);
       setApproved(data.jobData.isHoursApproved);
       setContent('');
       setLunch(data.jobData.lunch);
       setPreTime();
       setToDate(new Date());
       setFromDate(new Date());
-      console.log('--------------------------------', data.jobData);
       setIsHoursDetailModal(true);
       setLoading(false);
     }
   };
 
-  const handleShowJobDetailModal = async (id) => {
-    console.log(id);
+  const handleShowJobDetailModal = async (params) => {
     setLoading(true);
-    let data = await Job({ jobId: id }, 'jobs');
+    let data = await Job({ jobId: params[2], role: params[19] }, 'hospitality');
     if(data?.error) {
       setSelectedJob(null);
+      setSelectedJobRole(null);
       setSelectedBidders([]);
       setLoading(false);
     } else {
       let biddersList = data.bidders;
       biddersList.unshift(bidderTableHeader);
       setSelectedJob(data.jobData);
+      setSelectedJobRole(params[19]);
       setSelectedBidders(biddersList);
-      console.log('--------------------------------', data.jobData);
-      console.log('--------------------------------', biddersList);
       setIsJobDetailModal(true);
       setLoading(false);
     }
@@ -869,6 +821,8 @@ export default function HospitalityAllJobShiftList({ navigation }) {
 
   const handleShowJobEditModal = async () => {
     toggleJobDetailModal();
+    await getAccounts();
+    await getBidderList();
     toggleJobEditModal();
   };
 
@@ -891,7 +845,9 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   };
 
   const handlechangeHoursStatus = async () => {
-    let results = await updateHoursStatus({ jobId: selectedJob.jobId, fromDate: fromDate, endDate: toDate, preTime: preTime, approved: approved, lunch: lunch, explanation: content }, 'jobs');
+    setLoading(true);
+    let results = await updateHoursStatus({ jobId: selectedJob.jobId, role: selectedJobRole, fromDate: fromDate, endDate: toDate, preTime: preTime, approved: approved, lunch: lunch, explanation: content }, 'hospitality');
+    setLoading(false);
     if (!results?.error) {
       console.log('success');
       getData();
@@ -932,7 +888,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                 onPress={() => {
                   console.log(item[6]);
                   toggleJobDetailModal();
-                  navigation.navigate("CaregiverProfile", {id: item[6]});
+                  navigation.navigate("HospitalityCaregiverProfile", { id: item[6], role: selectedJobRole });
                 }}
               >
                 <Text style={styles.profileTitle}>View</Text>
@@ -958,6 +914,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                   borderRadius: 20,
                 }}
                 onPress={() => {
+                  console.log(item);
                   handleShowJobAwardModal(item[6]);
                 }}
               >
@@ -987,68 +944,9 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     </View>
   );
 
-  const handlePress = async() => {
-    const offestTime = getLocalTimeOffset();
-    let sendData = label;
-    if (modalItem === 3 || modalItem === 10) {
-      sendData = Number(sendData)
-    }
-    let sendingData = {}
-    if (modalItem === 1) {
-      sendingData = {
-        jobId: rowData, // Ensure rowData is defined and contains the appropriate value
-        nurse: sendData, // Use sendData for jobNum
-        offestTime: offestTime
-      };
-    } else if (modalItem === 3) {
-      sendingData = {
-        jobId: rowData,
-        jobNum: sendData // Use sendData for location
-      };
-    } else if (modalItem === 4)  {
-      // Handle other modalItems as needed
-      sendingData = {
-        jobId: rowData,
-        location: sendData // Use sendData for location
-      };
-    } else if (modalItem === 5)  {
-      // Handle other modalItems as needed
-      sendingData = {
-        jobId: rowData,
-        shiftDate: sendData // Use sendData for location
-      };
-    } else if (modalItem === 6)  {
-      // Handle other modalItems as needed
-      sendingData = {
-        jobId: rowData,
-        shiftTime: sendData, // Use sendData for location
-        offestTime: offestTime
-      };
-    } else if (modalItem === 9)  {
-      // Handle other modalItems as needed
-      sendingData = {
-        jobId: rowData,
-        jobStatus: sendData, // Use sendData for location
-        offestTime: offestTime
-      };
-    } else if (modalItem === 10)  {
-      // Handle other modalItems as needed
-      sendingData = {
-        jobId: rowData,
-        jobRating: sendData, // Use sendData for location
-      };
-    }
-
-    let data = await Update(sendingData, 'jobs');
-    if(data) setSuc(suc+1);
-    else setSuc(suc);
-    toggleModal();
-    getData();
-  };
-
   const handleUpdateExplanation = async () => {
     setLoading(true);
-    let results = await PostJob({ jobId: selectedJobId, noStatusExplanation: explanation }, 'jobs');
+    let results = await PostJob({ jobId: selectedJobId, role: selectedJobRole, noStatusExplanation: explanation }, 'hospitality');
     toggleUpdateExplanationModal();
     if (!results?.error) {
       getData();
@@ -1076,7 +974,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   const handleUpdate = async () => {
     console.log(selectedJobId);
     console.log(selectedJobStatus);
-    let results = await PostJob({ jobId: selectedJobId, jobStatus: selectedJobStatus }, 'jobs');
+    let results = await PostJob({ jobId: selectedJobId, role: selectedJobRole, jobStatus: selectedJobStatus }, 'hospitality');
     if (!results?.error) {
       toggleJobStatusModal();
       getData();
@@ -1112,21 +1010,33 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     }
   };
 
-  const handleReset = (event) => {
+  const handleRestauSearchReset = (event) => {
     event.persist();
-    setSearch(''); 
-    getData({ search: '', page: curPage });
+    setRSearch(''); 
+    getData({ rSearch: '', rPage: rPage, hSearch: hSearch, hPage: hPage });
+  };
+
+  const handleHotelSearchReset = (event) => {
+    event.persist();
+    setRSearch(''); 
+    getData({ rSearch: rSearch, rPage: rPage, hSearch: '', hPage: hPage });
   };
   
-  const handleSearch = (event) => {
+  const handleRSearch = (event) => {
     event.persist();
-    setCurPage(1);
-    getData({ search: search, page: 1 });
+    setRCurpage(1);
+    getData({ rSearch: rSearch, rPage: 1, hSearch: hSearch, hPage: hPage });
+  };
+
+  const handleHSearch = (event) => {
+    event.persist();
+    setHCurpage(1);
+    getData({ rSearch: rSearch, rPage: rPage, hSearch: hSearch, hPage: 1 });
   };
 
   useEffect(() => {
     getData();
-  }, [curPage]);
+  }, [rPage, hPage]);
 
   const toggleAddFilterModal = () => {
     setAddFilterModal(!addfilterModal)
@@ -1138,14 +1048,15 @@ export default function HospitalityAllJobShiftList({ navigation }) {
 
   const handleCellClick = async (data) => {
     setSelectedJobId(data[2]);
+    setSelectedJobRole(data[19]); 
     setSelectedJobStatus(data[9]);
     toggleJobStatusModal();
   };
 
   const handleUploadModal = (data, type, filename) => {
-    console.log(data);
     setUploadFileType(type);
     setSelectedJobId(data[2]);
+    setSelectedJobRole(data[19]);
     setTmpFileName(filename);
     setTmpFile({
       content: data[15].content,
@@ -1158,6 +1069,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   const handleUpdateExplanationModal = (data) => {
     setSelectedJobId(data[2]);
     setExplanation(data[17]);
+    setSelectedJobRole(data[19]);
     toggleUpdateExplanationModal();
   };
 
@@ -1169,7 +1081,8 @@ export default function HospitalityAllJobShiftList({ navigation }) {
   const handleFileUpload = async () => {
     setLoading(true);
     toggleTiemSheetUploadModal();
-    let response = await updateDocuments({ jobId: selectedJobId, file: tmpFile, prevFile: tmpFileName, type: uploadFileType }, 'jobs');
+    let response = await updateDocuments({ jobId: selectedJobId, role: selectedJobRole, file: tmpFile, prevFile: tmpFileName, type: uploadFileType }, 'hospitality');
+    setLoading(false);
     if (!response?.error) {
       getData();
     } else {
@@ -1185,9 +1098,13 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     }
   };
 
-  const handleAddJobShift = async () => {
-    navigation.navigate('HospitalityAdminAddJob')
-  }
+  const handleAddHotelJobShift = async () => {
+    navigation.navigate('HospitalityAdminAddHotelJob')
+  };
+
+  const handleAddRestaurantJobShift = async () => {
+    navigation.navigate('HospitalityAdminAddRestaurantJob');
+  };
 
   const renderInputField = (filter, index) => {
     const { valueType, value } = filter;
@@ -1281,17 +1198,27 @@ export default function HospitalityAllJobShiftList({ navigation }) {
           <AnimatedHeader title="HOSPITALITY JOBS / SHIFTS" />
           <View style={styles.bottomBar} />
         </View>
-        <View style={{ marginTop: 30, flexDirection: 'row', width: '90%', marginLeft: '5%', gap: 10, paddingLeft: 10 }}>
+        <View style={{ marginTop: 0, flexDirection: 'row', width: '90%', marginLeft: '5%', gap: 10, paddingLeft: 10, flexWrap: 'wrap' }}>
           <TouchableOpacity style={[styles.subBtn, { width: 'auto' }]} onPress={() => {
-            handleAddJobShift();
+            handleAddHotelJobShift();
           }}>
             <View style={{ backgroundColor: 'white', borderRadius: 10, width: 16, height: 16, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
               <Text style={{ fontWeight: 'bold', color: '#194f69', textAlign: 'center', lineHeight: 15 }}>+</Text>
             </View>
-            <Text style={styles.profileTitle}>Add A New Job / Shift
+            <Text style={styles.profileTitle}>Add A New Hotel Job / Shift
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.subBtn, { width: 'auto' }]} onPress={() => {
+            handleAddRestaurantJobShift();
+          }}>
+            <View style={{ backgroundColor: 'white', borderRadius: 10, width: 16, height: 16, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+              <Text style={{ fontWeight: 'bold', color: '#194f69', textAlign: 'center', lineHeight: 15 }}>+</Text>
+            </View>
+            <Text style={styles.profileTitle}>Add A New Restaurant Job / Shift
             </Text>
           </TouchableOpacity>
         </View>
+        
         <View style = {{ flex:1, justifyContent:'center', alignItems: 'center', width: '100%'}}>
           <View style={styles.profile}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -1325,70 +1252,46 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                   <Text style={styles.profileTitle}>🖥️ ALL JOB / SHIFT LISTINGS</Text>
                 </View>
               </View>
+              <View style={{ marginBottom: 20 }}>
+                <Text style={{ fontSize: RFValue(20), fontWeight: 'bold' }}>Restaurant</Text>
+              </View>
               <View style={styles.searchBar}>
                 <TextInput
                   style={styles.searchText}
                   placeholder=""
-                  onChangeText={e => setSearch(e)}
-                  value={search}
+                  onChangeText={e => setRSearch(e)}
+                  value={rSearch}
                 />
-                <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
+                <TouchableOpacity style={styles.searchBtn} onPress={handleRSearch}>
                   <Text>Search</Text>
                 </TouchableOpacity>
-                {search && <TouchableOpacity style={styles.searchBtn} onPress={handleReset}>
+                {rSearch && <TouchableOpacity style={styles.searchBtn} onPress={handleRestauSearchReset}>
                   <Text>Reset</Text>
                 </TouchableOpacity>}
               </View>
-              {/* <View style={{ marginBottom: 10 }}>
-                <View style = {styles.filterbar}>
-                  <TouchableOpacity style={[styles.filterBtn, { marginLeft: 0 }]} onPress={toggleAddFilterModal}>
-                    <Text style={{color: "#2a53c1"}}>Add Filter</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity style={[styles.filterBtn, { marginLeft: 10 }]} onPress={toggleExportModal}>
-                    <Text style={{color: "#2a53c1"}}>Export</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {isSubmitted && <View style={{ flexDirection: 'row', marginBottom: 5, flexWrap: 'wrap' }}>
-                {filters.map((item, index) => (
-                  <View key={index} style={styles.filterItem}>
-                    <View style={{ flexDirection: 'row' }}>
-                      <Text style={styles.filterItemTxt}> {item.field}</Text>
-                      <Text style={styles.filterItemTxt}> {item.condition}</Text>
-                      <Text style={styles.filterItemTxt}> {item.value}</Text>
-                    </View>
-                    <View style={{ marginLeft: 5 }}>
-                      <TouchableOpacity style={{width: 20, height: 20, }} onPress={() => handleRemoveFilter(index)}>
-                        <Image source = {images.close} style={{width: 20, height: 20}}/>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))}
-              </View>} */}
               <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+                style={[styles.dropdown, isRFocus && { borderColor: 'blue' }]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}
                 inputSearchStyle={styles.inputSearchStyle}
                 itemTextStyle={styles.itemTextStyle}
                 iconStyle={styles.iconStyle}
-                data={pageList}
+                data={restauJobPageList}
                 maxHeight={300}
                 labelField="label"
                 valueField="value"
                 placeholder={'Page 1'}
-                value={curPage}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
+                value={rPage}
+                onFocus={() => setRIsFocus(true)}
+                onBlur={() => setRIsFocus(false)}
                 onChange={item => {
-                  setCurPage(item.value);
-                  setIsFocus(false);
+                  setRCurpage(item.value);
+                  setRIsFocus(false);
                 }}
                 renderLeftIcon={() => (
                   <View
                     style={styles.icon}
-                    color={isFocus ? 'blue' : 'black'}
+                    color={isRFocus ? 'blue' : 'black'}
                     name="Safety"
                     size={20}
                   />
@@ -1406,8 +1309,8 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                       </Text>
                     ))}
                   </View>
-                  {data && data.length > 0 ? (
-                    data.map((rowData, rowIndex) => (
+                  {restauJobData && restauJobData.length > 0 ? (
+                    restauJobData.map((rowData, rowIndex) => (
                       rowData && rowData.length > 0 ? (
                         <View key={rowIndex} style={{ flexDirection: 'row' }}>
                           {rowData.map((cellData, cellIndex) => {
@@ -1431,7 +1334,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                                     }}
                                     onPress={() => {
                                       console.log('job id => ', rowData[2]);
-                                      handleShowJobDetailModal(rowData[2]);
+                                      handleShowJobDetailModal(rowData);
                                     }}
                                   >
                                     <Text style={styles.profileTitle}>View</Text>
@@ -1458,7 +1361,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                                     }}
                                     onPress={() => {
                                       console.log('job id =>', rowData[2]);
-                                      handleShowHoursModal(rowData[2]);
+                                      handleShowHoursModal(rowData);
                                     }}
                                   >
                                     <Text style={styles.profileTitle}>View</Text>
@@ -1488,8 +1391,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                                         {
                                           text: 'OK',
                                           onPress: () => {
-                                            console.log('job id > ', rowData[2]);
-                                            handleRemove(rowData[2]);
+                                            handleRemove(rowData[2], rowData[19]);
                                           },
                                         },
                                         { text: 'Cancel', style: 'cancel' },
@@ -1545,6 +1447,226 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                                     </Text>
                                   </TouchableWithoutFeedback>
                                 );
+                              } else if (cellIndex >= tableHead.length) {
+                                return (<View key={cellIndex}></View>);
+                              } else {
+                                return (
+                                  <Text
+                                    key={cellIndex}
+                                    style={[styles.tableItemStyle, { width: widths[cellIndex], backgroundColor: 'white'  }]}
+                                  >
+                                    {cellData}
+                                  </Text>
+                                );
+                              }
+                            }
+                          })}
+                        </View>
+                      ) : null
+                    ))
+                  ) : (
+                    <Text>No data available</Text>
+                  )}
+                </Table>
+              </ScrollView>
+
+              <View style={{ marginBottom: 20 }}>
+                <Text style={{ fontSize: RFValue(20), fontWeight: 'bold' }}>Hotel</Text>
+              </View>
+              <View style={styles.searchBar}>
+                <TextInput
+                  style={styles.searchText}
+                  placeholder=""
+                  onChangeText={e => setHSearch(e)}
+                  value={hSearch}
+                />
+                <TouchableOpacity style={styles.searchBtn} onPress={handleHSearch}>
+                  <Text>Search</Text>
+                </TouchableOpacity>
+                {hSearch && <TouchableOpacity style={styles.searchBtn} onPress={handleHotelSearchReset}>
+                  <Text>Reset</Text>
+                </TouchableOpacity>}
+              </View>
+              <Dropdown
+                style={[styles.dropdown, isHFocus && { borderColor: 'blue' }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                itemTextStyle={styles.itemTextStyle}
+                iconStyle={styles.iconStyle}
+                data={hotelJobPageList}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={'Page 1'}
+                value={rPage}
+                onFocus={() => setHIsFocus(true)}
+                onBlur={() => setHIsFocus(false)}
+                onChange={item => {
+                  setHCurpage(item.value);
+                  setHIsFocus(false);
+                }}
+                renderLeftIcon={() => (
+                  <View
+                    style={styles.icon}
+                    color={isHFocus ? 'blue' : 'black'}
+                    name="Safety"
+                    size={20}
+                  />
+                )}
+              />
+              <ScrollView horizontal={true} style={{ width: '95%', borderWidth: 1, marginBottom: 30, borderColor: 'rgba(0, 0, 0, 0.08)' }}>
+                <Table >
+                  <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#ccffff' }}>
+                    {tableHead.map((item, index) => (
+                      <Text
+                        key={index}
+                        style={[styles.tableText, { width: widths[index], textAlign: 'center' }]}
+                      >
+                        {item}
+                      </Text>
+                    ))}
+                  </View>
+                  {hotelJobData && hotelJobData.length > 0 ? (
+                    hotelJobData.map((rowData, rowIndex) => (
+                      rowData && rowData.length > 0 ? (
+                        <View key={rowIndex} style={{ flexDirection: 'row' }}>
+                          {rowData.map((cellData, cellIndex) => {
+                            if (cellData === 'view_shift') {
+                              return (
+                                <View
+                                  key={cellIndex}
+                                  style={[
+                                    styles.tableItemStyle,
+                                    { flex: 1, justifyContent: 'center', alignItems: 'center', width: 200, backgroundColor: 'white' },
+                                  ]}
+                                >
+                                  <TouchableOpacity
+                                    style={{
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 5,
+                                      backgroundColor: 'green',
+                                      borderRadius: 20,
+                                    }}
+                                    onPress={() => {
+                                      console.log('job id => ', rowData[2]);
+                                      handleShowJobDetailModal(rowData[2]);
+                                    }}
+                                  >
+                                    <Text style={styles.profileTitle}>View</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              );
+                            } else if (cellData === 'view_hours') {
+                              return (
+                                <View
+                                  key={cellIndex}
+                                  style={[
+                                    styles.tableItemStyle,
+                                    { flex: 1, justifyContent: 'center', alignItems: 'center', width: 150, backgroundColor: 'white' },
+                                  ]}
+                                >
+                                  <TouchableOpacity
+                                    style={{
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 5,
+                                      backgroundColor: 'green',
+                                      borderRadius: 20,
+                                    }}
+                                    onPress={() => {
+                                      handleShowHoursModal(rowData);
+                                    }}
+                                  >
+                                    <Text style={styles.profileTitle}>View</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              );
+                            } else if (cellData === 'delete') {
+                              return (
+                                <View
+                                  key={cellIndex}
+                                  style={[
+                                    styles.tableItemStyle,
+                                    { flex: 1, justifyContent: 'center', alignItems: 'center', width: widths[cellIndex], backgroundColor: 'white' },
+                                  ]}
+                                >
+                                  <TouchableOpacity
+                                    style={{
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 5,
+                                      backgroundColor: 'green',
+                                      borderRadius: 20,
+                                    }}
+                                    onPress={() => {
+                                      Alert.alert('Alert!', 'Are you sure you want to delete this?', [
+                                        {
+                                          text: 'OK',
+                                          onPress: () => {
+                                            console.log('job id > ', rowData);
+                                            handleRemove(rowData[2], rowData[19]);
+                                          },
+                                        },
+                                        { text: 'Cancel', style: 'cancel' },
+                                      ]);
+                                    }}
+                                  >
+                                    <Text style={styles.profileTitle}>Delete</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              );
+                            } else {
+                              if (cellIndex == 15) {
+                                return (
+                                  <TouchableWithoutFeedback key={cellIndex} onPress={() => handleUploadModal(rowData, 'timesheet', cellData?.name)}>
+                                    <Text
+                                      key={cellIndex}
+                                      style={[styles.tableItemStyle, { width: widths[cellIndex], color: 'blue', backgroundColor: 'white' }]}
+                                    >
+                                      {cellData?.name}
+                                    </Text>
+                                  </TouchableWithoutFeedback>
+                                );
+                              } else if (cellIndex == 16) {
+                                return (
+                                  <TouchableWithoutFeedback key={cellIndex} onPress={() => handleUploadModal(rowData, 'verification', cellData)}>
+                                    <Text
+                                      key={cellIndex}
+                                      style={[styles.tableItemStyle, { width: widths[cellIndex], color: 'blue', backgroundColor: 'white'  }]}
+                                    >
+                                      {cellData}
+                                    </Text>
+                                  </TouchableWithoutFeedback>
+                                );
+                              } else if (cellIndex == 17) {
+                                return (
+                                  <TouchableWithoutFeedback key={cellIndex} onPress={() => handleUpdateExplanationModal(rowData)}>
+                                    <Text
+                                      key={cellIndex}
+                                      style={[styles.tableItemStyle, { width: widths[cellIndex], color: 'blue', backgroundColor: 'white'  }]}
+                                    >
+                                      {cellData}
+                                    </Text>
+                                  </TouchableWithoutFeedback>
+                                );
+                              } else if (cellIndex == 9) {
+                                return (
+                                  <TouchableWithoutFeedback key={cellIndex} onPress={() => handleCellClick(rowData)}>
+                                    <Text
+                                      key={cellIndex}
+                                      style={[styles.tableItemStyle, { width: widths[cellIndex], backgroundColor: 'white'  }]}
+                                    >
+                                      {cellData}
+                                    </Text>
+                                  </TouchableWithoutFeedback>
+                                );
+                              } else if (cellIndex >= tableHead.length) {
+                                return (<View key={cellIndex}></View>);
                               } else {
                                 return (
                                   <Text
@@ -1579,7 +1701,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
             <View style={styles.modalContainer}>
               <View style={[styles.calendarContainer, { height: '80%' }]}>
                 <View style={[styles.header, { height: 80 }]}>
-                  <Text style={styles.headerText}>Facility View Job Details</Text>
+                  <Text style={styles.headerText}>View Job Details</Text>
                   <TouchableOpacity style={{width: 20, height: 20}} onPress={toggleJobDetailModal}>
                     <Image source = {images.close} style={{width: 20, height: 20}}/>
                   </TouchableOpacity>
@@ -1926,7 +2048,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                             renderLeftIcon={() => (
                               <View
                                 style={styles.icon}
-                                color={isFocus ? 'blue' : 'black'}
+                                color={isFocus1 ? 'blue' : 'black'}
                                 name="Safety"
                                 size={20}
                               />
@@ -2187,7 +2309,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                   </TouchableOpacity>
                 </View>
                 <View style={[styles.previewContainer, { marginTop: 10 }]}>
-                  {tmpFile.content && tmpFile.type === 'image' && (
+                  {/* {tmpFile.content && tmpFile.type === 'image' && (
                     <Image
                       source={{ uri: tmpFile.content }}
                       style={{ width: 100, height: 100, resizeMode: 'contain' }}
@@ -2200,7 +2322,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                     >
                       View PDF
                     </Text>
-                  )}
+                  )} */}
                 </View>
                 <View style={[styles.body, { marginBottom: 0 }]}>
                   <View style={[styles.modalBody, { paddingVertical: 10 }]}>
@@ -2335,123 +2457,124 @@ export default function HospitalityAllJobShiftList({ navigation }) {
           animationType="slide"
           onRequestClose={() => {
             setAddFilterModal(!addfilterModal);
-          }}>
-            <View style={styles.modalContainer}>
-              <View style={[styles.calendarContainer, { height: '80%' }]}>
-                <View style={styles.header}>
-                  <Text style={styles.headerText}>Filter</Text>
-                  <TouchableOpacity style={{width: 20, height: 20, }} onPress={toggleAddFilterModal}>
-                    <Image source = {images.close} style={{width: 20, height: 20,}}/>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.body}>
-                  <ScrollView>
-                    <Text style={{ fontSize: RFValue(15), marginBottom: 5, marginTop: 20 }}>Where</Text>
-                    {filters.map((filter, index) => (
-                      <View key={index} style={styles.filterRow}>
-                        {index !== 0 && (
-                          <Dropdown
-                            style={[styles.dropdown, {width: '100%'}, isLogicFocus && { borderColor: 'blue' }]}
-                            placeholderStyle={styles.placeholderStyle}
-                            selectedTextStyle={styles.selectedTextStyle}
-                            inputSearchStyle={styles.inputSearchStyle}
-                            itemTextStyle={styles.itemTextStyle}
-                            iconStyle={styles.iconStyle}
-                            data={logicItems}
-                            maxHeight={300}
-                            labelField="label"
-                            valueField="value"
-                            placeholder={''}
-                            value={filter.logic}
-                            onFocus={() => setIsLogicFocus(true)}
-                            onBlur={() => setIsLogicFocus(false)}
-                            onChange={item => {
-                              handleFilterChange(index, 'logic', item.value);
-                              setIsLogicFocus(false);
-                            }}
-                            renderLeftIcon={() => (
-                              <View
-                                style={styles.icon}
-                                color={isLogicFocus ? 'blue' : 'black'}
-                                name="Safety"
-                                size={20}
-                              />
-                            )}
+          }}
+        >
+          <View style={styles.modalContainer}>
+            <View style={[styles.calendarContainer, { height: '80%' }]}>
+              <View style={styles.header}>
+                <Text style={styles.headerText}>Filter</Text>
+                <TouchableOpacity style={{width: 20, height: 20, }} onPress={toggleAddFilterModal}>
+                  <Image source = {images.close} style={{width: 20, height: 20,}}/>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.body}>
+                <ScrollView>
+                  <Text style={{ fontSize: RFValue(15), marginBottom: 5, marginTop: 20 }}>Where</Text>
+                  {filters.map((filter, index) => (
+                    <View key={index} style={styles.filterRow}>
+                      {index !== 0 && (
+                        <Dropdown
+                          style={[styles.dropdown, {width: '100%'}, isLogicFocus && { borderColor: 'blue' }]}
+                          placeholderStyle={styles.placeholderStyle}
+                          selectedTextStyle={styles.selectedTextStyle}
+                          inputSearchStyle={styles.inputSearchStyle}
+                          itemTextStyle={styles.itemTextStyle}
+                          iconStyle={styles.iconStyle}
+                          data={logicItems}
+                          maxHeight={300}
+                          labelField="label"
+                          valueField="value"
+                          placeholder={''}
+                          value={filter.logic}
+                          onFocus={() => setIsLogicFocus(true)}
+                          onBlur={() => setIsLogicFocus(false)}
+                          onChange={item => {
+                            handleFilterChange(index, 'logic', item.value);
+                            setIsLogicFocus(false);
+                          }}
+                          renderLeftIcon={() => (
+                            <View
+                              style={styles.icon}
+                              color={isLogicFocus ? 'blue' : 'black'}
+                              name="Safety"
+                              size={20}
+                            />
+                          )}
+                        />
+                      )}
+                      <Dropdown
+                        style={[styles.dropdown, {width: '100%'}, isFieldFocus && { borderColor: 'blue' }]}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        itemTextStyle={styles.itemTextStyle}
+                        iconStyle={styles.iconStyle}
+                        data={fieldsItems}
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder={''}
+                        value={filter.field}
+                        onFocus={() => setIsFieldFocus(true)}
+                        onBlur={() => setIsFieldFocus(false)}
+                        onChange={item => {
+                          handleFilterChange(index, 'field', item.value);
+                          setIsFieldFocus(false);
+                        }}
+                        renderLeftIcon={() => (
+                          <View
+                            style={styles.icon}
+                            color={isFieldFocus ? 'blue' : 'black'}
+                            name="Safety"
+                            size={20}
                           />
                         )}
-                        <Dropdown
-                          style={[styles.dropdown, {width: '100%'}, isFieldFocus && { borderColor: 'blue' }]}
-                          placeholderStyle={styles.placeholderStyle}
-                          selectedTextStyle={styles.selectedTextStyle}
-                          inputSearchStyle={styles.inputSearchStyle}
-                          itemTextStyle={styles.itemTextStyle}
-                          iconStyle={styles.iconStyle}
-                          data={fieldsItems}
-                          maxHeight={300}
-                          labelField="label"
-                          valueField="value"
-                          placeholder={''}
-                          value={filter.field}
-                          onFocus={() => setIsFieldFocus(true)}
-                          onBlur={() => setIsFieldFocus(false)}
-                          onChange={item => {
-                            handleFilterChange(index, 'field', item.value);
-                            setIsFieldFocus(false);
-                          }}
-                          renderLeftIcon={() => (
-                            <View
-                              style={styles.icon}
-                              color={isFieldFocus ? 'blue' : 'black'}
-                              name="Safety"
-                              size={20}
-                            />
-                          )}
-                        />
-                        <Dropdown
-                          style={[styles.dropdown, {width: '100%'}, isConditionFocus && { borderColor: 'blue' }]}
-                          placeholderStyle={styles.placeholderStyle}
-                          selectedTextStyle={styles.selectedTextStyle}
-                          inputSearchStyle={styles.inputSearchStyle}
-                          itemTextStyle={styles.itemTextStyle}
-                          iconStyle={styles.iconStyle}
-                          data={conditionItems}
-                          maxHeight={300}
-                          labelField="label"
-                          valueField="value"
-                          placeholder={''}
-                          value={filter.condition}
-                          onFocus={() => setIsConditionFocus(true)}
-                          onBlur={() => setIsConditionFocus(false)}
-                          onChange={item => {
-                            handleFilterChange(index, 'condition', item.value);
-                            setIsConditionFocus(false);
-                          }}
-                          renderLeftIcon={() => (
-                            <View
-                              style={styles.icon}
-                              color={isConditionFocus ? 'blue' : 'black'}
-                              name="Safety"
-                              size={20}
-                            />
-                          )}
-                        />
-                        {renderInputField(filter, index)}
-                        <TouchableOpacity style={[styles.button, { marginLeft: 0 }]} onPress={() => removeFilter(index)}>
-                          <Text style={styles.removeButton}>Remove</Text>
-                        </TouchableOpacity>
-                      </View>
-                    ))}
-                    <TouchableOpacity style={[styles.button, { marginLeft: 0 }]} onPress={addFilter}>
-                      <Text style={styles.buttonText}>Add filter</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={handleSubmit} underlayColor="#0056b3">
-                      <Text style={styles.buttonText}>Submit</Text>
-                    </TouchableOpacity>
-                  </ScrollView>
-                </View>
+                      />
+                      <Dropdown
+                        style={[styles.dropdown, {width: '100%'}, isConditionFocus && { borderColor: 'blue' }]}
+                        placeholderStyle={styles.placeholderStyle}
+                        selectedTextStyle={styles.selectedTextStyle}
+                        inputSearchStyle={styles.inputSearchStyle}
+                        itemTextStyle={styles.itemTextStyle}
+                        iconStyle={styles.iconStyle}
+                        data={conditionItems}
+                        maxHeight={300}
+                        labelField="label"
+                        valueField="value"
+                        placeholder={''}
+                        value={filter.condition}
+                        onFocus={() => setIsConditionFocus(true)}
+                        onBlur={() => setIsConditionFocus(false)}
+                        onChange={item => {
+                          handleFilterChange(index, 'condition', item.value);
+                          setIsConditionFocus(false);
+                        }}
+                        renderLeftIcon={() => (
+                          <View
+                            style={styles.icon}
+                            color={isConditionFocus ? 'blue' : 'black'}
+                            name="Safety"
+                            size={20}
+                          />
+                        )}
+                      />
+                      {renderInputField(filter, index)}
+                      <TouchableOpacity style={[styles.button, { marginLeft: 0 }]} onPress={() => removeFilter(index)}>
+                        <Text style={styles.removeButton}>Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  <TouchableOpacity style={[styles.button, { marginLeft: 0 }]} onPress={addFilter}>
+                    <Text style={styles.buttonText}>Add filter</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.button} onPress={handleSubmit} underlayColor="#0056b3">
+                    <Text style={styles.buttonText}>Submit</Text>
+                  </TouchableOpacity>
+                </ScrollView>
               </View>
             </View>
-          </Modal>
+          </View>
+        </Modal>
       </ScrollView>
       <Loader visible={loading} />
       <MFooter />

@@ -170,7 +170,8 @@ export default function HospitalityAdminAllUsers({ navigation }) {
 
   const getData = async (requestData = { search: search, page: curPage, filters: filters }) => {
     setLoading(true);
-    let result = await getAllUsersList(requestData, 'Admin');
+    let result = await getAllUsersList(requestData, 'hospitality');
+    console.log(result);
     if(!result) {
       setData(['No Data'])
     } else {
@@ -212,7 +213,7 @@ export default function HospitalityAdminAllUsers({ navigation }) {
 
   const handleRemove = async (data) => {
     try {
-      let response = await removeAccount({ email: data[1], role: data[2] }, "admin");
+      let response = await removeAccount({ email: data[1], role: data[2] }, "hospitality");
       if (!response?.error) {
         getData();
       } else {
@@ -249,7 +250,7 @@ export default function HospitalityAdminAllUsers({ navigation }) {
 
   const handleUpdate = async () => {
     try {
-      const response = await updateUserInfo({userEmail: cellData[1], userRole: cellData[2], status: status, password: ''}, 'admin');
+      const response = await updateUserInfo({userEmail: cellData[1], userRole: cellData[2], status: status, password: ''}, 'hospitality');
 
       if (!response?.error) {
         getData();

@@ -41,6 +41,24 @@ export const getAllFacility = async (userData, endpoint) => {
   }
 }
 
+export const getAllHotelAndRestaurants = async (userData, endpoint) => {
+  try {
+    const existingToken = await AsyncStorage.getItem('token');
+    const response = await axios.post(`api/${endpoint}/getAllHotelAndRestaurants`, userData, {
+      headers: {
+        Authorization: `Bearer ${existingToken}`
+      }
+    });
+    if (response.data.token) {
+      await AsyncStorage.setItem('token', response.data.token);
+    }
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return {error: error};
+  }
+}
+
 export const ForgotPassword = async (credentials, endpoint) => {
   try {
     console.log("login");
@@ -236,6 +254,26 @@ export const getFacilityInfo = async (data, endpoint) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
     const response = await axios.post(`api/${endpoint}/getFacilityInfo`, data, {
+      headers: {
+        Authorization: `Bearer ${existingToken}`
+      }
+    });
+
+    if (response.status === 200) {
+      if (response.data.token) {
+        await AsyncStorage.setItem('token', response.data.token);
+      }
+    } 
+    return response.data;
+  } catch (error) {
+    return {error: error}
+  }
+}
+
+export const getHotelAndRestaurantInfo = async (data, endpoint) => {
+  try {
+    const existingToken = await AsyncStorage.getItem('token');
+    const response = await axios.post(`api/${endpoint}/getHotelAndRestaurantInfo`, data, {
       headers: {
         Authorization: `Bearer ${existingToken}`
       }
@@ -487,6 +525,15 @@ export const getBidIDs = async () => {
   }
 };
 
+export const getContractorBidIds = async (data) => {
+  try {
+    const response = await axios.post(`api/hospitality/getContractorBidIds`, data);
+    return response.data.bidList;
+  } catch (error) {
+    return { error: error };
+  }
+};
+
 export const getAllUsersName = async () => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
@@ -499,6 +546,15 @@ export const getAllUsersName = async () => {
     if (response.data.token) {
       await AsyncStorage.setItem('token', response.data.token);
     }
+    return response.data.userList;
+  } catch (error) {
+    return { error: error };
+  }
+};
+
+export const getAllContractorList = async (data) => {
+  try {
+    const response = await axios.post(`api/hospitality/getAllContractorList`, data);
     return response.data.userList;
   } catch (error) {
     return { error: error };
@@ -814,29 +870,22 @@ export const UpdateTime = async (data, endpoint) => {
   }
 }
 
-
 export const GetDashboardData = async (endpoint, role) => {
   try {
-    // console.log("jobs");
-    // Existing token (obtained from AsyncStorage or login)
     const existingToken = await AsyncStorage.getItem('token');
-    console.log(existingToken)
-    // Include token in Authorization header
     const response = await axios.get(`api/${endpoint}/getDashboardData`, {
       headers: {
         Authorization: `Bearer ${existingToken}`,
         Role: role
       }
     });
-    // If the update is successful, you can potentially update the token in AsyncStorage
+    
     if (response.status === 200) {
-      // Optionally, if the backend sends a new token for some reason
       if (response.data.token) {
         await AsyncStorage.setItem('token', response.data.token);
       }
     } else if (response.status === 401) {
-      console.log('Token is expired')
-      // navigation.navigate('Home')
+      console.log('Token is expired');
     }
     return response.data.jobData;
   } catch (error) {

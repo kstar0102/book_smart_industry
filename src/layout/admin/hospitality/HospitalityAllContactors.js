@@ -25,6 +25,7 @@ export default function HospitalityAllContactors ({ navigation }) {
   const [appliedList, setAppliedList] = useState([]);
   const [awardedList, setAwardedList] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [tmpPassword, setTmpPassword] = useState('');
@@ -55,114 +56,114 @@ export default function HospitalityAllContactors ({ navigation }) {
   const widths = [150, 200, 200, 180, 300, 200, 150, 150, 100, 150, 100, 120];
   const [credentials, setCredentials] = useState({
     email: '',
-    driverLicense: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    driverLicenseStatus: 0,
-    socialCard: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    socialCardStatus: 0,
-    physicalExam: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    physicalExamStatus: 0,
-    ppd: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    ppdStatus: 0,
-    mmr: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    mmrStatus: 0,
-    healthcareLicense: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    healthcareLicenseStatus: 0,
+    // driverLicense: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // driverLicenseStatus: 0,
+    // socialCard: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // socialCardStatus: 0,
+    // physicalExam: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // physicalExamStatus: 0,
+    // ppd: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // ppdStatus: 0,
+    // mmr: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // mmrStatus: 0,
+    // healthcareLicense: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // healthcareLicenseStatus: 0,
     resume: {
       type: '',
       content: '',
       name: ''
     },
-    resumeStatus: 0,
-    covidCard: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    covidCardStatus: 0,
-    bls: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    blsStatus: 0,
-    hepB: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    hepBStatus: 0,
-    flu: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    fluStatus: 0,
-    cna: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    cnaStatus: 0,
-    taxForm: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    taxFormStatus: 0,
-    chrc102: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    chrc102Status: 0,
-    chrc103: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    chrc103Status: 0,
-    drug: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    drugStatus: 0,
-    ssc: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    sscStatus: 0,
-    copyOfTB: {
-      type: '',
-      content: '',
-      name: ''
-    },
-    copyOfTBStatus: 0,
+    // resumeStatus: 0,
+    // covidCard: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // covidCardStatus: 0,
+    // bls: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // blsStatus: 0,
+    // hepB: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // hepBStatus: 0,
+    // flu: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // fluStatus: 0,
+    // cna: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // cnaStatus: 0,
+    // taxForm: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // taxFormStatus: 0,
+    // chrc102: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // chrc102Status: 0,
+    // chrc103: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // chrc103Status: 0,
+    // drug: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // drugStatus: 0,
+    // ssc: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // sscStatus: 0,
+    // copyOfTB: {
+    //   type: '',
+    //   content: '',
+    //   name: ''
+    // },
+    // copyOfTBStatus: 0,
     userStatus: 'pending approval'
   })
   const radioButtons = useMemo(() => ([
@@ -383,10 +384,10 @@ export default function HospitalityAllContactors ({ navigation }) {
 
   function formatData(data) {
     return data.map(item => {
-        const date = new Date(item[0]);
-        const formattedDate = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`;
-        const fullName = `${item[1]} ${item[2]}`;
-        return [formattedDate, fullName, item[3], item[4], item[5], item[6], item[7], item[8], item[9], item[10], item[11], item[12], item[13]];
+      const date = new Date(item[0]);
+      const formattedDate = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`;
+      const fullName = `${item[1]} ${item[2]}`;
+      return [formattedDate, fullName, item[3], item[4], item[5], item[6], item[7], item[8], item[9], item[10], item[11], item[12], item[13], item[14]];
     });
   };
 
@@ -397,16 +398,13 @@ export default function HospitalityAllContactors ({ navigation }) {
   };
 
   const getData = async (requestData = { search: search, page: curPage, filters: filters }, isFilter = isSubmitted ) => {
-    // if (!isFilter) {
-    //   requestData.filters = [];
-    // }
     setLoading(true);
-    let result = await allCaregivers(requestData, 'clinical');
+    let result = await allCaregivers(requestData, 'hospitality');
     if(!result) {
       setData(['No Data'])
     } else {
       console.log(result);
-      const modifiedData = formatData(result.dataArray);
+      const modifiedData = formatData(result.userList);
       let pageContent = [];
       for (let i = 1; i <= result.totalPageCnt; i++) {
         pageContent.push({ label: 'Page ' + i, value: i });
@@ -415,20 +413,6 @@ export default function HospitalityAllContactors ({ navigation }) {
       setData(modifiedData)
     }
     setLoading(false);
-  };
-
-  const getDegree = async () => {
-    const response = await getDegreeList('degree');
-    if (!response?.error) {
-      let tempArr = [];
-      response.data.map(item => {
-        tempArr.push({ label: item.degreeName, value: item.degreeName });
-      });
-      tempArr.unshift({ label: 'Select...', value: 'Select...' });
-      setDegress(tempArr);
-    } else {
-      setDegress([]);
-    }
   };
 
   useEffect(() => {
@@ -449,13 +433,6 @@ export default function HospitalityAllContactors ({ navigation }) {
   const toggleAddFilterModal = () => {
     setAddFilterModal(!addfilterModal)
   };
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     getData();
-  //     // getDegree();
-  //   }, [])
-  // );
 
   useEffect(() => {
     getData();
@@ -494,7 +471,7 @@ export default function HospitalityAllContactors ({ navigation }) {
       return;
     }
 
-    let response = await updatePassword({ userId: selectedUserId, userRole: 'Clinician', password, tmpPassword }, 'admin');
+    let response = await updatePassword({ userId: selectedUserId, userRole: selectedUserRole, password, tmpPassword }, 'hospitality');
     getData();
     toggleRestPWModal();
   };
@@ -525,7 +502,7 @@ export default function HospitalityAllContactors ({ navigation }) {
   };
 
   const handleUpdateStatus = async () => {
-    let response = await updateUserStatus({ userId: selectedUserId, status: userStatus }, 'clinical');
+    let response = await updateUserStatus({ userId: selectedUserId, userRole: selectedUserRole, status: userStatus }, 'hospitality');
 
     if (!response?.error) {
       getData();
@@ -604,10 +581,9 @@ export default function HospitalityAllContactors ({ navigation }) {
     }
   };
 
-  const handleShowProfileModal = async ( userId ) => {
+  const handleShowProfileModal = async ( userId, role ) => {
     setLoading(true);
-    let response = await getUserProfile({ userId: userId }, 'clinical');
-    console.log(response);
+    let response = await getUserProfile({ userId: userId, userRole: role }, 'hospitality');
     if (!response?.error) {
       let appliedData = response.appliedList;
       let awardedData = response.awardedList;
@@ -1101,9 +1077,9 @@ export default function HospitalityAllContactors ({ navigation }) {
                                   borderRadius: 20,
                                 }}
                                 onPress={() => {
-                                  console.log('user => ', rowData[12]);
                                   setSelectedUserId(rowData[12]);
-                                  handleShowProfileModal(rowData[12]);
+                                  setSelectedUserRole(rowData[13]);
+                                  handleShowProfileModal(rowData[12], rowData[13]);
                                 }}
                               >
                                 <Text style={styles.profileTitle}>View Here</Text>
@@ -1126,7 +1102,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                                   console.log('user =>', rowData[12]);
                                   setSelectedUserId(rowData[12]);
                                   // handleShowUserInfoModal(rowData[12]);
-                                  navigation.navigate("Verifycation", { id: rowData[12] });
+                                  navigation.navigate("HospitalityVerifycation", { id: rowData[12], userRole: rowData[13] });
                                 }}
                               >
                                 <Text style={styles.profileTitle}>View Here</Text>
@@ -1146,8 +1122,9 @@ export default function HospitalityAllContactors ({ navigation }) {
                                   borderRadius: 20,
                                 }}
                                 onPress={() => {
-                                  console.log('user > ', rowData[12]);
+                                  console.log('user > ', rowData);
                                   setSelectedUserId(rowData[12]);
+                                  setSelectedUserRole(rowData[13]);
                                   toggleRestPWModal();
                                 }}
                               >
@@ -1166,7 +1143,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                             );
                           } else if (cellIndex == 7) {
                             return (
-                              <TouchableWithoutFeedback key={cellIndex} onPress={() => { setSelectedUserId(rowData[12]); handleCellClick(rowData); }}>
+                              <TouchableWithoutFeedback key={cellIndex} onPress={() => { setSelectedUserId(rowData[12]); setSelectedUserRole(rowData[13]); handleCellClick(rowData); }}>
                                 <View style={[{ borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.08)', padding: 10, backgroundColor: '#E2E2E2', width: widths[cellIndex]}]}>
                                   <Text style={[styles.tableText, {borderWidth: 0}]}>{cellData}</Text>
                                 </View>
@@ -1317,7 +1294,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                     <View style={[styles.modalBody, { padding: 0, paddingVertical: 10 }]}>
                       <View style={{flexDirection: 'row',  width: '100%', justifyContent: 'center', alignItems: 'center'}}>
                         <View style={styles.profileTitleBg}>
-                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ CAREGIVER PROFILE</Text>
+                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ Contractor PROFILE</Text>
                         </View>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
@@ -1433,7 +1410,7 @@ export default function HospitalityAllContactors ({ navigation }) {
             <View style={styles.modalContainer}>
               <View style={[styles.calendarContainer, { height: '80%' }]}>
                 <View style={styles.header}>
-                  <Text style={styles.headerText}>Caregiver Verification</Text>
+                  <Text style={styles.headerText}>Verification</Text>
                   <TouchableOpacity style={{width: 20, height: 20}} onPress={toggleVerificationModal}>
                     <Image source = {images.close} style={{width: 20, height: 20}}/>
                   </TouchableOpacity>
@@ -1467,7 +1444,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                         <Text style={[styles.content, { color: 'blue' }]}>{selectedUser?.email}</Text>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
-                        <Text style={[styles.titles, {backgroundColor: '#ccc', marginBottom: 5, paddingLeft: 2}]}>Caregiver Address</Text>
+                        <Text style={[styles.titles, {backgroundColor: '#ccc', marginBottom: 5, paddingLeft: 2}]}>Address</Text>
                         <Text style={styles.content}>{selectedUser?.address.streetAddress + " " + selectedUser?.address.streetAddress2 + " " + selectedUser?.address.city + " " + selectedUser?.address.state + " " + selectedUser?.address.zip}</Text>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
@@ -1487,11 +1464,11 @@ export default function HospitalityAllContactors ({ navigation }) {
 
                       <View style={{flexDirection: 'row',  width: '100%', justifyContent: 'center', alignItems: 'center'}}>
                         <View style={[styles.profileTitleBg, { marginLeft: 0, marginTop: 30 }]}>
-                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ CAREGIVER DOCUMENTS</Text>
+                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ DOCUMENTS</Text>
                         </View>
                       </View>
 
-                      <View style={{flexDirection: 'column', width: '100%', gap: 10}} key={1}>
+                      {/* <View style={{flexDirection: 'column', width: '100%', gap: 10}} key={1}>
                         <Text style={{fontWeight: 'bold', fontSize: RFValue(16), lineHeight: 30, marginBottom: 5, backgroundColor: '#F7F70059'}}>Driver's License</Text>
                         {credentials?.driverLicense.name != "" && 
                           <View style={{ flexDirection: 'row' }}>
@@ -1948,7 +1925,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                         />
                       </View>
 
-                      <View style={[styles.line, { backgroundColor: '#ccc' }]}></View>
+                      <View style={[styles.line, { backgroundColor: '#ccc' }]}></View> */}
 
                       <View style={{flexDirection: 'column', width: '100%', gap: 10}}>
                         <Text style={{fontWeight: 'bold', fontSize: RFValue(16), lineHeight: 30, marginBottom: 5, backgroundColor: '#F7F70059'}}>Resume</Text>
@@ -1996,7 +1973,7 @@ export default function HospitalityAllContactors ({ navigation }) {
 
                       <View style={[styles.line, { backgroundColor: '#ccc' }]}></View>
 
-                      <View style={{flexDirection: 'column', width: '100%', gap: 10}}>
+                      {/* <View style={{flexDirection: 'column', width: '100%', gap: 10}}>
                         <Text style={{fontWeight: 'bold', fontSize: RFValue(16), lineHeight: 30, marginBottom: 5, backgroundColor: '#F7F70059'}}>Tax Form</Text>
                         {credentials.taxForm.name != "" && 
                           <View style={{ flexDirection: 'row' }}>
@@ -2226,7 +2203,6 @@ export default function HospitalityAllContactors ({ navigation }) {
 
                       <View style={[styles.line, { backgroundColor: '#ccc' }]}></View>
 
-
                       <View style={{flexDirection: 'column', width: '100%', gap: 10}}>
                         <Text style={{fontWeight: 'bold', fontSize: RFValue(16), lineHeight: 30, marginBottom: 5, backgroundColor: '#F7F70059'}}>Standard State Criminal</Text>
                         {credentials?.ssc.name != "" && 
@@ -2317,7 +2293,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                         />
                       </View>
                       
-                      <View style={[styles.line, { backgroundColor: '#ccc' }]}></View>
+                      <View style={[styles.line, { backgroundColor: '#ccc' }]}></View> */}
 
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
                         <Text style={[styles.titles, {backgroundColor: '#F7F70059', marginBottom: 5, paddingLeft: 2}]}>Bank Name</Text>
@@ -2354,7 +2330,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                       <View style={[styles.line, { backgroundColor: '#8d8dff' }]}></View>
 
                       <View style={{flexDirection: 'column', width: '100%', gap: 10}}>
-                        <Text style={[styles.titles, {backgroundColor: '#ccffcc', marginBottom: 5, paddingLeft: 2, width: '50%'}]}>Approve Caregiver?</Text>
+                        <Text style={[styles.titles, {backgroundColor: '#ccffcc', marginBottom: 5, paddingLeft: 2, width: '50%'}]}>Approve Contractor?</Text>
                         <Dropdown
                           style={[styles.dropdown, {width: '100%'}, isFocus && { borderColor: 'blue' }]}
                           placeholderStyle={styles.placeholderStyle}
