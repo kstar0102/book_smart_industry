@@ -742,7 +742,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
 
             <View style={styles.email}>
-              <Text style={constStyles.signUpSubtitle}> Relevant Experiences <Text style={{color: 'red'}}>*</Text> </Text>
+              <Text style={constStyles.signUpSubtitle}> Three Most Recent Experiences: <Text style={{color: 'red'}}>*</Text> </Text>
               <View style={{flexDirection: 'column', width: '100%', gap: 5}}>
                 <TextInput
                   style={[constStyles.signUpinput, {width: '100%'}]}

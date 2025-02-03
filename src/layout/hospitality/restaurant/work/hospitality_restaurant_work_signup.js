@@ -18,6 +18,7 @@ import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import { getTitleList, Signup } from '../../../../utils/useApi';
 import images from '../../../../assets/images';
+import HospitalityFooter from '../../../../components/HospitalityFooter';
 
 const { width, height } = Dimensions.get('window');
 
@@ -741,7 +742,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
 
             <View style={styles.email}>
-              <Text style={constStyles.signUpSubtitle}> Relevant Experiences <Text style={{color: 'red'}}>*</Text> </Text>
+              <Text style={constStyles.signUpSubtitle}> Three Most Recent Experiences: <Text style={{color: 'red'}}>*</Text> </Text>
               <View style={{flexDirection: 'column', width: '100%', gap: 5}}>
                 <TextInput
                   style={[constStyles.signUpinput, {width: '100%'}]}
@@ -887,19 +888,6 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  // button: {
-  //   width : "70%",
-  //   marginBottom: 10,
-  //   alignSelf: 'flex-start',
-  // },
-  // gradientButton: {
-  //   height: RFValue(40), // Adjust the button height here
-  //   paddingVertical: 0, // Remove padding to maintain consistent height
-  //   borderRadius: 10,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   elevation: 5, // For shadow on Android
-  // },
   container: {
     marginBottom: 0,
     backgroundColor: 'rgba(155, 155, 155, 0.61)'

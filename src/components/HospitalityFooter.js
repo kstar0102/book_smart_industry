@@ -7,7 +7,7 @@ import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-export default function MFooter(props) {
+export default function HospitalityFooter(props) {
   const theme = useTheme();
   return (
     <View style={styles.shadow}>
