@@ -237,9 +237,8 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
               resizeMode="contain"
               style={styles.homepage}
             />
-            <Text style={constStyles.loginSmallText}>Let your licensure and certifications pay off. {'\n'}
-              Get the money you deserve by signing up {'\n'}
-              and becoming a freelance clinician today!
+            <Text style={[constStyles.loginSmallText, {marginHorizontal : RFValue(25), textAlign: 'center'}]}>
+              Get the money you deserve by signing up and becoming a freelance contractor today!
             </Text>
 
           </View>
@@ -283,22 +282,10 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
             </View>
 
             <View style={styles.btn}>
-              {/* <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-                <LinearGradient
-                  colors={['#A1E9F1', '#B980EC']}
-                  style={styles.gradientButton}
-                >
-                  <Text style={styles.buttonText}>Sign In</Text>
-                </LinearGradient>
-              </TouchableOpacity> */}
               <HButton style={constStyles.loginSubBtn} onPress={ handleSubmit }>
                 Sign In
               </HButton>
              
-              <View style = {{marginTop : RFValue(20)}}/>
-              <Text style={constStyles.loginMiddleText}>Need an account?</Text>
-              <View style = {{marginTop : RFValue(5)}}/>
-
               <HButton style={constStyles.loginSubBtn} onPress={ handleSignUpNavigate }>
                 Sign Up
               </HButton>
@@ -376,8 +363,10 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
 
-  btn: {flexDirection: 'column',
+  btn: {
+    flexDirection: 'row',
     marginBottom: RFValue(30),
+    justifyContent: 'space-between'
   },
   
   checkbox: {
