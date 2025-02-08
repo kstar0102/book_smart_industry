@@ -117,7 +117,7 @@ import HospitalityHotelWorkPhoneVerify from './hospitality/hotel/work/hospitalit
 import HospitalityAdminDashboard from './admin/hospitality/HospitalityAdminDashboard.js';
 import HospitalityAllJobShiftList from './admin/hospitality/HospitalityAllJobShiftList.js';
 import HospitalityAdminAddHotelJob from './admin/hospitality/HospitalityAdminAddHotelJob.js';
-import HospitalityAddRestaurantJob from './admin/hospitality/HospitalityAdminAddRestaurantJob.js';
+import HospitalityAdminAddRestaurantJob from './admin/hospitality/HospitalityAdminAddRestaurantJob.js';
 import HospitalityAllContactors from './admin/hospitality/HospitalityAllContactors.js';
 import HospitalityAdminAllUsers from './admin/hospitality/HospitalityAdminAllUsers.js';
 import HospitalityAdminAllHotelRestaurant from './admin/hospitality/HospitalityAdminAllHotelRestaurant.js';
@@ -192,8 +192,8 @@ function Layout() {
       />
 
       <Stack.Screen 
-        name= 'HospitalityAddRestaurantJob'
-        component = {HospitalityAddRestaurantJob}
+        name= 'HospitalityAdminAddRestaurantJob'
+        component = {HospitalityAdminAddRestaurantJob}
         options={{headerShown: false}}
       />
 

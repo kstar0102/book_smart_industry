@@ -268,7 +268,7 @@ export default function HospitalityAdminAddHotelJob({ navigation }) {
         const response = await PostJob(credentials, 'hotel/jobs');
         console.log(response);
         setloading(false);
-        navigation.navigate('HospitalityHotelHireHome');
+        navigation.navigate('HospitalityAllJobShiftList');
       } catch (error) {
         setloading(false);
         console.error('Job Shift failed: ', error)
