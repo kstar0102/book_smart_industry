@@ -5,25 +5,24 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
 import moment from 'moment';
-import { useAtom } from 'jotai';
 import HButton from '../../../components/Hbutton';
 import MHeader from '../../../components/Mheader';
 import MFooter from '../../../components/Mfooter';
 import images from '../../../assets/images';
 import SubNavbar from '../../../components/SubNavbar';
-import { addTitle, addLocationItem, getTitleList, getLocationList, PostJob } from '../../../utils/useApi';
-import { companyNameAtom, aicAtom } from '../../../context/HotelHireProvider'
+import { addTitle, addLocationItem, getTitleList, getLocationList, PostJob, getAllHotels } from '../../../utils/useApi';
 import Loader from '../../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 
 const { width, height } = Dimensions.get('window');
 
 export default function HospitalityAdminAddHotelJob({ navigation }) {
-  const [facility, setFacility] = useAtom(companyNameAtom);
-  const [facilityId, setFacilityId] = useAtom(aicAtom);
-  const [degree, setDegree] = useState([])
+  const [facilityList, setFacilityList] = useState([]);
+  const [degree, setDegree] = useState([]);
+  const [facilityValue, setFacilityValue] = useState(null);
   const [degreeValue, setDegreeValue] = useState(null);
   const [isDegreeFocus, setIsDegreeFocus] = useState(false);
+  const [isFacilityFocus, setIsFacilityFocus] = useState(false);
   const [locationValue, setLocationValue] = useState(null);
   const [isLocationFocus, setIsLocationFocus] = useState(false);
   const [degreeItem, setDegreeItem] = useState('');
@@ -57,8 +56,8 @@ export default function HospitalityAdminAddHotelJob({ navigation }) {
     location: '',
     payRate: '',
     bonus: '',
-    facility: facility,
-    facilityId: facilityId
+    facility: '',
+    facilityId: ''
   });
   const hours = [
     {label: '1', value: 1},
@@ -87,20 +86,6 @@ export default function HospitalityAdminAddHotelJob({ navigation }) {
 
   const formatTime = (hour, minute, type) => {
     return `${hour}:${minute.toString().padStart(2, '0')} ${type}`;
-  };
-
-  const convertTo24HourFormat = (hour, minute, type) => {
-    const adjustedHour = type === 'PM' && hour !== 12 ? hour + 12 : type === 'AM' && hour === 12 ? 0 : hour;
-    return adjustedHour * 60 + minute; // Convert to minutes for easier comparison
-  };
-
-  const formatDateTime = (date, hour, minute, type) => {
-    const adjustedHour =
-      type === 'PM' && hour !== 12 ? hour + 12 :
-      type === 'AM' && hour === 12 ? 0 :
-      hour;
-  
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), adjustedHour, minute);
   };
 
   useEffect(() => {
@@ -206,8 +191,23 @@ export default function HospitalityAdminAddHotelJob({ navigation }) {
     }
   };
 
+  const getAllHotelsList = async () => {
+    const response = await getAllHotels();
+    if (!response?.error) {
+      let tempArr = [];
+      response.data.map(item => {
+        tempArr.push({ label: item.companyName, value: item.aic });
+      });
+      tempArr.unshift({ label: 'Select...', value: '' });
+      setFacilityList(tempArr);
+    } else {
+      setFacilityList([]);
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
+      getAllHotelsList();
       getDegree();
       getLocation();
     }, [])
@@ -254,7 +254,10 @@ export default function HospitalityAdminAddHotelJob({ navigation }) {
 
   const handleSubmit = async () => {
     setloading(true);
-    if (credentials.degree === '') {
+    if (credentials.facility === '') {
+      setloading(false);
+      showAlerts('Hotel');
+    } else if (credentials.degree === '') {
       setloading(false);
       showAlerts('Degree');
     } else if (credentials.shift === '') {
@@ -328,6 +331,42 @@ export default function HospitalityAdminAddHotelJob({ navigation }) {
                 placeholder=""
                 onChangeText={e => handleCredentials('jobNum', e)}
                 value={credentials.jobNum || ''}
+              />
+            </View>
+            <View>
+              <Text style={styles.subtitle}> Hotel </Text>
+              <Dropdown
+                style={[styles.dropdown, isFacilityFocus && { borderColor: 'blue' }]}
+                placeholderStyle={styles.placeholderStyle}
+                selectedTextStyle={styles.selectedTextStyle}
+                inputSearchStyle={styles.inputSearchStyle}
+                itemTextStyle={styles.itemTextStyle}
+                iconStyle={styles.iconStyle}
+                data={facilityList}
+                maxHeight={300}
+                labelField="label"
+                valueField="value"
+                placeholder={''}
+                value={facilityValue}
+                onFocus={() => setIsFacilityFocus(true)}
+                onBlur={() => setIsFacilityFocus(false)}
+                onChange={item => {
+                  setFacilityValue(item.value);
+                  setIsFacilityFocus(false);
+                  setCredentials(prev => ({
+                    ...prev,
+                    facilityId: item.value,
+                    facility: item.label
+                  }));
+                }}
+                renderLeftIcon={() => (
+                  <View
+                    style={styles.icon}
+                    color={isFacilityFocus ? 'blue' : 'black'}
+                    name="Safety"
+                    size={20}
+                  />
+                )}
               />
             </View>
             <View>

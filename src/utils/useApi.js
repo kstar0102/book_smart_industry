@@ -484,6 +484,24 @@ export const PostJob = async (jobData, endpoint) => {
   }
 };
 
+export const getAllRestaurants = async () => {
+  try {
+    const response = await axios.get(`api/hospitality/getAllRestaurants`);
+    return response.data;
+  } catch (error) {
+    return { error: error };
+  }
+};
+
+export const getAllHotels = async () => {
+  try {
+    const response = await axios.get(`api/hospitality/getAllHotels`);
+    return response.data;
+  } catch (error) {
+    return { error: error };
+  }
+};
+
 export const getFacility = async (endpoint, role) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
