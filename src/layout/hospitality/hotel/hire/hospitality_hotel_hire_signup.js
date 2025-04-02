@@ -860,7 +860,7 @@ const styles = StyleSheet.create({
   },
   chooseFile: {
     width: '30%',
-    height: 30,
+    height: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
