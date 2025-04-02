@@ -137,7 +137,6 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
       { field: credentials.address?.city, message: 'City is required' },
       { field: credentials.address?.state, message: 'State is required' },
       { field: credentials.address?.zip, message: 'ZIP code is required' },
-      { field: credentials.signature, message: 'Signature is required' },
     ];
   
     // Iterate over the field checks and show an alert for the first empty field
@@ -175,6 +174,8 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
       try {
         setSending(true);
         const response = await Signup(credentials, "restau_manager");
+
+        console.log(response);
 
         if (!response?.error) {
           setSending(false);
@@ -844,7 +845,7 @@ const styles = StyleSheet.create({
   },
   chooseFile: {
     width: '30%',
-    height: 30,
+    height: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
