@@ -179,7 +179,7 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
 
         if (!response?.error) {
           setSending(false);
-          navigation.navigate('HospitalityRestaurantHireSignUp');
+          navigation.navigate('HospitalityRestaurantHireLogin');
         } else {
           setIsSubmitting(false);
           setSending(false);
