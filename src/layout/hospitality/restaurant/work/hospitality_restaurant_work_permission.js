@@ -275,8 +275,8 @@ export default function HospitalityRestaurantWorkPemission ({ navigation }) {
                 </HButton>
               </View>
               <Image
-                source={images.homepage}
-                resizeMode="cover"
+                source={images.hospitality_icon}
+                resizeMode="contain"
                 style={styles.homepage}
               />
             </View>
