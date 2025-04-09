@@ -79,7 +79,7 @@ export default function HospitalityRestaurantWorkPemission ({ navigation }) {
           { cancelable: false }
         );
         setAcknowledgement(response.user.AcknowledgeTerm);
-        navigation.navigate("HospitalityRestaurantWorkPhone");
+        navigation.navigate("HospitalityRestaurantWorkHome");
       } else {
         Alert.alert(
           'Failed!',

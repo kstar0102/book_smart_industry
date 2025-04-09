@@ -145,11 +145,12 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
         }
 
         if (response.user.AcknowledgeTerm) {
-          if (response.phoneAuth) {
-            handleSignInNavigate('HospitalityRestaurantWorkPhone');
-          } else {
-            handleSignInNavigate('HospitalityRestaurantWorkHome');
-          }
+          // if (response.phoneAuth) {
+          //   handleSignInNavigate('HospitalityRestaurantWorkPhone');
+          // } else {
+          //   handleSignInNavigate('HospitalityRestaurantWorkHome');
+          // }
+          handleSignInNavigate('HospitalityRestaurantWorkHome');
         } else {
           handleSignInNavigate('HospitalityRestaurantWorkPemission');
         }

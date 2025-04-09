@@ -80,7 +80,7 @@ export default function HospitalityHotelWorkTerms ({ navigation }) {
           { cancelable: false }
         );
         setAcknowledgement(response.user.AcknowledgeTerm);
-        navigation.navigate("HospitalityHotelWorkPhone");
+        navigation.navigate("HospitalityHotelWorkHome");
       } else {
         Alert.alert(
           'Failed!',

@@ -139,11 +139,12 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
         }
 
         if (response.user.AcknowledgeTerm) {
-          if (response.phoneAuth) {
-            handleSignInNavigate('HospitalityHotelWorkPhone');
-          } else {
-            handleSignInNavigate('HospitalityHotelWorkHome');
-          }
+          // if (response.phoneAuth) {
+          //   handleSignInNavigate('HospitalityHotelWorkPhone');
+          // } else {
+          //   handleSignInNavigate('HospitalityHotelWorkHome');
+          // }
+          handleSignInNavigate('HospitalityHotelWorkHome');
         } else {
           handleSignInNavigate('HospitalityHotelWorkTerms');
         }
