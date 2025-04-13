@@ -31,11 +31,14 @@ export default function Mainboard ({ navigation }) {
       </Text>
       <View style={styles.iconWrapper}>
         <View style={styles.iconContainer}>
-          <Image
-            source={images.hospital}
-            style={styles.iconImage}
-            resizeMode="contain"
-          />
+          <TouchableOpacity onPress={handleHospitality}>
+            <Image
+              source={images.hospital}
+              style={styles.iconImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.button}
             onPress={handleHospitality}
@@ -45,11 +48,14 @@ export default function Mainboard ({ navigation }) {
         </View>
 
         <View style={styles.iconContainer}>
-          <Image
-            source={images.healthcare} // Replace with healthcare image
-            style={styles.iconImage}
-            resizeMode="contain"
-          />
+          <TouchableOpacity onPress={handleHealthCare}>
+            <Image
+              source={images.healthcare} // Replace with healthcare image
+              style={styles.iconImage}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>               
+         
           <View style = {{height : RFValue(1.15)}}/>
           <TouchableOpacity
             style={styles.button}

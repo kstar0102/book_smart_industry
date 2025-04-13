@@ -117,7 +117,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
     {label: 'Paid', value: 'Paid'},
   ];
   const tableHead = [
-    'Degree/Discipline',
+    'Position',
     'Entry Date',
     'Job ID',
     'Job #',
@@ -183,7 +183,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
   };
 
   const getLocation = async () => {
-    const response = await getLocationList('location');
+    const response = await getLocationList('location', 'Hotel');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
@@ -331,7 +331,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
   };
 
   const handleAddLocation = async () => {
-    let response = await addLocationItem({ item: locationItem }, 'location');
+    let response = await addLocationItem({ item: locationItem, type: 'Hotel' }, 'location');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
@@ -1080,7 +1080,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
             <View style={styles.bottomBar} />
             <View style={styles.modalBody}>
               <View style={[styles.profileTitleBg, { marginLeft: 0, marginTop: RFValue(30) }]}>
-                <Text style={styles.profileTitle}>🖥️ FACILITY / SHIFT LISTINGS</Text>
+                <Text style={styles.profileTitle}>🖥️ SHIFT LISTINGS</Text>
               </View>
               <View style={styles.searchBar1}>
                 <TextInput
@@ -1181,7 +1181,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
           <View style={styles.modalContainer}>
             <View style={[styles.calendarContainer, { height: '80%' }]}>
               <View style={styles.header}>
-                <Text style={styles.headerText}>Facility View Job Details</Text>
+                <Text style={styles.headerText}>Job Details</Text>
                 <TouchableOpacity style={{width: RFValue(20), height: RFValue(20)}} onPress={toggleJobDetailModal}>
                   <Image source = {images.close} style={{width: RFValue(20), height: RFValue(20)}}/>
                 </TouchableOpacity>
@@ -1201,16 +1201,16 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
                       <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Job #</Text>
                       <Text style={styles.content}>{selectedJob?.jobNum}</Text>
                     </View>
-                    <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
+                    {/* <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
                       <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Nurse</Text>
                       <Text style={styles.content}>{selectedJob?.nurse}</Text>
-                    </View>
+                    </View> */}
                     <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
                       <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Bids / Offers</Text>
                       <Text style={styles.content}>{selectedJob?.bid_offer}</Text>
                     </View>
                     <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
-                      <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Nurse Req.</Text>
+                      <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Position Req.</Text>
                       <Text style={styles.content}>{selectedJob?.degree}</Text>
                     </View>
                     <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
@@ -1544,7 +1544,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
                       </View>
                     </View>
                     <View>
-                      <Text style={styles.subtitle}>Degree/Discipline</Text>
+                      <Text style={styles.subtitle}>Role</Text>
                       <Dropdown
                         style={[styles.dropdown1, isDegreeFocus && { borderColor: 'blue' }]}
                         placeholderStyle={styles.placeholderStyle}

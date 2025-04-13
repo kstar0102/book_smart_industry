@@ -178,7 +178,7 @@ export default function HospitalityAddRestaurantJob({ navigation }) {
   };
 
   const getLocation = async () => {
-    const response = await getLocationList('location');
+    const response = await getLocationList('location', 'Restaurant');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
@@ -297,7 +297,7 @@ export default function HospitalityAddRestaurantJob({ navigation }) {
   };
 
   const handleAddLocation = async () => {
-    let response = await addLocationItem({ item: locationItem }, 'location');
+    let response = await addLocationItem({ item: locationItem, type: 'Restaurant' }, 'location');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
@@ -371,7 +371,7 @@ export default function HospitalityAddRestaurantJob({ navigation }) {
               />
             </View>
             <View>
-              <Text style={styles.subtitle}> Degree/Discipline </Text>
+              <Text style={styles.subtitle}>Role</Text>
               <Dropdown
                 style={[styles.dropdown, isDegreeFocus && { borderColor: 'blue' }]}
                 placeholderStyle={styles.placeholderStyle}

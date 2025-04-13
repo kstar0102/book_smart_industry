@@ -182,7 +182,7 @@ export default function HospitalityAllContactors ({ navigation }) {
     'Entry Date',
     'Name',
     'Phone',
-    'Degree/Discipline',
+    'Role',
     'Email',
     'View Shifts / Profile',
     'Verification',
@@ -1284,7 +1284,7 @@ export default function HospitalityAllContactors ({ navigation }) {
             <View style={styles.modalContainer}>
               <View style={[styles.calendarContainer, { height: '80%' }]}>
                 <View style={styles.header}>
-                  <Text style={styles.headerText}>Facility View Job Details</Text>
+                  <Text style={styles.headerText}>Job Details</Text>
                   <TouchableOpacity style={{width: 20, height: 20}} onPress={toggleUserProfileModal}>
                     <Image source = {images.close} style={{width: 20, height: 20}}/>
                   </TouchableOpacity>
@@ -1420,7 +1420,7 @@ export default function HospitalityAllContactors ({ navigation }) {
                     <View style={[styles.modalBody, { padding: 0, paddingVertical: 10 }]}>
                       <View style={{flexDirection: 'row',  width: '100%', justifyContent: 'center', alignItems: 'center'}}>
                         <View style={styles.profileTitleBg}>
-                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ CAREGIVER PROFILE</Text>
+                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ PROFILE</Text>
                         </View>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>

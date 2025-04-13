@@ -120,7 +120,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
     { label: 'Shift Date', value: 'Shift Date'},
     { label: 'Shift Time', value: 'Shift Time'},
     { label: 'Count - BDA', value: 'Count - BDA'},
-    { label: 'Degree/Discipline', value: 'Degree/Discipline'},
+    { label: 'Role', value: 'Degree/Discipline'},
     { label: 'Nurse', value: 'Nurse'},
     { label: 'Bids / Offers', value: 'Bids / Offers'},
     { label: 'Hours Submitted?', value: 'Hours Submitted?'},
@@ -1721,16 +1721,16 @@ export default function HospitalityAllJobShiftList({ navigation }) {
                         <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Job #</Text>
                         <Text style={styles.content}>{selectedJob?.jobNum}</Text>
                       </View>
-                      <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
+                      {/* <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
                         <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Nurse</Text>
                         <Text style={styles.content}>{selectedJob?.nurse}</Text>
-                      </View>
+                      </View> */}
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
                         <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Bids / Offers</Text>
                         <Text style={styles.content}>{selectedJob?.bid_offer}</Text>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
-                        <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Nurse Req.</Text>
+                        <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Position Req.</Text>
                         <Text style={styles.content}>{selectedJob?.degree}</Text>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>

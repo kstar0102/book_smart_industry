@@ -48,9 +48,9 @@ export default function ClientProfile({ navigation, route }) {
                 <View style = {{ flex: 1, justifyContent: 'center', alignItems: 'center', width : '100%'}}>
                     <View style={styles.profile}>
                         <View style={styles.profileTitleBg}>
-                            <Text style={styles.profileTitle}>🖥️CAREGIVER PROFILE</Text>
+                            <Text style={styles.profileTitle}>🖥️ PROFILE</Text>
                         </View>
-                    
+
                         <Image
                             resizeMode="cover"
                             style={styles.nurse}
