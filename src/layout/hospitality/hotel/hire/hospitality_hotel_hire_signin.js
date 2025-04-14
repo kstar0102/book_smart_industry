@@ -203,7 +203,7 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
               style={styles.homepage}
             />
 
-            <Text style={constStyles.loginMainTitle1}>WHERE CARE MEETS CONNECTION</Text>
+            <Text style={constStyles.loginMainTitle1}>WHERE STAFF COSTS YOU LESS!</Text>
 
             <HButton
               style={constStyles.loginMainButton}>

@@ -222,16 +222,13 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
         <View style={styles.modal}>
           <View style={styles.intro}>
             <Image
-              source={images.mark}
-              resizeMode="contain"
-              style={styles.mark}
-            />
-            <Text style={constStyles.loginMainTitle}>WHY BOOK DUMB?</Text>
-            <Image
               source={images.hospitality_icon}
               resizeMode="contain"
               style={styles.homepage}
             />
+            <HButton style={constStyles.loginMainButton}>
+              WORK
+            </HButton>
             <Text style={[constStyles.loginSmallText, {marginHorizontal : RFValue(25), textAlign: 'center'}]}>
               Get the money you deserve by signing up and becoming a freelance contractor today!
             </Text>
