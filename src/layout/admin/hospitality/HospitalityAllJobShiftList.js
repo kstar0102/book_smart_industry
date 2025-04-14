@@ -768,7 +768,7 @@ export default function HospitalityAllJobShiftList({ navigation }) {
 
   const bidderTableHeader = [
     "Entry Date",
-    "Caregiver",
+    "Staff",
     "Details",
     "Message From Applicant",
     "Bid Status",

@@ -697,7 +697,7 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
               </View>
             </View>
             <View>
-              <Text style={constStyles.loginSubTitle}> Caregiver Address <Text style={{color: 'red'}}>*</Text> </Text>
+              <Text style={constStyles.loginSubTitle}> Address <Text style={{color: 'red'}}>*</Text> </Text>
               <View style={{flexDirection: 'column', width: '100%', gap: 5}}>
                 <View style={{width: '100%', marginBottom: 10}}>
                   <TextInput

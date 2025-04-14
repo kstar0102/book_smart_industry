@@ -963,19 +963,19 @@ export default function HospitalityAllContactors ({ navigation }) {
           </View>
           <View style={{ flexDirection: 'row' }}>
             <View style={{ backgroundColor: 'black', width: 4, height: 4, borderRadius: 2, marginTop: 20 }} />
-            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>When A New <Text style={{fontWeight: 'bold'}}>"CAREGIVER"</Text> signs-up, they will have a status of <Text style={{ color: '#0000ff', fontWeight: 'bold' }}>"PENDING APPROVAL"</Text></Text>
+            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>When A New <Text style={{fontWeight: 'bold'}}>"Staff"</Text> signs-up, they will have a status of <Text style={{ color: '#0000ff', fontWeight: 'bold' }}>"PENDING APPROVAL"</Text></Text>
           </View>
           <View style={{ flexDirection: 'row' }}>
             <View style={{ backgroundColor: 'black', width: 4, height: 4, borderRadius: 2, marginTop: 20 }} />
-            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>Once you have verified the <Text style={{fontWeight: 'bold'}}>CAREGIVER</Text> information, update the status to <Text style={{ color: '#008000', fontWeight: 'bold' }}>"ACTIVE"</Text>.</Text>
+            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>Once you have verified the <Text style={{fontWeight: 'bold'}}>Staff</Text> information, update the status to <Text style={{ color: '#008000', fontWeight: 'bold' }}>"ACTIVE"</Text>.</Text>
           </View>
           <View style={{ flexDirection: 'row' }}>
             <View style={{ backgroundColor: 'black', width: 4, height: 4, borderRadius: 2, marginTop: 20 }} />
-            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>The CAREGIVER will receive an Approval email, and can then login to view Jobs / Shifts</Text>
+            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>The Staff will receive an Approval email, and can then login to view Jobs / Shifts</Text>
           </View>
           <View style={{ flexDirection: 'row' }}>
             <View style={{ backgroundColor: 'black', width: 4, height: 4, borderRadius: 2, marginTop: 20 }} />
-            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>To Deactivate a <Text style={{fontWeight: 'bold'}}>"CAREGIVER"</Text> change the status to <Text style={{ color: '#ff0000', fontWeight: 'bold' }}>"INACTIVE"</Text></Text>
+            <Text style={[styles.text, { textAlign: 'left', marginTop: 10 }]}>To Deactivate a <Text style={{fontWeight: 'bold'}}>"Staff"</Text> change the status to <Text style={{ color: '#ff0000', fontWeight: 'bold' }}>"INACTIVE"</Text></Text>
           </View>
         </View>
         <View>

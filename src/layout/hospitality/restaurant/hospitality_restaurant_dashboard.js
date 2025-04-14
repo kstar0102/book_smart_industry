@@ -22,6 +22,9 @@ export default function HospitalityRestaurantDashboard({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <MHeader navigation={navigation} back={true}/>
+      <View>
+        <Text style={constStyles.dashboardheading}>Restaurant</Text>
+      </View>
       <Image
         source={images.hospitality_icon}
         style={constStyles.homeImageStyle}

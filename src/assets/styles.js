@@ -216,6 +216,12 @@ const constStyles = StyleSheet.create({
         textAlign: 'center',
         margin : RFValue(20)
     },
+    dashboardheading : {
+        fontSize: RFValue(30),
+        color: 'black',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
 
 })
 

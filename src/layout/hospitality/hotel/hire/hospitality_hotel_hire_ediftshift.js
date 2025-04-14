@@ -134,7 +134,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
   ];
   const bidderTableHeader = [
     "Entry Date",
-    "Caregiver",
+    "Staff",
     "Details",
     "Message From Applicant",
     "Bid Status",
@@ -958,7 +958,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
                 }}
                 onPress={() => {
                   toggleJobDetailModal();
-                  navigation.navigate("ClientProfile", { id: item[6] });
+                  navigation.navigate("ClientProfile", { id: item[6], from: "Hospitality" });
                 }}
               >
                 <Text style={styles.profileTitle}>View</Text>

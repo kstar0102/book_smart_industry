@@ -958,7 +958,7 @@ export default function CompanyShift({ navigation }) {
                 }}
                 onPress={() => {
                   toggleJobDetailModal();
-                  navigation.navigate("ClientProfile", { id: item[6] });
+                  navigation.navigate("ClientProfile", { id: item[6], from: "" });
                 }}
               >
                 <Text style={styles.profileTitle}>View</Text>

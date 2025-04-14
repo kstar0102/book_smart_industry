@@ -41,11 +41,6 @@ export default function HospitalityCaregiverProfile({ navigation, route }) {
                         <View style={styles.profileTitleBg}>
                             <Text style={styles.profileTitle}>CONTRACTOR PROFILE</Text>
                         </View>
-                        <Image
-                            resizeMode="cover"
-                            style={styles.nurse}
-                            source={{ uri: `${default_image}` }}
-                        />
                         <Text style={styles.name}>{userInfo?.photoImage?.name}</Text>
                         <Text style={styles.name}>{userInfo?.firstName || ""}{" "}{userInfo?.lastName || ""}</Text>
 
