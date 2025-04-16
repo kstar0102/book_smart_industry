@@ -56,7 +56,7 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
           </View>
           <View style={styles.imageButton}>
             <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityHotelWorkProfile')} />
-            <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('TimesheetForm')} />
+            <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityHotelWorkTimesheetForm')} />
             <ImageButton title={"My Shifts"} onPress={() => handleNavigate('HospitalityHotelWorkMyShift')} />
             <ImageButton title={"My Reporting"} onPress={() => handleNavigate('HospitalityHotelWorkReporting')} />
           </View>

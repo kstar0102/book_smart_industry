@@ -4,7 +4,7 @@ import MFooter from '../../../../components/Mfooter';
 import MHeader from '../../../../components/Mheader';
 import { WebView } from 'react-native-webview';
 
-export default function HospitalityRestaurantWorkTimesheetForm({ navigation }) {
+export default function HospitalityHotelWorkTimesheetForm({ navigation }) {
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" />
@@ -12,7 +12,7 @@ export default function HospitalityRestaurantWorkTimesheetForm({ navigation }) {
             <View style={styles.webViewContainer}>
                 <WebView
                     originWhitelist={['*']}
-                    source={{ uri: 'https://form.jotform.com/BookSmartApp/restaurant' }}
+                    source={{ uri: 'https://form.jotform.com/BookSmartApp/hotel' }}
                     style={styles.webView}
                 />
             </View>

@@ -222,6 +222,12 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
         <View style={styles.modal}>
           <View style={styles.intro}>
             <Image
+              source={images.hotel}
+              resizeMode="contain"
+              style={styles.mark}
+            />
+
+            <Image
               source={images.hospitality_icon}
               resizeMode="contain"
               style={styles.homepage}
@@ -344,7 +350,7 @@ const styles = StyleSheet.create({
   mark: {
     width: width * 0.65,
     height: height * 0.1,
-    marginLeft: '15%',
+    marginBottom: 20
   },
 
   homepage: {

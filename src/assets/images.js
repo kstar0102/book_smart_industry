@@ -25,7 +25,9 @@ const images = {
     folder: require("./images/folder.png"),
     gallery: require("./images/gallery.png"),
     camera: require("./images/camera.png"),
-    back: require('./images/back.png')
+    back: require('./images/back.png'),
+    restaurant: require('./images/restaurant.png'),
+    hotel: require('./images/hotel.png')
 };
   
   export default images;

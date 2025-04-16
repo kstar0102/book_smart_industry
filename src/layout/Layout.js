@@ -126,6 +126,7 @@ import HospitalityAddNewHotel from './admin/hospitality/HospitalityAddNewHotel.j
 import HospitalityVerifyCation from './admin/hospitality/HospitalityVerifycation.js';
 import HospitalityAddNewRestaurant from './admin/hospitality/HospitalityAddNewRestaurant.js';
 import HospitalityCaregiverProfile from './admin/hospitality/HospitalityCaregiverProfile.js';
+import HospitalityHotelWorkTimesheetForm from './hospitality/hotel/work/hospitality_hotel_work_timesheetForm.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -470,6 +471,12 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityRestaurantWorkTimesheetForm'
         component = {HospitalityRestaurantWorkTimesheetForm}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityHotelWorkTimesheetForm'
+        component = {HospitalityHotelWorkTimesheetForm}
         options={{headerShown: false}}
       />
 
