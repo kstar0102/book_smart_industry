@@ -38,6 +38,23 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
     navigation.navigate(navigateUrl);
   };
 
+  const formatShiftTime = (shiftTime) => {
+    if (!shiftTime) return '';
+
+    const [start, end] = shiftTime.split(' - ');
+
+    const to24Hour = (timeStr) => {
+      const [time, modifier] = timeStr.split(' ');
+      let [hours, minutes] = time.split(':').map(Number);
+  
+      if (modifier === 'PM' && hours !== 12) hours += 12;
+      if (modifier === 'AM' && hours === 12) hours = 0;
+  
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    };
+    return `${to24Hour(start)}-${to24Hour(end)}`;
+  };
+
   const getData = async () => {
     setGettingData(true);
     let data = await Jobs({}, 'restaurant/jobs', 'RestaurantWork');
@@ -61,13 +78,13 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
         content: item.shiftDate
       },{
         title: 'Shift',
-        content: item.shift
+        content: formatShiftTime(item.shift)
       },{
         title: 'Location',
         content: item.location
       },{
         title: 'Pay Rate',
-        content: item.payRage
+        content: item.payRate
       },{
         title: 'Status',
         content: item.status
@@ -90,7 +107,7 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
         content: item.status
       },{
         title: 'Shift',
-        content: item.shift
+        content: formatShiftTime(item.shift)
       },{
         title: 'Date',
         content: item.shiftDate
@@ -98,14 +115,9 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
         title: 'Location',
         content: item.location
       },{
-      },{
-        title: 'Pay Rate',
-        content: item.payRate
-      },{
         title: 'Bonus',
         content: item.bonus
       }]);
-      
       setUserInfo(transformedData);
       setFilteredData(transformedData);
       setTotalPages(page);
@@ -320,23 +332,38 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
               }
               {itemsToShow.map((it, idx) =>
                 <View key={idx} style={styles.subBar}>
-                  {it.map((item, index) => 
-                    <View key={index} style={{flexDirection: 'row', width: '100%'}}>
-                      <Text style={[styles.titles, item.title=="JOB-ID" ? {backgroundColor: "#00ffff"} : {}]}>{item.title}</Text>
-                      <Text style={[
-                        styles.content, 
-                        item.title == "JOB-ID" || item.title == "Status" ? {fontWeight: 'bold'} : {}
-                      ]}>{item.content}</Text>
-                    </View>
-                  )}
-                  <TouchableOpacity style={styles.edit} onPress = {() => handleEdit(idx + (currentPage-1) * itemsPerPage)}>
+                  {it.map((item, index) => {
+                    if (item.title === "Pay Rate" && !item.content) return null;
+
+                    return (
+                      <View key={index} style={{flexDirection: 'row', width: '100%'}}>
+                        <Text
+                          style={[
+                            styles.titles,
+                            item.title === "JOB-ID" ? { backgroundColor: "#00ffff" } : {}
+                          ]}
+                        >
+                          {item.title}
+                        </Text>
+
+                        <Text
+                          style={[
+                            styles.content,
+                            (item.title === "JOB-ID" || item.title === "Status") ? { fontWeight: 'bold' } : {}
+                          ]}
+                        >
+                          {item.content}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                  <TouchableOpacity style={styles.edit} onPress={() => handleEdit(idx + (currentPage - 1) * itemsPerPage)}>
                     <Text style={{color: 'white', fontWeight: 'bold', fontSize: RFValue(16)}}> VIEW & APPLY</Text>
                   </TouchableOpacity>
-                </View>)
-              }
+                </View>
+              )}
             </View>
           </View>
-          
         </ScrollView>
         {isModal && <Modal
           Visible={false}

@@ -73,12 +73,21 @@ export default function HospitalityRestaurantWorkApplyShift ({ navigation, route
                                 <Text style={[styles.profileTitle, { textAlign: 'center' }]}>Back to Job / Shift Listings {'>'}</Text>
                             </TouchableOpacity>
                             <View style={styles.modalBody}>
-                                {modalData.map((item, index) => 
-                                    <View key={index} style={{ flexDirection: 'row', width: '100%', gap: 10 }}>
-                                        <Text style={[styles.titles, { backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2 }]}>{item.title}</Text>
-                                        <Text style={styles.content}>{item.content}</Text>
-                                    </View>
-                                )}
+                                {modalData.map((item, index) => {
+                                    if (item.title === "Hourly Rate" && !item.content) return null;
+
+                                    return (
+                                        <View key={index} style={{ flexDirection: 'row', width: '100%', gap: 10 }}>
+                                            <Text style={[
+                                                styles.titles,
+                                                { backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2 }
+                                            ]}>
+                                                {item.title}
+                                            </Text>
+                                            <Text style={styles.content}>{item.content}</Text>
+                                        </View>
+                                    );
+                                })}
                             </View>
                             <Text style={[styles.text, {color: 'blue', fontWeight: 'bold', marginTop: 20, textAlign: 'left'}]}>You will be notified via email if this shift is awarded to you!</Text>
                             <View style={styles.msgBar}>
