@@ -42,7 +42,7 @@ export default function HospitalityHotelHireHome ({ navigation }) {
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <View style={styles.topView}>
             <Image
-              source={images.mark}
+              source={images.hotel}
               resizeMode="cover"
               style={styles.mark}
             />
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   mark: {
     width:RFValue(225),
-    height: RFValue(68),
+    height: RFValue(80),
   },
   topView: {
     marginTop: 20,

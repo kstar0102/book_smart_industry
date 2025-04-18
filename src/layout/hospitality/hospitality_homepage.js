@@ -26,7 +26,7 @@ export default function HospitalityHomePage({ navigation }) {
         Welcome to the BookSmart™ App
       </Text>
       <Text style={styles.text}>
-        Where you make what you deserve!
+        Where you get what you deserve!
       </Text>
       
       <Image
@@ -36,6 +36,7 @@ export default function HospitalityHomePage({ navigation }) {
       />
 
       <View style = {{height: RFValue(50)}}></View>
+      <Text style={constStyles.dashboardsubheading}>Select Your Industry:</Text>
       <View style={constStyles.dashboardbuttonWrapper}>
         <HButton style={constStyles.dashboardbutton} onPress={ handleRestaurant }>
           Restaurant

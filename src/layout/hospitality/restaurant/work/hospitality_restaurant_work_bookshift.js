@@ -66,6 +66,9 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
         title: 'Location',
         content: item.location
       },{
+        title: 'Pay Rate',
+        content: item.payRage
+      },{
         title: 'Status',
         content: item.status
       }]);
@@ -94,6 +97,10 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
       },{
         title: 'Location',
         content: item.location
+      },{
+      },{
+        title: 'Pay Rate',
+        content: item.payRate
       },{
         title: 'Bonus',
         content: item.bonus
@@ -469,7 +476,7 @@ const styles = StyleSheet.create({
     width: '40%'
   },
   content: {
-    fontSize: RFValue(16),
+    fontSize: RFValue(13),
     lineHeight: RFValue(30),
   },
   profileTitleBg: {
