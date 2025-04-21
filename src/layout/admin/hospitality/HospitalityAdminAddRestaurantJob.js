@@ -178,7 +178,7 @@ export default function HospitalityAddRestaurantJob({ navigation }) {
   };
 
   const getLocation = async () => {
-    const response = await getLocationList('location', 'Restaurant');
+    const response = await getLocationList('location', 'Restaurant', -2);
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
@@ -297,7 +297,7 @@ export default function HospitalityAddRestaurantJob({ navigation }) {
   };
 
   const handleAddLocation = async () => {
-    let response = await addLocationItem({ item: locationItem, type: 'Restaurant' }, 'location');
+    let response = await addLocationItem({ item: locationItem, type: 'Restaurant', user_id: -2 }, 'location');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {

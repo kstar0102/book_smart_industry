@@ -193,7 +193,7 @@ export default function HospitalityHotelHirePostShift({ navigation }) {
   };
 
   const getLocation = async () => {
-    const response = await getLocationList('location', 'Hotel');
+    const response = await getLocationList('location', 'Hotel', facilityId);
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {
@@ -293,7 +293,7 @@ export default function HospitalityHotelHirePostShift({ navigation }) {
   };
 
   const handleAddLocation = async () => {
-    let response = await addLocationItem({ item: locationItem, type: 'Hotel' }, 'location');
+    let response = await addLocationItem({ item: locationItem, type: 'Hotel', user_id: facilityId }, 'location');
     if (!response?.error) {
       let tempArr = [];
       response.data.map(item => {

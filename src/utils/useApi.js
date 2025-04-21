@@ -310,10 +310,10 @@ export const addLocationItem = async (data, endpoint) => {
   }
 }
 
-export const getLocationList = async (endpoint, type) => {
+export const getLocationList = async (endpoint, type, user_id) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
-    const response = await axios.get(`api/${endpoint}/getList?type=${type}`, {
+    const response = await axios.get(`api/${endpoint}/getList?type=${type}&user_id=${user_id}`, {
       headers: {
         Authorization: `Bearer ${existingToken}`
       }
