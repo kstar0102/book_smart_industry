@@ -315,7 +315,7 @@ export default function HospitalityAdminAddHotelJob({ navigation }) {
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
       <MHeader navigation={navigation} back={true} />
-      <SubNavbar navigation={navigation} name={"HospitalityRestaurantHireLogin"} />
+      <SubNavbar navigation={navigation} name={"AdminLogin"} />
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style= {{width: '100%',  marginTop: 20, paddingHorizontal: RFValue(20)}}>
