@@ -95,6 +95,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
     try {
       setRequest(true);
       const response = await Signin({ contactEmail: loginEmail, password: loginPW, userRole: 'restaurantManager' }, 'restau_manager');
+      console.log(response);
       if (response?.user) {
         setRequest(false);
         setAIC(response?.user.aic);
@@ -128,7 +129,7 @@ export default function HospitalityRestaurantHireLogin({ navigation }) {
         if (response.error.status == 401) {
           Alert.alert(
             'Failed!',
-            "Sign in informaation is incorrect.",
+            "Sign in information is incorrect.",
             [
               {
                 text: 'OK',

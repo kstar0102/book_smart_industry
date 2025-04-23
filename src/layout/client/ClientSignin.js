@@ -155,7 +155,7 @@ export default function ClientSignIn({ navigation }) {
         if (response.error.status == 401) {
           Alert.alert(
             'Failed!',
-            "Sign in informaation is incorrect.",
+            "Sign in information is incorrect.",
             [
               {
                 text: 'OK',
