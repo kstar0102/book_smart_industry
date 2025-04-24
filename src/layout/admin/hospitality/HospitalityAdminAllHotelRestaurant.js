@@ -327,7 +327,7 @@ export default function HospitalityAdminAllHotelRestaurant({ navigation }) {
 
       console.log('Sending update payload:', updatePayload);
 
-      const response = await updateUserInfo(updatePayload, 'admin');
+      const response = await updateUserInfo(updatePayload, 'hospitality');
       console.log('Update response:', response);
 
       if (response && !response.error) {
