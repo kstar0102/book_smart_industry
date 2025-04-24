@@ -952,7 +952,7 @@ export default function HospitalityAllContactors ({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.topView}>
-          <AnimatedHeader title="ALL INDEPENDNET CONTRACTORS" />
+          <AnimatedHeader title="ALL INDEPENDENT CONTRACTORS" />
           <View style={styles.bottomBar} />
         </View>
         <View style={{ marginTop: 30, flexDirection: 'row', width: '90%', marginLeft: '5%', gap: 10 }}>
