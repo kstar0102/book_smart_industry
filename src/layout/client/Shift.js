@@ -16,6 +16,7 @@ import DocumentPicker from 'react-native-document-picker';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import RNFS from 'react-native-fs'
 import Loader from '../Loader';
+import AnimatedHeader from '../AnimatedHeader';
 import { Dimensions } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -559,7 +560,11 @@ export default function Shift ({ navigation }) {
         <MHeader navigation={navigation} back={true} />
         <SubNavbar navigation={navigation} name={'ClientSignIn'}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
-          <Text style={styles.text}>All of your<Text style={{fontWeight: 'bold'}}>&nbsp;"AWARDED"&nbsp;</Text> shifts will appear below. Once you have completed a shift, upload your timesheet and the shift status will update to <Text style={{fontWeight: 'bold'}}>&nbsp;"PENDING VERIFICAITON"&nbsp;</Text>.</Text>
+          {/* <View style={styles.topView}>
+            <AnimatedHeader title="AWARDED & COMPLETED SHIFTS" />
+            <View style={styles.bottomBar}/>
+          </View> */}
+          <Text style={styles.text}>All of your<Text style={{fontWeight: 'bold'}}>&nbsp;"AWARDED"&nbsp;</Text> shifts will appear below. Once you have completed a shift, upload your timesheet and the shift status will update to <Text style={{fontWeight: 'bold'}}>&nbsp;"PENDING VERIFICATION"&nbsp;</Text>.</Text>
           {downloading ? (
             <Text style={[styles.text, { marginTop: RFValue(15) }]}>Downloading...</Text>
           ) : (

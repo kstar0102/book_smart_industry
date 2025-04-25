@@ -190,8 +190,8 @@ export default function AdminLogin({ navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent"/>
-      <MHeader navigation={navigation} back={true}/>
-      <ScrollView style = {constStyles.scroll}
+      <MHeader navigation={navigation}/>
+      <ScrollView style = {styles.scroll}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.modal}>
@@ -263,13 +263,13 @@ export default function AdminLogin({ navigation }) {
           </View>
         </View>
         <View style={styles.buttonWrapper}>
-          {/* <TouchableOpacity
+          <TouchableOpacity
             onPress={() => navigation.navigate('ClientSignIn')}
             style={styles.homeBtn}
           >
             <Image source={images.homeIcon} style={{width: 20, height: 20}}/>
             <Text style={styles.homeText}>Home</Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
       </ScrollView>
       <Loader visible={request}/>

@@ -1572,7 +1572,7 @@ export default function AllJobShiftListing({ navigation }) {
             <View style={styles.modalContainer}>
               <View style={[styles.calendarContainer, { height: '80%' }]}>
                 <View style={[styles.header, { height: 80 }]}>
-                  <Text style={styles.headerText}>Job Details</Text>
+                  <Text style={styles.headerText}>Facility View Job Details</Text>
                   <TouchableOpacity style={{width: 20, height: 20}} onPress={toggleJobDetailModal}>
                     <Image source = {images.close} style={{width: 20, height: 20}}/>
                   </TouchableOpacity>

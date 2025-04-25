@@ -23,6 +23,16 @@ export const Signin = async (credentials, endpoint) => {
   }
 }
 
+export const sendFCMToken = async (credentials, endpoint) => {
+  try {
+    const response = await axios.post(`api/${endpoint}/saveFCMToken`, credentials);
+    return response.data;
+  } catch (error) {
+    console.error(error)    
+    return {error: error.response.data.message};
+  }
+}
+
 export const getAllFacility = async (userData, endpoint) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
@@ -115,10 +125,8 @@ export const getUserInfo = async (data, endpoint) => {
     if (response.data.token) {
       await AsyncStorage.setItem('token', response.data.token);
     }
-    console.log(response)
     return response.data;
   } catch (error) {
-    console.log(JSON.stringify(error));
     return {error: error}
   }
 };
@@ -642,6 +650,15 @@ export const getUserImage = async (data, endpoint) => {
   }
 };
 
+export const sendMessage = async (data) => {
+  try {
+    const response = await axios.post(`api/admin/sendMessage`, data);
+    return response.data.data;
+  } catch (error) {
+    return { error: error };
+  }
+};
+
 export const getAdminInfo = async (data) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
@@ -814,10 +831,10 @@ export const getClientInfoWithJobId = async (data, endpoint) => {
   }
 };
 
-export const getTimesheet = async (data, endpoint) => {
+export const getTimesheet = async (data) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
-    const response = await axios.post(`api/${endpoint}/getTimesheet`, data, {
+    const response = await axios.post(`api/jobs/getTimesheet`, data, {
       headers: {
         Authorization: `Bearer ${existingToken}`
       }

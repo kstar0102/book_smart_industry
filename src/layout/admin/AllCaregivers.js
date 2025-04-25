@@ -1307,7 +1307,7 @@ export default function AllCaregivers({ navigation }) {
             <View style={styles.modalContainer}>
               <View style={[styles.calendarContainer, { height: '80%' }]}>
                 <View style={styles.header}>
-                  <Text style={styles.headerText}>Job Details</Text>
+                  <Text style={styles.headerText}>Facility View Job Details</Text>
                   <TouchableOpacity style={{width: 20, height: 20}} onPress={toggleUserProfileModal}>
                     <Image source = {images.close} style={{width: 20, height: 20}}/>
                   </TouchableOpacity>
@@ -1317,7 +1317,7 @@ export default function AllCaregivers({ navigation }) {
                     <View style={[styles.modalBody, { padding: 0, paddingVertical: 10 }]}>
                       <View style={{flexDirection: 'row',  width: '100%', justifyContent: 'center', alignItems: 'center'}}>
                         <View style={styles.profileTitleBg}>
-                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ PROFILE</Text>
+                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ CAREGIVER PROFILE</Text>
                         </View>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
@@ -1433,7 +1433,7 @@ export default function AllCaregivers({ navigation }) {
             <View style={styles.modalContainer}>
               <View style={[styles.calendarContainer, { height: '80%' }]}>
                 <View style={styles.header}>
-                  <Text style={styles.headerText}>Verification</Text>
+                  <Text style={styles.headerText}>Caregiver Verification</Text>
                   <TouchableOpacity style={{width: 20, height: 20}} onPress={toggleVerificationModal}>
                     <Image source = {images.close} style={{width: 20, height: 20}}/>
                   </TouchableOpacity>
@@ -1443,7 +1443,7 @@ export default function AllCaregivers({ navigation }) {
                     <View style={[styles.modalBody, { padding: 0, paddingVertical: 10 }]}>
                       <View style={{flexDirection: 'row',  width: '100%', justifyContent: 'center', alignItems: 'center'}}>
                         <View style={styles.profileTitleBg}>
-                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ PROFILE</Text>
+                          <Text style={[styles.profileTitle, { fontSize: RFValue(12) }]}>🖥️ CAREGIVER PROFILE</Text>
                         </View>
                       </View>
                       <View style={{flexDirection: 'row', width: '100%', gap: 10}}>

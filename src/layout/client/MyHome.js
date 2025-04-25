@@ -19,7 +19,7 @@ export default function MyHome ({ navigation }) {
   const [lastName, setLastName] = useAtom(lastNameAtom);
   const [email, setEmail] = useAtom(emailAtom);
   const [userRole, setUserRole] = useAtom(userRoleAtom);
-  
+  const [caregiver, setCaregiver] = useAtom(caregiverAtom);
   const handleNavigate = (navigateUrl) => {
     navigation.navigate(navigateUrl);
   };

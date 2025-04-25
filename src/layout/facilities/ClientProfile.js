@@ -11,7 +11,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 const { width, height } = Dimensions.get('window');
 
 export default function ClientProfile({ navigation, route }) {
-    const { id, from } = route.params;
+    const { id } = route.params;
     const [userInfo, setUserInfo] = useState({});
     const [loading, setLoading] = useState(false);
     const default_image = 'https://s3.amazonaws.com/assets.knackhq.com/assets/6605fd227f7c6e0027a2c623/66df2fef02a9740307513f2d/thumb_6/nurse.png';
@@ -48,16 +48,16 @@ export default function ClientProfile({ navigation, route }) {
                 <View style = {{ flex: 1, justifyContent: 'center', alignItems: 'center', width : '100%'}}>
                     <View style={styles.profile}>
                         <View style={styles.profileTitleBg}>
-                            <Text style={styles.profileTitle}>🖥️ PROFILE</Text>
+                            <Text style={styles.profileTitle}>🖥️CAREGIVER PROFILE</Text>
                         </View>
-                        {from === "" && (
-                            <Image
-                                resizeMode="cover"
-                                style={styles.nurse}
-                                source={{ uri: `${default_image}` }}
-                            />
-                        )}
+                    
+                        <Image
+                            resizeMode="cover"
+                            style={styles.nurse}
+                            source={{ uri: `${default_image}` }}
+                        />
                         <Text style={styles.name}>{userInfo?.firstName || ""}{" "}{userInfo?.lastName || ""}</Text>
+
                         <View style={{ flexDirection: 'row', width: '100%' }}>
                             <Text style={[styles.titles, { width: '40%' }]}>Phone</Text>
                             <Text style={[styles.content, { color: '#2a53c1', textDecorationLine: 'underline', width: '100%' }]}>{userInfo?.phoneNumber}</Text>

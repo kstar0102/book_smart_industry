@@ -42,7 +42,7 @@ export default function CaregiverProfile({ navigation, route }) {
 
                     <View style={styles.profile}>
                         <View style={styles.profileTitleBg}>
-                            <Text style={styles.profileTitle}>🖥️ PROFILE</Text>
+                            <Text style={styles.profileTitle}>🖥️CAREGIVER PROFILE</Text>
                         </View>
                         <Image
                             resizeMode="cover"

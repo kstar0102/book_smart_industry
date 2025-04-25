@@ -584,7 +584,7 @@ export default function ClientSignUp({ navigation }) {
       <ScrollView style = {styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.modal}>
           <View style={styles.intro}>
-            <AnimatedHeader title="REGISTER HERE!" />
+            <AnimatedHeader title="CAREGIVERS REGISTER HERE!" />
             <View style={{flexDirection:'row', justifyContent: 'center', marginVertical: RFValue(20)}}>
               <Text style={[constStyles.signUpText, {flexDirection:'row'}]}>
                 NOTE: Your Registration will be in <Text style={[constStyles.signUpText, {color:'#0000ff'}]}>"PENDING"</Text>
@@ -726,7 +726,7 @@ export default function ClientSignUp({ navigation }) {
               </View>
             </View>
             <View style={styles.email}>
-              <Text style={constStyles.signUpSubtitle}> Address <Text style={{color: 'red'}}>*</Text> </Text>
+              <Text style={constStyles.signUpSubtitle}> Caregiver Address <Text style={{color: 'red'}}>*</Text> </Text>
               <View style={{flexDirection: 'column', width: '100%', gap: 5}}>
                 <View style={{width: '100%', marginBottom: 10}}>
                   <TextInput
@@ -859,7 +859,7 @@ export default function ClientSignUp({ navigation }) {
             <Text style={{textDecorationLine: 'underline', color: '#2a53c1', fontSize: RFValue(14), marginBottom: 20}}
               onPress={handleBack}
             >
-              Back to 🏚️ Hospitality Home
+              Back to 🏚️ Caregiver Home
             </Text>
           </View>
         </View>

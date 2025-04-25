@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, PixelRatio, View, Alert, Text, ScrollView, TouchableOpacity, Pressable, Image, StatusBar } from 'react-native';
 import images from '../../assets/images';
 import { TextInput } from 'react-native-paper';
+// import messaging from '@react-native-firebase/messaging';
 import { useAtom } from 'jotai';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUniqueId } from 'react-native-device-info';
@@ -17,7 +18,7 @@ import {
   clinicalAcknowledgeTerm,
   aicAtom
  } from '../../context/ClinicalAuthProvider';
-import { Signin } from '../../utils/useApi';
+import { sendFCMToken, Signin } from '../../utils/useApi';
 import HButton from '../../components/Hbutton';
 import MHeader from '../../components/Mheader';
 import MFooter from '../../components/Mfooter';
@@ -44,6 +45,7 @@ export default function ClientSignIn({ navigation }) {
   const [loginPW, setLoginPW] = useState('');
   const [checked, setChecked] = useState(false);
   const [request, setRequest] = useState(false);
+  // const [fToken, setFToken] = useState('');
 
   const fetchDeviceInfo = async () => {
     try {
@@ -53,6 +55,12 @@ export default function ClientSignIn({ navigation }) {
       console.error('Error fetching device info:', error);
     }
   };
+  
+  // const getFCMMsgToken = async () => {
+  //   const token = await messaging().getToken();
+  //   console.log("This is FCM Token => ", token);
+  //   setFToken(token);
+  // };
   
   useFocusEffect(
     React.useCallback(() => {
@@ -72,6 +80,7 @@ export default function ClientSignIn({ navigation }) {
       setLoginPW(password);
     }
     getCredentials();
+    // getFCMMsgToken();
   }, []);
 
   const handleSignInNavigate = (url) => {
@@ -133,6 +142,9 @@ export default function ClientSignIn({ navigation }) {
         setClinicalAcknowledgement(response.user.clinicalAcknowledgeTerm);
         setPassword(response.user.password);
 
+        // console.log(response.user.email, fToken);
+        // await sendFCMToken({ email: response.user.email, token: fToken }, 'clinical');
+        
         await AsyncStorage.setItem('clinicalPhoneNumber', response.user.phoneNumber);
 
         if (checked) {
@@ -141,11 +153,6 @@ export default function ClientSignIn({ navigation }) {
         }
 
         if (response.user.clinicalAcknowledgeTerm) {
-          // if (response.phoneAuth) {
-          //   handleSignInNavigate('ClientPhone');
-          // } else {
-          //   handleSignInNavigate('MyHome');
-          // }
           handleSignInNavigate('MyHome');
         } else {
           handleSignInNavigate('ClientPermission');
@@ -155,7 +162,7 @@ export default function ClientSignIn({ navigation }) {
         if (response.error.status == 401) {
           Alert.alert(
             'Failed!',
-            "Sign in information is incorrect.",
+            "Sign in informaation is incorrect.",
             [
               {
                 text: 'OK',
@@ -232,13 +239,17 @@ export default function ClientSignIn({ navigation }) {
             />
             <Text style={constStyles.loginMainTitle}>WHY BOOK DUMB?</Text>
             <Image
-              source={images.homepage_nurse}
+              source={images.homepage}
               resizeMode="contain"
               style={styles.homepage}
             />
-            <Text style={constStyles.loginSmallText}>Let your licensure and certifications pay off. {'\n'}
+            {/* <Text style={constStyles.loginSmallText}>Let your licensure and certifications pay off. {'\n'}
               Get the money you deserve by signing up {'\n'}
               and becoming a freelance clinician today!
+            </Text> */}
+
+            <Text style={constStyles.loginSmallText}>Let your licensure and certifications pay off. {'\n'}
+              Get the money you deserve by signing up and becoming a freelance clinician today!
             </Text>
 
           </View>

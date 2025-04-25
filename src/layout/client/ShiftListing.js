@@ -12,6 +12,7 @@ import { aicAtom, firstNameAtom, lastNameAtom } from '../../context/ClinicalAuth
 import { PostBid, Jobs } from '../../utils/useApi';
 import { Dropdown } from 'react-native-element-dropdown';
 import { useFocusEffect } from '@react-navigation/native';
+import AnimatedHeader from '../AnimatedHeader';
 import Loader from '../Loader';
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -37,23 +38,6 @@ export default function ShiftListing ({ navigation }) {
   const [pageItems, setPageItems] = useState([]);
   const [bidsubmit, setBidsubmit] = useState(false); 
 
-  const formatShiftTime = (shiftTime) => {
-    if (!shiftTime) return '';
-
-    const [start, end] = shiftTime.split(' - ');
-
-    const to24Hour = (timeStr) => {
-      const [time, modifier] = timeStr.split(' ');
-      let [hours, minutes] = time.split(':').map(Number);
-  
-      if (modifier === 'PM' && hours !== 12) hours += 12;
-      if (modifier === 'AM' && hours === 12) hours = 0;
-  
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-    };
-    return `${to24Hour(start)}-${to24Hour(end)}`;
-  };
-
   const getData = async () => {
     setGettingData(true);
     let data = await Jobs({}, 'jobs', 'Clinician');
@@ -77,13 +61,10 @@ export default function ShiftListing ({ navigation }) {
         content: item.shiftDate
       },{
         title: 'Shift',
-        content: formatShiftTime(item.shift)
+        content: item.shift
       },{
         title: 'Location',
         content: item.location
-      },{
-        title: 'Pay Rate',
-        content: item.payRate
       },{
         title: 'Status',
         content: item.status
@@ -106,7 +87,7 @@ export default function ShiftListing ({ navigation }) {
         content: item.status
       },{
         title: 'Shift',
-        content: formatShiftTime(item.shift)
+        content: item.shift
       },{
         title: 'Date',
         content: item.shiftDate
@@ -332,36 +313,20 @@ export default function ShiftListing ({ navigation }) {
               }
               {itemsToShow.map((it, idx) =>
                 <View key={idx} style={styles.subBar}>
-                  {it.map((item, index) => {
-                    if (item.title === "Pay Rate" && !item.content) return null;
-
-                    return (
-                      <View key={index} style={{flexDirection: 'row', width: '100%'}}>
-                        <Text
-                          style={[
-                            styles.titles,
-                            item.title === "JOB-ID" ? { backgroundColor: "#00ffff" } : {}
-                          ]}
-                        >
-                          {item.title}
-                        </Text>
-
-                        <Text
-                          style={[
-                            styles.content,
-                            (item.title === "JOB-ID" || item.title === "Status") ? { fontWeight: 'bold' } : {}
-                          ]}
-                        >
-                          {item.content}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                  <TouchableOpacity style={styles.edit} onPress={() => handleEdit(idx + (currentPage - 1) * itemsPerPage)}>
+                  {it.map((item, index) => 
+                    <View key={index} style={{flexDirection: 'row', width: '100%'}}>
+                      <Text style={[styles.titles, item.title=="JOB-ID" ? {backgroundColor: "#00ffff"} : {}]}>{item.title}</Text>
+                      <Text style={[
+                        styles.content, 
+                        item.title == "JOB-ID" || item.title == "Status" ? {fontWeight: 'bold'} : {}
+                      ]}>{item.content}</Text>
+                    </View>
+                  )}
+                  <TouchableOpacity style={styles.edit} onPress = {() => handleEdit(idx + (currentPage-1) * itemsPerPage)}>
                     <Text style={{color: 'white', fontWeight: 'bold', fontSize: RFValue(16)}}> VIEW & APPLY</Text>
                   </TouchableOpacity>
-                </View>
-              )}
+                </View>)
+              }
             </View>
           </View>
           
@@ -504,7 +469,7 @@ const styles = StyleSheet.create({
     width: '40%'
   },
   content: {
-    fontSize: RFValue(13),
+    fontSize: RFValue(16),
     lineHeight: RFValue(30),
   },
   profileTitleBg: {
