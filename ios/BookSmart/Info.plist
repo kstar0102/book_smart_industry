@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>BS-Hospitality</string>
+	<string>BookSmart</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,11 +17,15 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>1.0.29</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>FirebaseMessagingAutoInitEnabled</key>
+	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -30,7 +34,7 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>52.14.179.250</key>
+			<key>3.17.178.130</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
@@ -39,23 +43,58 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app requires access to your music library to play and manage your music.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app requires Bluetooth access to connect to and communicate with nearby devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This app requires Bluetooth access to communicate with peripheral devices such as headphones or smartwatches.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>This app requires access to your calendar to add, view, and modify events.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>This app requires access to your calendar to add events, but will not access any other information.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Access to camera is required to capture photos needed for your profile and shift's timesheet.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app requires access to your contacts to allow you to send messages and make calls to your contacts.</string>
 	<key>NSDocumentsUsageDescription</key>
 	<string>We need access to documents to allow you to upload files.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app requires access to Face ID to authenticate your identity for secure login.</string>
 	<key>NSFileProviderDomainUsageDescription</key>
 	<string>We need access to files from your document provider.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app uses the local network to communicate with development tools like Metro.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We need your location to provide personalized content and updates based on your location.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need your location to improve your experience.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need your location while you use the app to show relevant content and suggestions.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires access to your microphone to record audio for voice messages or video calls.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This app requires access to your motion sensors to track activity and detect movement.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>We need access to save images to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to upload images.</string>
+	<key>NSRemindersFullAccessUsageDescription</key>
+	<string>This app requires access to your reminders to create and manage reminders on your behalf.</string>
+	<key>NSSiriUsageDescription</key>
+	<string>This app requires access to Siri to allow voice-based commands and interaction with the app.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app requires access to speech recognition to transcribe voice into text.</string>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>Your app uses push notifications to keep you updated.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>We use your data to send you notifications related to the app.</string>
+	<key>UIApplicationExpectsUserPrivacyAuthorization</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
@@ -71,7 +110,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UNNotificationExtensionDefaultContentHidden</key>
+	<false/>
+	<key>UNNotificationExtensionUserInteractionEnabled</key>
+	<true/>
 </dict>
 </plist>
