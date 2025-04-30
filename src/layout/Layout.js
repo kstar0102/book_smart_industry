@@ -127,6 +127,7 @@ import HospitalityVerifyCation from './admin/hospitality/HospitalityVerifycation
 import HospitalityAddNewRestaurant from './admin/hospitality/HospitalityAddNewRestaurant.js';
 import HospitalityCaregiverProfile from './admin/hospitality/HospitalityCaregiverProfile.js';
 import HospitalityHotelWorkTimesheetForm from './hospitality/hotel/work/hospitality_hotel_work_timesheetForm.js';
+import AdminMessage from './admin/AdminMessage.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -676,6 +677,11 @@ function Layout() {
       <Stack.Screen 
         name= 'AdminCompany'
         component = {AdminCompany}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen 
+d        name= 'AdminMessage'
+        component = {AdminMessage}
         options={{headerShown: false}}
       />
       <Stack.Screen 

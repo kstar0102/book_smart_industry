@@ -27,7 +27,9 @@ const images = {
     camera: require("./images/camera.png"),
     back: require('./images/back.png'),
     restaurant: require('./images/restaurant.png'),
-    hotel: require('./images/hotel.png')
+    hotel: require('./images/hotel.png'),
+    checkedbtn: require('./images/checkedbtn.png'),
+    uncheckedbtn: require('./images/uncheckedbtn.png'),
 };
   
   export default images;
