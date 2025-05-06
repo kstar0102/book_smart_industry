@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDe_VKn-VUDe_DBkrFnrwkP5hwcobyHyDY</string>
+	<string>AIzaSyBMdB-5mFdi74d6razP2owF4JCs-RSgTgk</string>
 	<key>GCM_SENDER_ID</key>
-	<string>418587939564</string>
+	<string>129656889389</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>app.book.smart</string>
+	<string>app.book.smartindustry</string>
 	<key>PROJECT_ID</key>
-	<string>booksmartllc-8dd2e</string>
+	<string>booksmart-a4d65</string>
 	<key>STORAGE_BUCKET</key>
-	<string>booksmartllc-8dd2e.firebasestorage.app</string>
+	<string>booksmart-a4d65.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:418587939564:ios:d10b5f991088ddca804bc9</string>
+	<string>1:129656889389:ios:111db5832575bde2ed18a4</string>
 </dict>
 </plist>

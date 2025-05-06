@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert, ScrollView, Pressable } from 'react-native';
 import Loader from '../../../Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
 import { getUniqueId } from 'react-native-device-info';
 import { RFValue } from 'react-native-responsive-fontsize';
 import images from '../../../../assets/images';
@@ -23,7 +24,7 @@ import {
   AcknowledgeTerm
  } from '../../../../context/HotelWorkProvider';
 import { useAtom } from 'jotai';
-import { Signin } from '../../../../utils/useApi';
+import { sendFCMToken, Signin } from '../../../../utils/useApi';
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,6 +45,8 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
   const [checked, setChecked] = useState(false);
   const [request, setRequest] = useState(false);
 
+  const [fToken, setFToken] = useState('');
+
   const fetchDeviceInfo = async () => {
     try {
       const id = await getUniqueId();
@@ -51,6 +54,12 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
     } catch (error) {
       console.error('Error fetching device info:', error);
     }
+  };
+
+  const getFCMMsgToken = async () => {
+    const token = await messaging().getToken();
+    console.log("This is FCM Token => ", token);
+    setFToken(token);
   };
   
   useFocusEffect(
@@ -69,8 +78,10 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
       const password = (await AsyncStorage.getItem('hotelWorkPassword')) || '';
       setLoginEmail(emails);
       setLoginPW(password);
-    }
+    };
+
     getCredentials();
+    getFCMMsgToken();
   }, []);
 
   const handleSignUpNavigate = () => {
@@ -130,6 +141,9 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
         setUserRole(response.user.userRole);
         setPassword(response.user.password);
         setAcknowledgeTerm(response.user.AcknowledgeTerm);
+
+        console.log(response.user.email, fToken);
+        await sendFCMToken({ email: response.user.email, token: fToken }, 'hotel_user');
 
         await AsyncStorage.setItem('hotelWorkPhoneNumber', response.user.phoneNumber);
 

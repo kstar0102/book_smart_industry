@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, 
   TextInput, TouchableOpacity, Image, 
   Alert, ScrollView, Pressable } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient';
+import messaging from '@react-native-firebase/messaging';
 import Loader from '../../../Loader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUniqueId } from 'react-native-device-info';
@@ -27,7 +27,7 @@ import {
   AcknowledgeTerm
  } from '../../../../context/RestaurantWorkProvider';
 import { useAtom } from 'jotai';
-import { Signin } from '../../../../utils/useApi';
+import { sendFCMToken, Signin } from '../../../../utils/useApi';
 
 export default function HospitalityRestaurantWorkLogin({ navigation }) {
   const [device, setDevice] = useState('');
@@ -45,6 +45,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
   const [userRole, setUserRole]= useAtom(userRoleAtom);
   const [password, setPassword] = useAtom(passwordAtom);
   const [acknowledgeTerm, setAcknowledgeTerm] = useAtom(AcknowledgeTerm);
+  const [fToken, setFToken] = useState('');
 
   const fetchDeviceInfo = async () => {
     try {
@@ -53,6 +54,12 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
     } catch (error) {
       console.error('Error fetching device info:', error);
     }
+  };
+
+  const getFCMMsgToken = async () => {
+    const token = await messaging().getToken();
+    console.log("This is FCM Token => ", token);
+    setFToken(token);
   };
 
   useFocusEffect(
@@ -69,6 +76,7 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
       setLoginPW(password);
     }
     getCredentials();
+    getFCMMsgToken();
   }, []);
 
   const handleToggle = async () => {
@@ -136,6 +144,9 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
         setUserRole(response.user.userRole);
         setAcknowledgeTerm(response.user.AcknowledgeTerm);
         setPassword(response.user.password);
+
+        console.log(response.user.email, fToken);
+        await sendFCMToken({ email: response.user.email, token: fToken }, 'restau_user');
 
         await AsyncStorage.setItem('restaurantWorkPhoneNumber', response.user.phoneNumber);
 

@@ -25,7 +25,7 @@ function App() {
         // ✅ Get FCM Token
         const fcmToken = await messaging().getToken();
         if (fcmToken) {
-          Alert.alert("FCM Token", fcmToken);
+          console.log("FCM Token", fcmToken);
         } else {
           console.log("FCM Token", "Token not available");
         }

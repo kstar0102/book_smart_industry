@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, PixelRatio, View, Alert, Text, ScrollView, TouchableOpacity, Pressable, Image, StatusBar } from 'react-native';
 import images from '../../assets/images';
 import { TextInput } from 'react-native-paper';
-// import messaging from '@react-native-firebase/messaging';
+import messaging from '@react-native-firebase/messaging';
 import { useAtom } from 'jotai';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUniqueId } from 'react-native-device-info';
@@ -45,7 +45,7 @@ export default function ClientSignIn({ navigation }) {
   const [loginPW, setLoginPW] = useState('');
   const [checked, setChecked] = useState(false);
   const [request, setRequest] = useState(false);
-  // const [fToken, setFToken] = useState('');
+  const [fToken, setFToken] = useState('');
 
   const fetchDeviceInfo = async () => {
     try {
@@ -56,11 +56,11 @@ export default function ClientSignIn({ navigation }) {
     }
   };
   
-  // const getFCMMsgToken = async () => {
-  //   const token = await messaging().getToken();
-  //   console.log("This is FCM Token => ", token);
-  //   setFToken(token);
-  // };
+  const getFCMMsgToken = async () => {
+    const token = await messaging().getToken();
+    console.log("This is FCM Token => ", token);
+    setFToken(token);
+  };
   
   useFocusEffect(
     React.useCallback(() => {
@@ -80,7 +80,7 @@ export default function ClientSignIn({ navigation }) {
       setLoginPW(password);
     }
     getCredentials();
-    // getFCMMsgToken();
+    getFCMMsgToken();
   }, []);
 
   const handleSignInNavigate = (url) => {
@@ -142,8 +142,8 @@ export default function ClientSignIn({ navigation }) {
         setClinicalAcknowledgement(response.user.clinicalAcknowledgeTerm);
         setPassword(response.user.password);
 
-        // console.log(response.user.email, fToken);
-        // await sendFCMToken({ email: response.user.email, token: fToken }, 'clinical');
+        console.log(response.user.email, fToken);
+        await sendFCMToken({ email: response.user.email, token: fToken }, 'clinical');
         
         await AsyncStorage.setItem('clinicalPhoneNumber', response.user.phoneNumber);
 
