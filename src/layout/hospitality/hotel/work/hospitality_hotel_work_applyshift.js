@@ -62,12 +62,16 @@ export default function HospitalityHotelWorkApplyShift ({ navigation, route }) {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.containerBody}
         >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
                 <View style={styles.container}>
                     <StatusBar translucent backgroundColor="transparent"/>
                     <MHeader navigation={navigation} back={true} />
                     <SubNavbar navigation={navigation} name={'ClientSignIn'}/>
-                    <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
+                    <ScrollView 
+                        style={{width: '100%', marginTop: height * 0.22}}
+                        showsVerticalScrollIndicator={false}
+                        automaticallyAdjustKeyboardInsets={true}
+                    >
                         <View style={styles.body}>
                             <TouchableOpacity style={[styles.backBtn, { width: '100%' }]} onPress={handleBack}>
                                 <Text style={[styles.profileTitle, { textAlign: 'center' }]}>Back to Job / Shift Listings {'>'}</Text>
@@ -111,7 +115,7 @@ export default function HospitalityHotelWorkApplyShift ({ navigation, route }) {
                     <Loader visible={bidsubmit}/>
                     <MFooter />
                 </View>
-            </TouchableWithoutFeedback>
+            {/* </TouchableWithoutFeedback> */}
         </KeyboardAvoidingView>
     );
 }
