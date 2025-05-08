@@ -380,7 +380,19 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
       console.log(response);
       if (!response?.error) {
         setSending(false);
-        navigation.navigate('HospitalityHotelHireSignIn');
+        Alert.alert(
+          "Registration Successful",
+          "Please check your email for the next steps.",
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('HospitalityHotelHireSignIn');
+              },
+            },
+          ],
+          { cancelable: false }
+        );
       } else {
         setIsSubmitting(false);
         setSending(false);

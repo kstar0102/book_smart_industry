@@ -1030,7 +1030,7 @@ PODS:
     - React
   - react-native-pdf (6.7.7):
     - React-Core
-  - react-native-safe-area-context (4.14.1):
+  - react-native-safe-area-context (4.10.5):
     - React-Core
   - react-native-signature-capture (0.4.12):
     - React
@@ -1230,7 +1230,7 @@ PODS:
     - RNFBApp
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.25.0):
+  - RNGestureHandler (2.18.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1239,13 +1239,12 @@ PODS:
     - RNNotifee/NotifeeCore (= 9.1.8)
   - RNNotifee/NotifeeCore (9.1.8):
     - React-Core
-  - RNPermissions (5.3.0):
+  - RNPermissions (5.4.0):
     - React-Core
-  - RNScreens (3.37.0):
+  - RNScreens (3.27.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
-    - React-RCTImage
   - RNSVG (15.11.2):
     - React-Core
   - RNVectorIcons (10.2.0):
@@ -1566,7 +1565,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 03e0207e0c3caf5d79e4a47b425156f37a9c7ab0
   react-native-month-year-picker: 8b72e984757e47e08fece220fa09fcdf1816203d
   react-native-pdf: 6a51a22ccefb23eb93298771e4bf090913e86d70
-  react-native-safe-area-context: 758e894ca5a9bd1868d2a9cfbca7326a2b6bf9dc
+  react-native-safe-area-context: df9763c5de6fa38883028e243a0b60123acb8858
   react-native-signature-capture: 181e11f5559b4e4a6da893775e78b5d600f66d66
   react-native-webview: 2038f781e99d2c75c90da7d38d37675ef0a932df
   React-nativeconfig: 8fd29a35a3e4e8c37682d976667663d834ba6165
@@ -1599,10 +1598,10 @@ SPEC CHECKSUMS:
   RNFBApp: 4105e54d9ca4a1c10893a032268470f670181110
   RNFBMessaging: 6857871d9dff8f26b0c325fc7d97ba69cb77d213
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: c50114bf77ef1b1f44717cd593c9b1206dc97149
+  RNGestureHandler: 03a2c31aea5d46f51080f1c1b6659b76a9ac78c9
   RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
-  RNPermissions: 5017380d9fe1f63f0d1403139bc8d630fe0b7a19
-  RNScreens: 3ce54903891fd6281865ad3e7cfe4c2bb438c70c
+  RNPermissions: 9cd352285fca2a3c2640a0897936730349c62415
+  RNScreens: 1a4a0ba41bc7b200786df2eff5a964dcab6236d8
   RNSVG: 36ab724902de0406127ef8d63d940c055e2a1442
   RNVectorIcons: 76364622e6f8e55bb456705582cde20f55ef889c
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17

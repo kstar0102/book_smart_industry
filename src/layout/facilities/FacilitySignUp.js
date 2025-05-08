@@ -386,7 +386,19 @@ export default function FacilitySignUp({ navigation }) {
       const response = await Signup(credentials, "facilities");
       if (!response?.error) {
         setSending(false);
-        navigation.navigate('FacilityFinishSignup');
+        Alert.alert(
+          "Registration Successful",
+          "Please check your email for the next steps.",
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.navigate('FacilityFinishSignup');
+              },
+            },
+          ],
+          { cancelable: false }
+        );
       } else {
         setIsSubmitting(false);
         setSending(false);

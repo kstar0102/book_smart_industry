@@ -179,7 +179,19 @@ export default function HospitalityRestaurantHireSignUp({ navigation }) {
 
         if (!response?.error) {
           setSending(false);
-          navigation.navigate('HospitalityRestaurantHireLogin');
+          Alert.alert(
+            "Registration Successful",
+            "Please check your email for the next steps.",
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  navigation.navigate('HospitalityRestaurantHireLogin');
+                },
+              },
+            ],
+            { cancelable: false }
+          );
         } else {
           setIsSubmitting(false);
           setSending(false);
