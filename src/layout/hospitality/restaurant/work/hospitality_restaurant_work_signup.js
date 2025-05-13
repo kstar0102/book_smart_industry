@@ -18,9 +18,8 @@ import AnimatedHeader from '../../../AnimatedHeader';
 import constStyles from '../../../../assets/styles';
 import { getTitleList, Signup } from '../../../../utils/useApi';
 import images from '../../../../assets/images';
-import HospitalityFooter from '../../../../components/HospitalityFooter';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 export default function HospitalityRestaurantWorkSignup({ navigation }) {
   const [firstName, setFirstName] = useState('');
@@ -47,6 +46,8 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
     type: '',
     name: ''
   });
+  const [isShowPassword, setIsShowPassword] = useState(true);
+  const [isShowCPassword, setIsShowCPassword] = useState(true);
   const [exp1, setExp1] = useState('');
   const [exp2, setExp2] = useState('');
   const [exp3, setExp3] = useState('');
@@ -732,7 +733,7 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
                   <Text style={{fontWeight: '400', padding: 0, fontSize: RFValue(12), color: 'black'}}>Choose File</Text>
                 </TouchableOpacity>
                 <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
+                  style={[constStyles.signUpinput, {width: '70%', color: 'black', height: 30}]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
@@ -766,11 +767,10 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
             </View>
 
             <View style={styles.password}>
-              <View style={{flexDirection: 'row'}}>
+              <View style={{flexDirection: 'row', marginTop: 20}}>
                 <Text style={{
                   backgroundColor: 'yellow', 
                   marginBottom: RFValue(10),
-                  marginTop: RFValue(10), 
                   fontSize: RFValue(15), 
                   fontWeight: 'bold', 
                   color: 'black'}}> 
@@ -781,20 +781,34 @@ export default function HospitalityRestaurantWorkSignup({ navigation }) {
               <TextInput
                 autoCorrect={false}
                 autoCapitalize="none"
-                secureTextEntry={true}
                 style={[constStyles.signUpinput, {width: '100%'}]}
                 placeholder="Password"
                 onChangeText={e => setPassword(e)}
                 value={password || ''}
+                secureTextEntry={isShowPassword}
+                right={
+                  <TextInput.Icon
+                    icon={isShowPassword ? images.eye : images.eyeOff}
+                    onPress={() => setIsShowPassword(h => !h)}
+                    forceTextInputFocus={false}
+                  />
+                }
               />
               <TextInput
                 autoCorrect={false}
                 autoCapitalize="none"
-                secureTextEntry={true}
                 style={[constStyles.signUpinput, {width: '100%'}]}
                 placeholder="Confirm Password"
                 onChangeText={e => setConfirmPassword(e)}
                 value={confirmPassword || ''}
+                secureTextEntry={isShowCPassword}
+                right={
+                  <TextInput.Icon
+                    icon={isShowCPassword ? images.eye : images.eyeOff}
+                    onPress={() => setIsShowCPassword(h => !h)}
+                    forceTextInputFocus={false}
+                  />
+                }
               />
               <Text style={[constStyles.signUpSubtitle, { fontStyle:'italic', fontSize: RFValue(14), color: 'red' }]}>Create your password to access the platform </Text>
             </View>
