@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   Alert,
@@ -13,7 +12,7 @@ import {
   StatusBar,
   Image
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { TextInput } from 'react-native-paper';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Dimensions } from 'react-native';
 import MHeader from '../../../../components/Mheader';
@@ -37,6 +36,8 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
   const [sending, setSending] = useState(false);
+  const [isShowPassword, setIsShowPassword] = useState(true);
+  const [isShowCPassword, setIsShowCPassword] = useState(true);
 
   useEffect(() => {
     const increaseAnimation = Animated.timing(fadeAnim, {
@@ -540,11 +541,10 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
               </View>
             </View>
             <View style={styles.password}>
-              <View style={{ flexDirection: 'row' }}>
+              <View style={{ marginTop: 20, flexDirection: 'row' }}>
                 <Text style={{
                   backgroundColor: 'yellow',
                   marginBottom: 10,
-                  // width: 140, 
                   fontSize: 16,
                   fontWeight: 'bold',
                   color: 'black'
@@ -556,20 +556,34 @@ export default function HospitalityHotelHireSignUp({ navigation }) {
               <TextInput
                 autoCorrect={false}
                 autoCapitalize="none"
-                secureTextEntry={true}
                 style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                 placeholder="Password"
                 onChangeText={e => handleCredentials('password', e)}
                 value={credentials.password || ''}
+                secureTextEntry={isShowPassword}
+                right={
+                  <TextInput.Icon
+                    icon={isShowPassword ? images.eye : images.eyeOff}
+                    onPress={() => setIsShowPassword(h => !h)}
+                    forceTextInputFocus={false}
+                  />
+                }
               />
               <TextInput
                 autoCorrect={false}
                 autoCapitalize="none"
-                secureTextEntry={true}
                 style={[constStyles.signUpinput, { width: '100%', paddingLeft: RFValue(10) }]}
                 placeholder="Confirm Password"
                 onChangeText={e => handleCredentials('confirmPassword', e)}
                 value={credentials.confirmPassword || ''}
+                secureTextEntry={isShowCPassword}
+                right={
+                  <TextInput.Icon
+                    icon={isShowCPassword ? images.eye : images.eyeOff}
+                    onPress={() => setIsShowCPassword(h => !h)}
+                    forceTextInputFocus={false}
+                  />
+                }
               />
               <Text style={[constStyles.signUpSubtitle, { fontStyle: 'italic', fontSize: RFValue(14), color: 'red' }]}>Create your password to access the platform</Text>
             </View>

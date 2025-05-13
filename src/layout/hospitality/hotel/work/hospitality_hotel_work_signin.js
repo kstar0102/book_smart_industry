@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Alert, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView, Pressable } from 'react-native';
 import Loader from '../../../Loader';
+import { TextInput } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 import { getUniqueId } from 'react-native-device-info';
@@ -45,6 +46,7 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
   const [checked, setChecked] = useState(false);
   const [request, setRequest] = useState(false);
 
+  const [isPasswordHidden, setIsPasswordHidden] = useState(true);
   const [fToken, setFToken] = useState('');
 
   const fetchDeviceInfo = async () => {
@@ -246,9 +248,7 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
               resizeMode="contain"
               style={styles.homepage}
             />
-            <HButton style={constStyles.loginMainButton}>
-              WORK
-            </HButton>
+            <Text style={{ fontSize: RFValue(16), fontWeight: '800', padding: RFValue(10), color: 'black'}}>WORK</Text>
             <Text style={[constStyles.loginSmallText, {marginHorizontal : RFValue(25), textAlign: 'center'}]}>
               Get the money you deserve by signing up and becoming a freelance contractor today!
             </Text>
@@ -280,8 +280,15 @@ export default function HospitalityHotelWorkSignIn({ navigation }) {
                 style={constStyles.loginTextInput}
                 placeholder=""
                 onChangeText={e => setLoginPW(e)}
-                secureTextEntry={true}
                 value={loginPW || ''}
+                secureTextEntry={isPasswordHidden}
+                right={
+                  <TextInput.Icon
+                    icon={isPasswordHidden ? images.eye : images.eyeOff}
+                    onPress={() => setIsPasswordHidden(h => !h)}
+                    forceTextInputFocus={false}
+                  />
+                }
               />
               <Pressable 
                 onPress={handleToggle}

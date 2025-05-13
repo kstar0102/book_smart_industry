@@ -46,7 +46,7 @@ function App() {
         const unsubscribe = messaging().onMessage(async remoteMessage => {
           const { title, body } = remoteMessage.notification || {};
 
-          Alert.alert(title || 'Notification', body || '');
+          // Alert.alert(title || 'Notification', body || '');
 
           if (Platform.OS === 'ios') {
             PushNotificationIOS.addNotificationRequest({
