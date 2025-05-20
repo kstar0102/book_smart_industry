@@ -139,21 +139,20 @@ function Layout() {
         footer: () => <MFooter />,
       }}
     >
-      <Stack.Screen 
+      {/* <Stack.Screen 
         name= 'Main'
         component = {Mainboard}
+        options={{headerShown: false}}
+      /> */}
+      <Stack.Screen 
+        name= 'HospitalityHomePage'
+        component = {HospitalityHomePage}
         options={{headerShown: false}}
       />
 
       <Stack.Screen 
         name= 'Home'
         component = {Dashboard}
-        options={{headerShown: false}}
-      />
-
-      <Stack.Screen 
-        name= 'HospitalityHomePage'
-        component = {HospitalityHomePage}
         options={{headerShown: false}}
       />
 

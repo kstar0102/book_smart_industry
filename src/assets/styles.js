@@ -210,7 +210,7 @@ const constStyles = StyleSheet.create({
     },
 
     dashboardsubheading : {
-        fontSize: RFValue(17),
+        fontSize: RFValue(16),
         color: 'black',
         fontWeight: 'bold',
         textAlign: 'center',

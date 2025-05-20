@@ -21,9 +21,9 @@ export default function HospitalityHomePage({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <MHeader navigation={navigation} back={true}/>
+      <MHeader navigation={navigation} back={false}/>
       <Text style={styles.text}>
-        Welcome to the BookSmart™ App
+        Welcome to the BookSmart™ Hospitality App
       </Text>
       <Text style={styles.text}>
         Where you get what you deserve!
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   // },
   
   text: {
-    fontSize: RFValue(17),
+    fontSize: RFValue(16),
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'center',

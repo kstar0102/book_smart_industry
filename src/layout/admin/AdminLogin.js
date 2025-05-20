@@ -264,7 +264,7 @@ export default function AdminLogin({ navigation }) {
         </View>
         <View style={styles.buttonWrapper}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('ClientSignIn')}
+            onPress={() => navigation.navigate('HospitalityHomePage')}
             style={styles.homeBtn}
           >
             <Image source={images.homeIcon} style={{width: 20, height: 20}}/>
