@@ -32,7 +32,9 @@ target 'BookSmart' do
   use_react_native!(
     :path => config[:reactNativePath],
     :flipper_configuration => flipper_config,
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    :hermes_enabled => false,
+    :fabric_enabled => false, # Optional if you're using Fabric
   )
 
   target 'BookSmartTests' do
