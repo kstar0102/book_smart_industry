@@ -23,19 +23,19 @@ export default function HospitalityHomePage({ navigation }) {
     <SafeAreaView style={styles.container}>
       <MHeader navigation={navigation} back={false}/>
       <Text style={styles.text}>
-        Welcome to the BookSmart™ Hospitality App
+        Welcome to BookSmart™ Hospitality
       </Text>
       <Text style={styles.text}>
         Where you get what you deserve!
       </Text>
-      
+      <View style = {{height: RFValue(12)}}></View>
       <Image
         source={images.hospitality_icon}
         style={constStyles.homeImageStyle}
         resizeMode="contain"
       />
 
-      <View style = {{height: RFValue(50)}}></View>
+      <View style = {{height: RFValue(18)}}></View>
       <Text style={constStyles.dashboardsubheading}>Select Your Industry:</Text>
       <View style={constStyles.dashboardbuttonWrapper}>
         <HButton style={constStyles.dashboardbutton} onPress={ handleRestaurant }>
