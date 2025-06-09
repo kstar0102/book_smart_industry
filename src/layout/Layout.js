@@ -89,6 +89,7 @@ import HospitalityRestaurantHireEditShift from './hospitality/restaurant/hire/ho
 import HospitalityRestaurantHireEditProfile from './hospitality/restaurant/hire/hospitality_restaurant_hire_editprofile.js';
 import HospitalityRestaurantHireForgot from './hospitality/restaurant/hire/hospitality_restaurant_hire_forgot.js';
 import HospitalityRestaurantHireTerms from './hospitality/restaurant/hire/hospitality_restaurant_hire_terms.js';
+import HospitalityRestaurantHireTimescheduling from './hospitality/restaurant/hire/hospitality_restaurant_hire_teamScheduling.js';
 
 import HospitalityHotelWorkSignIn from './hospitality/hotel/work/hospitality_hotel_work_signin.js';
 import HospitalityHotelWorkSignUp from './hospitality/hotel/work/hospitality_hotel_work_signup.js';
@@ -107,6 +108,7 @@ import HospitalityHotelHireHome from './hospitality/hotel/hire/hospitality_hotel
 import HospitalityHotelHireProfile from './hospitality/hotel/hire/hospitality_hotel_hire_profile.js';
 import HospitalityHotelHireEditShift from './hospitality/hotel/hire/hospitality_hotel_hire_ediftshift.js';
 import HospitalityHotelHirePostShift from './hospitality/hotel/hire/hospitality_hotel_hire_postshift.js';
+import HospitalityHotelHireTimescheduling from './hospitality/hotel/hire/hospitality_hotel_hire_teamscheduling.js';
 import HospitalityRestaurantWorkPemission from './hospitality/restaurant/work/hospitality_restaurant_work_permission.js';
 import HospitalityHotelHireTerms from './hospitality/hotel/hire/hospitality_hotel_hire_terms.js';
 import HospitalityRestaurantWorkPhone from './hospitality/restaurant/work/hospitality_restaurant_work_phone.js';
@@ -171,6 +173,18 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityAdminAllHotelRestaurant'
         component = {HospitalityAdminAllHotelRestaurant}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireTimescheduling'
+        component = {HospitalityRestaurantHireTimescheduling}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityHotelHireTimescheduling'
+        component = {HospitalityHotelHireTimescheduling}
         options={{headerShown: false}}
       />
 
