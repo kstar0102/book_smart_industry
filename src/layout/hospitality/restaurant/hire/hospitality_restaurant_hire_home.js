@@ -52,7 +52,7 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
             <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityRestaurantHirePostShift')} />
             <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
             <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
-            <ImageButton title={"Team Scheduling"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
+            <ImageButton title={"TEAM SCHEDULING"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
           </View>
           <View style={styles.profile}>
             <View style={styles.profileTitleBg}>
