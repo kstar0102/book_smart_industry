@@ -49,10 +49,18 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
             <View style={styles.bottomBar}/>
           </View>
           <View style={styles.imageButton}>
-            <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityRestaurantHirePostShift')} />
-            <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
-            <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
-            <ImageButton title={"TEAM SCHEDULING"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityRestaurantHirePostShift')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"TEAM SCHEDULING"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
+            </View>
           </View>
           <View style={styles.profile}>
             <View style={styles.profileTitleBg}>
@@ -89,10 +97,12 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
               )
             } */}
             <View style={{height : 10}}/>
-            <View style={styles.itemcentered}>
+            <View style={styles.centered}>
               {userInfo.map((item, index) => (
                 <View key={index} style={styles.row}>
-                  <Text style={styles.titles}>{item.title}:</Text>
+                  <Text style={styles.titles}>
+                    {item.title.charAt(0).toUpperCase() + item.title.slice(1)}:
+                  </Text>
                   <Text
                     style={[
                       styles.content,
@@ -104,6 +114,7 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
                 </View>
               ))}
             </View>
+
 
           </View>
         </ScrollView>
@@ -201,16 +212,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
   },
+  // imageButton: {
+  //   marginLeft: '5%',
+  //   width: '90%',
+  //   justifyContent: 'center',
+  //   flexDirection: 'row',
+  //   flexWrap: 'wrap',
+  //   gap: 10,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   marginTop: 30,
+  // },
   imageButton: {
-    marginLeft: '5%',
-    width: '90%',
-    justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: '14%',
     marginTop: 30,
+  },
+  buttonWrapper: {
+    width: '45%',      
+    marginHorizontal: 1,  
+    marginVertical: 5,    
+    alignItems: 'center',
   },
   profile: {
     marginTop: 20,
