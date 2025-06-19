@@ -63,11 +63,11 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
                 )
               }
             </View>
-            <Image
+            {/* <Image
               source={images.hospitality_icon}
               resizeMode="contain"
               style={styles.homepage}
-            />
+            /> */}
           </View>
         </ScrollView>
         <MFooter />

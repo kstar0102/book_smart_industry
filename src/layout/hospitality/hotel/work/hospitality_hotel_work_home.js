@@ -74,11 +74,11 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
                 )
               }
             </View>
-            <Image
+            {/* <Image
               source={images.homepage}
               resizeMode="cover"
               style={styles.homepage}
-            />
+            /> */}
           </View>
         </ScrollView>
         <MFooter />
