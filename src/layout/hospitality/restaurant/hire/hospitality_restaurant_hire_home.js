@@ -49,27 +49,45 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
             <View style={styles.bottomBar}/>
           </View>
           <View style={styles.imageButton}>
-            <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityRestaurantHirePostShift')} />
-            <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
-            <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
-            <ImageButton title={"TEAM SCHEDULING"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"POST SHIFT"} onPress={() => handleNavigate('HospitalityRestaurantHirePostShift')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"VIEW / EDIT SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"TEAM SCHEDULING"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
+            </View>
           </View>
           <View style={styles.profile}>
             <View style={styles.profileTitleBg}>
               <Text style={styles.profileTitle}>PROFILE</Text>
             </View>
-            {avatar.content && <Image
-              source={{ uri: `${avatar.content}` }}
-              resizeMode="cover"
-              style={styles.nurse}
-            />}
-            <Text style={styles.name}>{firstName || "DaleWong"}</Text>
-            <TouchableOpacity style={styles.edit} onPress = {() => handleEdit()}>
+            {avatar.content && (
+              <View style={styles.centered}>
+                <Image
+                  source={{ uri: `${avatar.content}` }}
+                  resizeMode="cover"
+                  style={styles.nurse}
+                />
+              </View>
+            )}
+            <View style={{height : 15}}/>
+            {/* <Text style={styles.name}>{firstName || "DaleWong"}</Text> */}
+            {/* <TouchableOpacity style={styles.edit} onPress = {() => handleEdit()}>
               <Text style={{color: 'white'}}> Edit Profile</Text>
-            </TouchableOpacity>
-            {
+            </TouchableOpacity> */}
+            <View style={styles.centered}>
+              <TouchableOpacity style={styles.edit} onPress={() => handleEdit()}>
+                <Text style={{ color: 'white', fontWeight: 'bold' }}>Edit Profile</Text>
+              </TouchableOpacity>
+            </View>
+            {/* {
               userInfo.map((item, index) => 
-                <View key={index} style={{flexDirection: 'column', width: '100%'}}>
+                <View key={index} style={{flexDirection: 'row', width: '100%'}}>
                   <Text style={styles.titles}>{item.title}</Text>
                   <Text style={[
                     styles.content, 
@@ -77,7 +95,27 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
                   ]}>{item.content}</Text>
                 </View>
               )
-            }
+            } */}
+            <View style={{height : 10}}/>
+            <View style={styles.centered}>
+              {userInfo.map((item, index) => (
+                <View key={index} style={styles.row}>
+                  <Text style={styles.titles}>
+                    {item.title.charAt(0).toUpperCase() + item.title.slice(1)}:
+                  </Text>
+                  <Text
+                    style={[
+                      styles.content,
+                      (item.title === "Phone" || item.title === "email") && styles.linkText
+                    ]}
+                  >
+                    {item.content}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+
           </View>
         </ScrollView>
         <MFooter />
@@ -86,6 +124,32 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  itemcentered: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    width: '90%',
+  },
+  titles: {
+    fontWeight: 'bold',
+    fontSize: RFValue(16),
+    width: RFValue(110), // fixed width for alignment
+    marginRight: RFValue(5),
+  },
+  content: {
+    fontSize: RFValue(16),
+    flex: 1,
+    flexWrap: 'wrap',
+  },
+  linkText: {
+    color: '#2a53c1',
+    textDecorationLine: 'underline',
+    fontSize: RFValue(15),
+  },
   container: {
     height: '100%',
     flexDirection: 'column',
@@ -148,16 +212,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
   },
+  // imageButton: {
+  //   marginLeft: '5%',
+  //   width: '90%',
+  //   justifyContent: 'center',
+  //   flexDirection: 'row',
+  //   flexWrap: 'wrap',
+  //   gap: 10,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   marginTop: 30,
+  // },
   imageButton: {
-    marginLeft: '5%',
-    width: '90%',
-    justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: '14%',
     marginTop: 30,
+  },
+  buttonWrapper: {
+    width: '45%',      
+    marginHorizontal: 1,  
+    marginVertical: 5,    
+    alignItems: 'center',
   },
   profile: {
     marginTop: 20,
@@ -174,17 +252,17 @@ const styles = StyleSheet.create({
     // // shadowOffset: { width: 1, height: 1 },
     // shadowRadius: 0,
   },
-  titles: {
-    fontWeight: 'bold',
-    fontSize: RFValue(16),
-    lineHeight: RFValue(40),
-    width: '100%'
-  },
-  content: {
-    fontSize: RFValue(16),
-    width: '100%',
-    lineHeight: RFValue(40),
-  },
+  // titles: {
+  //   fontWeight: 'bold',
+  //   fontSize: RFValue(16),
+  //   lineHeight: RFValue(40),
+  //   width: '100%'
+  // },
+  // content: {
+  //   fontSize: RFValue(16),
+  //   width: '100%',
+  //   lineHeight: RFValue(40),
+  // },
   profileTitleBg: {
     backgroundColor: '#BC222F',
     padding: 10,
@@ -203,6 +281,11 @@ const styles = StyleSheet.create({
   nurse: {
     width: RFValue(200),
     height: RFValue(200)
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
   },
   name: {
     fontSize: RFValue(16),

@@ -44,30 +44,44 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
             </TouchableOpacity>
           </View>
           <View style={styles.imageButton}>
+          <View style={styles.buttonWrapper}>
             <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityRestaurantWorkEditProfile')} />
+          </View>
+          <View style={styles.buttonWrapper}>
             <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityRestaurantWorkTimesheetForm')} />
+          </View>
+          <View style={styles.buttonWrapper}>
             <ImageButton title={"My Shifts"} onPress={() => handleNavigate('HospitalityRestaurantWorkMyShift')} />
+          </View>
+          <View style={styles.buttonWrapper}>
             <ImageButton title={"My Reporting"} onPress={() => handleNavigate('HospitalityRestaurantWorkReporting')} />
+          </View>
           </View>
           <View style={{ flex:1, justifyContent: 'center', width: '100%', alignItems: 'center' }}>
             <View style={styles.profile}>
-              {
-                userInfo.map((item, index) => 
-                  <View key={index} style={{flexDirection: 'row'}}>
-                    <Text style={[
-                      styles.content, 
-                      item.title == "Name" ? {fontWeight: 'bold'} : 
-                      item.title == "Email" ? {color: '#2a53c1', textDecorationLine:'underline'} : {}
-                    ]}>{item.content}</Text>
-                  </View>
-                )
-              }
+              <View style={{height : 10}}/>
+              <View style={styles.itemcentered}>
+                {
+                  userInfo.map((item, index) => 
+                    <View key={index} style={styles.row}>
+                      <Text style={styles.titles}>{item.title}:</Text>
+                      <Text style={[
+                        styles.content, 
+                        item.title == "Name" ? {fontWeight: 'bold'} : 
+                        item.title == "Email" ? {color: '#2a53c1', textDecorationLine:'underline'} : {}
+                      ]}>{item.content}</Text>
+                    </View>
+                  )
+                }
+              </View>
+              
+              <View style={{height : 10}}/>
             </View>
-            <Image
+            {/* <Image
               source={images.hospitality_icon}
               resizeMode="contain"
               style={styles.homepage}
-            />
+            /> */}
           </View>
         </ScrollView>
         <MFooter />
@@ -76,6 +90,16 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  itemcentered: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    width: '90%',
+  },
   container: {
     height: '100%',
     flexDirection: 'column',
@@ -83,6 +107,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
     width: '100%'
+  },
+
+  titles: {
+    fontWeight: 'bold',
+    fontSize: RFValue(16),
+    width: RFValue(110), 
+    marginRight: RFValue(5),
   },
 
   topView: {
@@ -93,18 +124,19 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems: 'center'
   },
- 
   imageButton: {
-    width: '90%',
-    marginLeft: '5%',
-    justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: RFValue(10),
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: RFValue(30),
-    marginLeft: '5%'
+    marginHorizontal: '14%',
+    marginTop: 30,
+  },
+  buttonWrapper: {
+    width: '45%',      
+    marginHorizontal: 1,  
+    marginVertical: 5,    
+    alignItems: 'center',
   },
 
   homepage: {
@@ -117,8 +149,8 @@ const styles = StyleSheet.create({
   profile: {
     marginTop: RFValue(20),
     width: '84%',
-    paddingHorizontal: RFValue(20),
-    paddingVertical: RFValue(5),
+    paddingHorizontal: RFValue(5),
+    paddingVertical: RFValue(10),
     backgroundColor: '#c2c3c42e',
     borderRadius: RFValue(30),
     borderWidth: RFValue(2),
@@ -127,7 +159,8 @@ const styles = StyleSheet.create({
 
   content: {
     fontSize: RFValue(16),
-    lineHeight: RFValue(30),
+    flex: 1,
+    flexWrap: 'wrap',
   },
   
 });

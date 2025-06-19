@@ -793,14 +793,30 @@ export default function HospitalityHotelWorkProfile({ navigation }) {
             </View>
             <View>
               <Text style={constStyles.loginSubTitle}> Resume. (Optional)</Text>
-              {credentials.resume.name !== "" && <View style={{marginBottom: 10}}>
+              {/* {credentials.resume.name !== "" && <View style={{marginBottom: 10}}>
                 <Text style={constStyles.profileChoosenText}
                   onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'resume' })}
                 >{credentials.resume.name} &nbsp;&nbsp;</Text>
                 <Text style={constStyles.profileChoosenText}
                   onPress = {() => handleRemove('resume')}
                 >remove</Text>
-              </View>}
+              </View>} */}
+              {credentials.resume.name !== "" && (
+                <View style={styles.resumeBox}>
+                  <Text
+                    style={constStyles.profileChoosenText}
+                    onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'resume' })}
+                  >
+                    {credentials.resume.name} &nbsp;&nbsp;
+                  </Text>
+                  <Text 
+                    style={constStyles.profileChoosenText}
+                    onPress={() => handleRemove('resume')}
+                  >
+                    remove
+                  </Text>
+                </View>
+              )}
               
               <View style={{flexDirection: 'row', width: '100%'}}>
                 <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('resume')} style={styles.chooseFile}>
@@ -934,6 +950,20 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     padding: 20,
   },
+  resumeBox: {
+    backgroundColor: 'white',
+    fontSize: RFValue(14),
+    height: RFValue(35),
+    borderWidth: 1,
+    borderColor: 'hsl(0, 0%, 86%)',
+    paddingVertical: 0,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%', // match TextInput width
+  },  
   container: {
     marginBottom: 0,
     backgroundColor: '#fffff8'
