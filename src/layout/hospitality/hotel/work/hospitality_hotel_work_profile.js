@@ -793,15 +793,15 @@ export default function HospitalityHotelWorkProfile({ navigation }) {
             </View>
             <View>
               <Text style={constStyles.loginSubTitle}> Resume. (Optional)</Text>
-              {/* {credentials.resume.name !== "" && <View style={{marginBottom: 10}}>
+              {credentials.resume.name !== "" && <View style={{marginBottom: 10}}>
                 <Text style={constStyles.profileChoosenText}
                   onPress={() => navigation.navigate("UserFileViewer", { userId: aic, filename: 'resume' })}
                 >{credentials.resume.name} &nbsp;&nbsp;</Text>
                 <Text style={constStyles.profileChoosenText}
                   onPress = {() => handleRemove('resume')}
                 >remove</Text>
-              </View>} */}
-              {credentials.resume.name !== "" && (
+              </View>}
+              {/* {credentials.resume.name !== "" && (
                 <View style={styles.resumeBox}>
                   <Text
                     style={constStyles.profileChoosenText}
@@ -816,17 +816,18 @@ export default function HospitalityHotelWorkProfile({ navigation }) {
                     remove
                   </Text>
                 </View>
-              )}
+              )} */}
               
               <View style={{flexDirection: 'row', width: '100%'}}>
                 <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('resume')} style={styles.chooseFile}>
                   <Text style={{fontWeight: '400', padding: 0, fontSize: RFValue(12), color: 'black'}}>Choose File</Text>
                 </TouchableOpacity>
                 <TextInput
-                  style={[constStyles.signUpinput, {width: '70%', color: 'black'}]}
+                  style={[constStyles.signUpinput, {width: '70%', color: 'black', flex: 1}]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
+                  numberOfLines={1}
                   value={credentials.resume.name || ''}
                 />
               </View>

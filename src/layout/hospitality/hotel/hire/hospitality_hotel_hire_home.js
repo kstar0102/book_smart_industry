@@ -25,8 +25,8 @@ export default function HospitalityHotelHireHome ({ navigation }) {
   };
 
   const userInfo = [
-    {title: 'Contact Name', content: firstName + " " + lastName},
-    {title: 'email', content: contactEmail},
+    {title: 'Name', content: firstName + " " + lastName},
+    {title: 'Email', content: contactEmail},
     {title: 'Phone', content: contactPhone},
   ];
 
@@ -111,7 +111,7 @@ export default function HospitalityHotelHireHome ({ navigation }) {
                   <Text
                     style={[
                       styles.content,
-                      (item.title === "Phone" || item.title === "email") && styles.linkText
+                      (item.title === "Phone" || item.title === "Email") && styles.linkText
                     ]}
                   >
                     {item.content}
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   titles: {
     fontWeight: 'bold',
     fontSize: RFValue(16),
-    width: RFValue(110),
+    width: RFValue(60),
     marginRight: RFValue(5),
   },
   content: {
