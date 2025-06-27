@@ -116,22 +116,22 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
     {label: 'Verified', value: 'Verified'},
     {label: 'Paid', value: 'Paid'},
   ];
-  const tableHead = [
-    'Position',
-    'Entry Date',
-    'Job ID',
-    'Job #',
-    'Location',
-    'Date',
-    'Shift',
-    'View Shift/Bids',
-    'Bids',
-    '✏️ Job Status',
-    'Hired',
-    'Verify TS',
-    'Rating',
-    'Delete',
-  ];
+  // const tableHead = [
+  //   'Position',
+  //   'Entry Date',
+  //   'Job ID',
+  //   'Job #',
+  //   'Location',
+  //   'Date',
+  //   'Shift',
+  //   'View Shift/Bids',
+  //   'Bids',
+  //   '✏️ Job Status',
+  //   'Hired',
+  //   'Verify TS',
+  //   'Rating',
+  //   'Delete',
+  // ];
   const bidderTableHeader = [
     "Entry Date",
     "Staff",
@@ -162,8 +162,8 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
       
       result.dataArray = result.dataArray.map(row => {
         return [
-          row[9],   // Job Status
           row[7],   // View Shift/Bids
+          row[9],   // Job Status
           row[0],   // Position
           row[1],   // Entry Date
           row[2],   // Job ID
@@ -179,8 +179,8 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
         ];
       });
       result.dataArray.unshift([
-        '✏️ Job Status',
         'View Shift/Bids',
+        '✏️ Job Status',
         'Position',
         'Entry Date',
         'Job ID',
@@ -196,7 +196,6 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
       ]);
       setData(result.dataArray);
       setFilteredData(result.dataArray);
-      // result.dataArray.unshift(tableHead);
       setTableData(result.dataArray);
       setLoading(false);
     }
@@ -254,8 +253,8 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
 
   const handleCellClick = async (data) => {
     console.log(data);
-    setSelectedJobId(data[2]);
-    setSelectedJobStatus(data[9]);
+    setSelectedJobId(data[4]);
+    setSelectedJobStatus(data[1]);
     toggleJobStatusModal();
   };
 
@@ -390,18 +389,29 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
   const handleShowJobDetailModal = async (id) => {
     setLoading(true);
     let data = await Job({ jobId: id }, 'hotel/jobs');
-    console.log(data);
+    console.log('all data', data);
     if(data?.error) {
       setSelectedJob(null);
       setSelectedBidders([]);
       setLoading(false);
     } else {
-      let biddersList = data.bidders;
-      biddersList.unshift(bidderTableHeader);
+      const updatedHeader = [...bidderTableHeader];
+      const awardJobHeader = updatedHeader.splice(5, 1)[0];
+      updatedHeader.unshift(awardJobHeader);
+
+      // Move content for each row too
+      let biddersList = data.bidders.map(row => {
+        const newRow = [...row];
+        const awardJob = newRow.splice(5, 1)[0]; // remove "Award Job"
+        newRow.unshift(awardJob); // put at beginning
+        return newRow;
+      });
+
+      biddersList.unshift(updatedHeader);
       setCurJobId(id);
       setSelectedJob(data.jobData);
       setSelectedBidders(biddersList);
-      console.log(biddersList);
+      console.log("biddersList:", biddersList);
       setIsJobDetailModal(true);
       setLoading(false);
     }
@@ -811,7 +821,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
 
   const itemsToShow = getItemsForPage(currentPage);
 
-  const widths = [100, 110, 100, 100, 70, 70, 80, 100, 150, 60, 120, 100, 120];
+  const widths = [110, 100, 100, 100, 70, 70, 80, 100, 150, 60, 120, 100, 120];
   const RenderItem = ({ item, index }) => (
     <View
       key={index}
@@ -821,7 +831,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
       }}
     >
       {widths.map((width, idx) => {
-        if (idx === 1 && index > 0) {
+        if (idx === 0 && index > 0) {
           return (
             <View
               key={idx}
@@ -847,7 +857,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
               </TouchableOpacity>
             </View>
           );
-        } else if (idx === 0 && index > 0) {
+        } else if (idx === 1 && index > 0) {
           return (
             <TouchableOpacity key={idx} onPress={() => handleCellClick(item)}>
               <Text
@@ -884,38 +894,6 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
             </View>
           );
         } 
-        // else if (
-        //   idx === 12 &&
-        //   index > 0 &&
-        //   item[9] !== 'Available' &&
-        //   item[9] !== 'Awarded'
-        // ) {
-        //   return (
-        //     <View
-        //       key={idx}
-        //       style={[
-        //         styles.tableItemStyle,
-        //         { flex: 1, justifyContent: 'center', alignItems: 'center', width },
-        //       ]}
-        //     >
-        //       <TouchableOpacity
-        //         style={{
-        //           alignItems: 'center',
-        //           justifyContent: 'center',
-        //           paddingHorizontal: 20,
-        //           paddingVertical: 5,
-        //           backgroundColor: 'green',
-        //           borderRadius: 20,
-        //         }}
-        //         onPress={() => {
-        //           handleShowRatingModal(item[2], item[12]);
-        //         }}
-        //       >
-        //         <Text style={styles.profileTitle}>Add / View</Text>
-        //       </TouchableOpacity>
-        //     </View>
-        //   );
-        // } 
         else if (idx === 12 && index > 0) {
           return (
             <View
@@ -965,7 +943,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
     </View>
   );  
 
-  const bidderTableWidth = [150, 150, 140, 200, 150, 100];
+  const bidderTableWidth = [100, 100, 100, 150, 150, 90];
   const RenderItem1 = ({ item, index }) => (
     <View
       key={index}
@@ -1002,7 +980,7 @@ export default function HospitalityHotelHireEditShift({ navigation }) {
               </TouchableOpacity>
             </View>
           );
-        } else if (idx === 5 && index > 0) {
+        } else if (idx === 0 && index > 0) {
           return (
             <View
               key={idx}

@@ -161,8 +161,8 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
       setPageList(pageContent);
       result.dataArray = result.dataArray.map(row => {
         return [
-          row[9],   // Job Status
           row[7],   // View Shift/Bids
+          row[9],   // Job Status
           row[0],   // Position
           row[1],   // Entry Date
           row[2],   // Job ID
@@ -178,8 +178,8 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
         ];
       });
       result.dataArray.unshift([
-        '✏️ Job Status',
         'View Shift/Bids',
+        '✏️ Job Status',
         'Position',
         'Entry Date',
         'Job ID',
@@ -254,7 +254,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
   const handleCellClick = async (data) => {
     console.log(data);
     setSelectedJobId(data[4]);
-    setSelectedJobStatus(data[0]);
+    setSelectedJobStatus(data[1]);
     toggleJobStatusModal();
   };
 
@@ -395,8 +395,19 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
       setSelectedBidders([]);
       setLoading(false);
     } else {
-      let biddersList = data.bidders;
-      biddersList.unshift(bidderTableHeader);
+      const updatedHeader = [...bidderTableHeader];
+      const awardJobHeader = updatedHeader.splice(5, 1)[0];
+      updatedHeader.unshift(awardJobHeader);
+
+      // Move content for each row too
+      let biddersList = data.bidders.map(row => {
+        const newRow = [...row];
+        const awardJob = newRow.splice(5, 1)[0]; // remove "Award Job"
+        newRow.unshift(awardJob); // put at beginning
+        return newRow;
+      });
+
+      biddersList.unshift(updatedHeader);
       setCurJobId(id);
       setSelectedJob(data.jobData);
       setSelectedBidders(biddersList);
@@ -811,7 +822,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
 
   const itemsToShow = getItemsForPage(currentPage);
 
-  const widths = [100, 110, 100, 100, 70, 70, 80, 100, 150, 60, 120, 100, 120];
+  const widths = [110, 100, 100, 100, 70, 70, 80, 100, 150, 60, 120, 100, 120];
   const RenderItem = ({ item, index }) => (
     <View
       key={index}
@@ -822,7 +833,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
     >
       {widths.map((width, idx) => {
         // View Shift/Bids button
-        if (idx === 1 && index > 0) {
+        if (idx === 0 && index > 0) {
           return (
             <View
               key={idx}
@@ -848,7 +859,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
               </TouchableOpacity>
             </View>
           );
-        } else if (idx === 0 && index > 0) {
+        } else if (idx === 1 && index > 0) {
           return (
             <TouchableOpacity key={idx} onPress={() => handleCellClick(item)}>
               <Text
@@ -966,7 +977,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
     </View>
   );  
 
-  const bidderTableWidth = [150, 150, 140, 200, 150, 100];
+  const bidderTableWidth = [100, 100, 100, 150, 150, 90];
   const RenderItem1 = ({ item, index }) => (
     <View
       key={index}
@@ -1003,7 +1014,7 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
               </TouchableOpacity>
             </View>
           );
-        } else if (idx === 5 && index > 0) {
+        } else if (idx === 0 && index > 0) {
           return (
             <View
               key={idx}

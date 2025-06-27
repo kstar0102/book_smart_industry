@@ -29,7 +29,7 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
   const userInfo = [
     {title: 'Name', content: firstName + ' ' + lastName},
     {title: 'Email', content: email},
-    {title: 'User Roles', content: "Restaurant - " + title},
+    {title: 'Roles', content: "Restaurant - " + title},
   ];
 
   return (
@@ -74,14 +74,9 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
                   )
                 }
               </View>
-              
               <View style={{height : 10}}/>
             </View>
-            {/* <Image
-              source={images.hospitality_icon}
-              resizeMode="contain"
-              style={styles.homepage}
-            /> */}
+            <View style={{height : 80}}/>
           </View>
         </ScrollView>
         <MFooter />
@@ -112,8 +107,8 @@ const styles = StyleSheet.create({
   titles: {
     fontWeight: 'bold',
     fontSize: RFValue(16),
-    width: RFValue(110), 
-    marginRight: RFValue(5),
+    // width: RFValue(60), 
+    marginRight: RFValue(10),
   },
 
   topView: {
@@ -148,8 +143,8 @@ const styles = StyleSheet.create({
 
   profile: {
     marginTop: RFValue(20),
-    width: '84%',
-    paddingHorizontal: RFValue(5),
+    width: '92%',
+    paddingHorizontal: RFValue(0),
     paddingVertical: RFValue(10),
     backgroundColor: '#c2c3c42e',
     borderRadius: RFValue(30),

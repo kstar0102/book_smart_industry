@@ -33,7 +33,7 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
   const userInfo = [
     {title: 'Name', content: firstName + ' ' + lastName},
     {title: 'Email', content: email},
-    {title: 'User Roles', content: "Hotel - " + title},
+    {title: 'Roles', content: "Hotel - " + title},
     // {title: 'Caregiver', content: caregiver},
   ];
 
@@ -44,12 +44,6 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
         <SubNavbar navigation={navigation} name={'HospitalityHotelWorkSignIn'}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
           <View style={styles.topView}>
-            {/* <Image
-              source={images.mark}
-              resizeMode="contain"
-              style={styles.mark}
-            />
-            <View style={styles.bottomBar}/> */}
             <TouchableOpacity onPress={() => navigation.navigate("HospitalityHotelWorkBookShift")}>
               <AnimatedHeader title="Book Shifts Now!" style={{ paddingHorizontal: 30 }} />
             </TouchableOpacity>
@@ -87,11 +81,7 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
               </View>
               <View style={{height : 10}}/>
             </View>
-            {/* <Image
-              source={images.homepage}
-              resizeMode="cover"
-              style={styles.homepage}
-            /> */}
+            <View style={{height : 80}}/>
           </View>
         </ScrollView>
         <MFooter />
@@ -121,8 +111,7 @@ const styles = StyleSheet.create({
   titles: {
     fontWeight: 'bold',
     fontSize: RFValue(16),
-    width: RFValue(100), 
-    marginRight: RFValue(1),
+    marginRight: RFValue(10),
   },
   topView: {
     marginTop: RFValue(5),
@@ -143,18 +132,6 @@ const styles = StyleSheet.create({
     width: '100%'
   },
  
-  // imageButton: {
-  //   width: '90%',
-  //   marginLeft: '5%',
-  //   justifyContent: 'center',
-  //   flexDirection: 'row',
-  //   flexWrap: 'wrap',
-  //   gap: RFValue(10),
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   marginTop: RFValue(30),
-  //   marginLeft: '5%'
-  // },
   imageButton: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -177,8 +154,8 @@ const styles = StyleSheet.create({
   },
   profile: {
     marginTop: RFValue(20),
-    width: '84%',
-    paddingHorizontal: RFValue(5),
+    width: '92%',
+    paddingHorizontal: RFValue(0),
     paddingVertical: RFValue(10),
     backgroundColor: '#c2c3c42e',
     borderRadius: RFValue(30),

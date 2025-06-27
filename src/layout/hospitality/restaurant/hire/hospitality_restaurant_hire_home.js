@@ -59,7 +59,7 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
               <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityRestaurantHireEditShift')} />
             </View>
             <View style={styles.buttonWrapper}>
-              <ImageButton title={"TEAM SCHEDULING"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
+              <ImageButton title={"TEAM SCHEDULER"} onPress={() => handleNavigate('HospitalityRestaurantHireTimescheduling')} />
             </View>
           </View>
           <View style={styles.profile}>
@@ -76,26 +76,12 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
               </View>
             )}
             <View style={{height : 15}}/>
-            {/* <Text style={styles.name}>{firstName || "DaleWong"}</Text> */}
-            {/* <TouchableOpacity style={styles.edit} onPress = {() => handleEdit()}>
-              <Text style={{color: 'white'}}> Edit Profile</Text>
-            </TouchableOpacity> */}
+           
             <View style={styles.centered}>
               <TouchableOpacity style={styles.edit} onPress={() => handleEdit()}>
                 <Text style={{ color: 'white', fontWeight: 'bold' }}>Edit Profile</Text>
               </TouchableOpacity>
             </View>
-            {/* {
-              userInfo.map((item, index) => 
-                <View key={index} style={{flexDirection: 'row', width: '100%'}}>
-                  <Text style={styles.titles}>{item.title}</Text>
-                  <Text style={[
-                    styles.content, 
-                    item.title == "Phone" || item.title == "email" ? {color: '#2a53c1', textDecorationLine:'underline', width: '100%', fontSize: RFValue(15)} : {}
-                  ]}>{item.content}</Text>
-                </View>
-              )
-            } */}
             <View style={{height : 10}}/>
             <View style={styles.centered}>
               {userInfo.map((item, index) => (
@@ -114,9 +100,8 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
                 </View>
               ))}
             </View>
-
-
           </View>
+          <View style={{height : 80}}/>
         </ScrollView>
         <MFooter />
       </View>
@@ -137,7 +122,7 @@ const styles = StyleSheet.create({
   titles: {
     fontWeight: 'bold',
     fontSize: RFValue(16),
-    width: RFValue(60), // fixed width for alignment
+    width: RFValue(55), // fixed width for alignment
     marginRight: RFValue(5),
   },
   content: {
@@ -212,17 +197,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
   },
-  // imageButton: {
-  //   marginLeft: '5%',
-  //   width: '90%',
-  //   justifyContent: 'center',
-  //   flexDirection: 'row',
-  //   flexWrap: 'wrap',
-  //   gap: 10,
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  //   marginTop: 30,
-  // },
   imageButton: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -241,28 +215,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: '84%',
     marginLeft: '7%',
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 5,
     backgroundColor: '#c2c3c42e',
     borderRadius: 30,
     borderWidth: 2,
     borderColor: '#b0b0b0',
     marginBottom: 100
-    // elevation: 1,
-    // // shadowColor: 'rgba(0, 0, 0, 0.4)',
-    // // shadowOffset: { width: 1, height: 1 },
-    // shadowRadius: 0,
   },
-  // titles: {
-  //   fontWeight: 'bold',
-  //   fontSize: RFValue(16),
-  //   lineHeight: RFValue(40),
-  //   width: '100%'
-  // },
-  // content: {
-  //   fontSize: RFValue(16),
-  //   width: '100%',
-  //   lineHeight: RFValue(40),
-  // },
   profileTitleBg: {
     backgroundColor: '#BC222F',
     padding: 10,
