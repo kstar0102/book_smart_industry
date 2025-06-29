@@ -142,8 +142,8 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     width: '45%',      
-    marginHorizontal: 1,  
-    marginVertical: 5,    
+    marginHorizontal: RFValue(5),  
+    marginVertical: RFValue(5),    
     alignItems: 'center',
   },
   homepage: {

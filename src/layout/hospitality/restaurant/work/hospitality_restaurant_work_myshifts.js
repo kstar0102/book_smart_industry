@@ -571,10 +571,18 @@ export default function HospitalityRestaurantWorkMyShift ({ navigation }) {
             </TouchableOpacity>
           )}
           <View style={styles.imageButton}>
-            <ImageButton title={"My Home"} onPress={() => handleNavigate('HospitalityRestaurantWorkHome')} />
-            <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityRestaurantWorkEditProfile')} />
-            <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityRestaurantWorkTimesheetForm')} />
-            <ImageButton title={"My Reporting"} onPress={() => handleNavigate('HospitalityRestaurantWorkReporting')} />
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Home"} onPress={() => handleNavigate('HospitalityRestaurantWorkHome')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityRestaurantWorkEditProfile')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityRestaurantWorkTimesheetForm')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Reporting"} onPress={() => handleNavigate('HospitalityRestaurantWorkReporting')} />
+            </View>
           </View>
           <View style={styles.profile}>
             <View style={styles.profileTitleBg}>
@@ -896,15 +904,18 @@ const styles = StyleSheet.create({
     marginLeft: '2%'
   },
   imageButton: {
-    width: '90%',
-    marginLeft: '5%',
-    justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: '14%',
     marginTop: 30,
+  },
+  buttonWrapper: {
+    width: '45%',      
+    marginHorizontal: RFValue(5),  
+    marginVertical: RFValue(5),    
+    alignItems: 'center',
   },
   profile: {
     marginTop: 20,

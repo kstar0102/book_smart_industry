@@ -83,7 +83,17 @@ export default function MSubNavbar({name, navigation}) {
               color: '#2a53c1', 
               textDecorationLine: 'underline'
             }}
-            onPress={()=>handleNavigate('Home')}
+            onPress={()=> {
+              if (name === "Admin") {
+                handleNavigate("AdminEditProfile")
+              } else if (name === "Caregiver") {
+                handleNavigate('EditProfile')
+              } else if (name === "Facilities") {
+                handleNavigate('FacilityEditProfile')
+              } else if (name === "RestaurantWork") {
+                handleNavigate('HospitalityRestaurantWorkLogin');
+              }
+            }}
           >
           Log Out
           </Text>

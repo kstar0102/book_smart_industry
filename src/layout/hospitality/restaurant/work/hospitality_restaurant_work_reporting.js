@@ -175,10 +175,18 @@ export default function HospitalityRestaurantWorkReporting ({ navigation }) {
             <View style={styles.bottomBar}/>
           </View>
           <View style={styles.imageButton}>
-            <ImageButton title={"My Home"} onPress={() => handleNavigate('HospitalityRestaurantWorkHome')} />
-            <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityRestaurantWorkEditProfile')} />
-            <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityRestaurantWorkTimesheetForm')} />
-            <ImageButton title={"My Shifts"} onPress={() => handleNavigate('HospitalityRestaurantWorkMyShift')} />
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Home"} onPress={() => handleNavigate('HospitalityRestaurantWorkHome')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityRestaurantWorkEditProfile')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityRestaurantWorkTimesheetForm')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Shifts"} onPress={() => handleNavigate('HospitalityRestaurantWorkMyShift')} />
+            </View>
           </View>
           <View style = {{ width:'100', flex : 1, justifyContent: 'center', alignItems:'center'}}>
             <View style={styles.profile}>
@@ -343,15 +351,18 @@ const styles = StyleSheet.create({
     marginLeft: '5%'
   },
   imageButton: {
-    width: '90%',
-    marginLeft: '5%',
-    justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: '14%',
     marginTop: 30,
+  },
+  buttonWrapper: {
+    width: '45%',      
+    marginHorizontal: RFValue(5),  
+    marginVertical: RFValue(5),    
+    alignItems: 'center',
   },
   profile: {
     marginTop: RFValue(20),
