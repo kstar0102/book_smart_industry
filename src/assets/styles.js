@@ -72,7 +72,7 @@ const constStyles = StyleSheet.create({
         backgroundColor: '#DF1828FF',
         color: 'white',
         fontSize: RFValue(15),
-        width : RFValue(130),
+        width : RFValue(120),
     },
 
     loginMainButton: {

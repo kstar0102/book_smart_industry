@@ -822,14 +822,23 @@ export default function HospitalityRestaurantWorkEditProfile({ navigation }) {
                 <TouchableOpacity title="Select File" onPress={()=>handleChangeFileType('resume')} style={styles.chooseFile}>
                   <Text style={{fontWeight: '400', padding: 0, fontSize: RFValue(12), color: 'black'}}>Choose File</Text>
                 </TouchableOpacity>
-                <TextInput
+                {/* <TextInput
                   style={[constStyles.signUpinput, {width: '70%', color: 'black', flex: 1, }]}
                   placeholder=""
                   autoCorrect={false}
                   autoCapitalize="none"
                   numberOfLines={1}
                   value={credentials.resume.name || ''}
-                />
+                /> */}
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="middle" // or "tail"
+                  style={[constStyles.signUpinput, {width: '70%', color: 'black', flex: 1, paddingVertical: 7, paddingHorizontal: 8,}]}
+                >
+                  {credentials.resume.name || ''}
+                </Text>
+
+
               </View>
             </View>
             <View>

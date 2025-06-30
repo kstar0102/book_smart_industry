@@ -140,7 +140,7 @@ export default function HospitalityHotelHireTimescheduling({ navigation }) {
         />
       </View>
 
-      {/* <View style={styles.buttonRow}>
+      <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.zoomButton} onPress={handleZoomOut}>
           <Text style={styles.zoomText}>- Zoom Out</Text>
         </TouchableOpacity>
@@ -148,7 +148,7 @@ export default function HospitalityHotelHireTimescheduling({ navigation }) {
         <TouchableOpacity style={styles.zoomButton} onPress={handleZoomIn}>
           <Text style={styles.zoomText}>+ Zoom In</Text>
         </TouchableOpacity>
-      </View> */}
+      </View>
     </SafeAreaView>
   );
 }
