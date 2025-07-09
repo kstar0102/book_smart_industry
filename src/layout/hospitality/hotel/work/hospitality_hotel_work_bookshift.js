@@ -337,7 +337,17 @@ export default function HospitalityHotelWorkBookShift ({ navigation }) {
                           {item.title}
                         </Text>
 
+                        {/* <Text
+                          style={[
+                            styles.content,
+                            (item.title === "JOB-ID" || item.title === "Status") ? { fontWeight: 'bold' } : {}
+                          ]}
+                        >
+                          {item.content}
+                        </Text> */}
                         <Text
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
                           style={[
                             styles.content,
                             (item.title === "JOB-ID" || item.title === "Status") ? { fontWeight: 'bold' } : {}
@@ -345,6 +355,7 @@ export default function HospitalityHotelWorkBookShift ({ navigation }) {
                         >
                           {item.content}
                         </Text>
+
                       </View>
                     );
                   })}
@@ -492,11 +503,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: RFValue(16),
     lineHeight: RFValue(30),
-    width: '40%'
+    width: '35%'
   },
   content: {
     fontSize: RFValue(13),
     lineHeight: RFValue(30),
+    width : '63%'
   },
   profileTitleBg: {
     backgroundColor: '#BC222F',
@@ -546,11 +558,12 @@ const styles = StyleSheet.create({
   subBar: {
     width: '100%',
     backgroundColor: "#dcd6fa",
-    paddingHorizontal: RFValue(20),
+    paddingHorizontal: RFValue(10),
     borderRadius: 20,
     borderWidth: 2,
     borderColor: "#c6c5c5",
     marginBottom: 10,
+    paddingTop : 10,
   },
   modalContainer: {
     flex: 1,
