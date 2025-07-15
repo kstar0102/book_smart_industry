@@ -78,7 +78,8 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
         content: item.shiftDate
       },{
         title: 'Shift',
-        content: formatShiftTime(item.shift)
+        // content: formatShiftTime(item.shift)
+        content: item.shift.replace(/\s/g, '') 
       },{
         title: 'Location',
         content: item.location
@@ -107,7 +108,8 @@ export default function HospitalityRestaurantWorkBookShift ({ navigation }) {
         content: item.status
       },{
         title: 'Shift',
-        content: formatShiftTime(item.shift)
+        // content: formatShiftTime(item.shift)
+        content: item.shift.replace(/\s/g, '') 
       },{
         title: 'Date',
         content: item.shiftDate
