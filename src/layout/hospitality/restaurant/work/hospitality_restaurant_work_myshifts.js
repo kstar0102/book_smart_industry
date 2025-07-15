@@ -91,7 +91,8 @@ export default function HospitalityRestaurantWorkMyShift ({ navigation }) {
       },
       {
         title: 'Shift',
-        content: item.shiftTime
+        // content: item.shiftTime
+        content: item.shiftTime.replace(/\s/g, '')
       },
       {
         title: 'Caregiver',
@@ -930,13 +931,13 @@ const styles = StyleSheet.create({
   },
   titles: {
     fontWeight: 'bold',
-    fontSize: RFValue(12),
-    lineHeight: RFValue(24),
+    fontSize: RFValue(15),
+    lineHeight: RFValue(30),
     width: '35%'
   },
   content: {
-    fontSize: RFValue(12),
-    lineHeight: RFValue(24),
+    fontSize: RFValue(13),
+    lineHeight: RFValue(30),
     width: '60%'
   },
   profileTitleBg: {
