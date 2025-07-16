@@ -90,6 +90,7 @@ import HospitalityRestaurantHireEditProfile from './hospitality/restaurant/hire/
 import HospitalityRestaurantHireForgot from './hospitality/restaurant/hire/hospitality_restaurant_hire_forgot.js';
 import HospitalityRestaurantHireTerms from './hospitality/restaurant/hire/hospitality_restaurant_hire_terms.js';
 import HospitalityRestaurantHireTimescheduling from './hospitality/restaurant/hire/hospitality_restaurant_hire_teamScheduling.js';
+import HospitalityRestaurantHireTimeSchduler from './hospitality/restaurant/hire/hospitality_restaurant_hire_teamScheduler.js';
 
 import HospitalityHotelWorkSignIn from './hospitality/hotel/work/hospitality_hotel_work_signin.js';
 import HospitalityHotelWorkSignUp from './hospitality/hotel/work/hospitality_hotel_work_signup.js';
@@ -128,6 +129,7 @@ import HospitalityAddNewHotel from './admin/hospitality/HospitalityAddNewHotel.j
 import HospitalityVerifyCation from './admin/hospitality/HospitalityVerifycation.js';
 import HospitalityAddNewRestaurant from './admin/hospitality/HospitalityAddNewRestaurant.js';
 import HospitalityCaregiverProfile from './admin/hospitality/HospitalityCaregiverProfile.js';
+import HospitalityAdminTeamScheduler from './admin/hospitality/HospitalityAdminTeamScheduler.js';
 import HospitalityHotelWorkTimesheetForm from './hospitality/hotel/work/hospitality_hotel_work_timesheetForm.js';
 import AdminMessage from './admin/AdminMessage.js';
 
@@ -155,6 +157,18 @@ function Layout() {
       <Stack.Screen 
         name= 'Home'
         component = {Dashboard}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityAdminTeamScheduler'
+        component = {HospitalityAdminTeamScheduler}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireTimeSchduler'
+        component = {HospitalityRestaurantHireTimeSchduler}
         options={{headerShown: false}}
       />
 

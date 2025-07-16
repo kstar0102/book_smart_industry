@@ -58,6 +58,7 @@ export default function AHeader({currentPage, navigation}) {
                       <Text style={[styles.subTitle, currentPage === 5 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('HospitalityAdminAllUsers')}>🎯 Admin - All Users </Text>
                       <Text style={[styles.subTitle, currentPage === 6 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('HospitalityAdminAllHotelRestaurant')}>🏢 All Hotels & Restaurants</Text>
                       <Text style={[styles.subTitle, currentPage === 7 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('HospitalityAdminCaregiverTimeSheet')}>Contractor Timesheet</Text>
+                      <Text style={[styles.subTitle, currentPage === 8 && {backgroundColor: 'grey'}]} onPress={() => handlePageNavigate('HospitalityAdminTeamScheduler')}>Team Scheduler</Text>
                     </View>
                 </View>
               </View>
