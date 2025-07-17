@@ -197,10 +197,15 @@ export default function AdminLogin({ navigation }) {
         <View style={styles.modal}>
           {/* <View style={styles.topBar} /> */}
           <View style={styles.intro}>
-            <Image
-              source={images.admin}
+          <Image
+              source={images.restaurant}
               resizeMode="contain"
               style={styles.mark}
+            />
+            <Image
+              source={images.hospitality_icon}
+              resizeMode="contain"
+              style={styles.homepage}
             />
             <Text style={constStyles.loginMainTitle1}>WHERE CARE MEETS CONNECTION</Text>
             <HButton
@@ -320,15 +325,16 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   mark: {
-    width: width * 0.5,
-    height: height * 0.28,
+    width: width * 0.6,
+    height: height * 0.1,
+    marginBottom: 10
   },
+
   homepage: {
-    width: '45%',
-    height: 130,
-    marginTop: 10,
-    marginLeft: '25%',
+    width: width * 0.5,
+    height: height * 0.2,
   },
+  
   text: {
     fontSize: 12,
     color: 'black',
