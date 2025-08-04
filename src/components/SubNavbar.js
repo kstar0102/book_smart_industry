@@ -28,6 +28,8 @@ export default function SubNavbar({name, navigation}) {
   const [firstName, setFirstName] = useAtom(userRole === 'clinical' ? clinicalFirstNameAtom : userRole === 'admin' ? adminFirstNameAtom : userRole === 'facilities' ? facilityFirstNameAtom : userRole === 'restaurantManager' ? restaurantHireFirstNameAtom : userRole === 'hotelManager' ? hotelHireFirstNameAtom : userRole === 'hotelWorker' ? hotelWorkFirstNameAtom : restaurantWorkFirstNameAtom);
   
   const handleNavigate = (navigateUrl) => {
+    console.log(navigateUrl);
+    console.log(userRole);
     navigation.navigate(navigateUrl, {userRole: userRole});
   };
 

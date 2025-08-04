@@ -85,12 +85,19 @@ import HospitalityRestaurantWorkApplyShift from './hospitality/restaurant/work/h
 
 import HospitalityRestaurantHireHome from './hospitality/restaurant/hire/hospitality_restaurant_hire_home.js';
 import HospitalityRestaurantHirePostShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_postshift.js';
+import HospitalityRestaurantHireSchedulerScreen from './hospitality/restaurant/hire/hospitality_restaurant_hire_schedulerCalender.js';
 import HospitalityRestaurantHireEditShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_editshift.js';
 import HospitalityRestaurantHireEditProfile from './hospitality/restaurant/hire/hospitality_restaurant_hire_editprofile.js';
 import HospitalityRestaurantHireForgot from './hospitality/restaurant/hire/hospitality_restaurant_hire_forgot.js';
 import HospitalityRestaurantHireTerms from './hospitality/restaurant/hire/hospitality_restaurant_hire_terms.js';
 import HospitalityRestaurantHireTimescheduling from './hospitality/restaurant/hire/hospitality_restaurant_hire_teamScheduling.js';
 import HospitalityRestaurantHireTimeSchduler from './hospitality/restaurant/hire/hospitality_restaurant_hire_teamScheduler.js';
+
+import StaffDetail from './hospitality/restaurant/hire/component/StaffDetail.js';
+import StaffEdit from './hospitality/restaurant/hire/component/StaffEdit.js';
+import StaffTab from './hospitality/restaurant/hire/component/TeamStaffTap.js';
+import ShiftTab from './hospitality/restaurant/hire/component/shiftTap.js';
+import ShiftDetailScreen from './hospitality/restaurant/hire/component/ShiftDetail.js';
 
 import HospitalityHotelWorkSignIn from './hospitality/hotel/work/hospitality_hotel_work_signin.js';
 import HospitalityHotelWorkSignUp from './hospitality/hotel/work/hospitality_hotel_work_signup.js';
@@ -181,6 +188,42 @@ function Layout() {
       <Stack.Screen 
         name= 'HospitalityAdminCaregiverTimeSheet'
         component = {HospitalityAdminCaregiverTimeSheet}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen
+        name="StaffTab"
+        component={StaffTab}  // import this at the top!
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen 
+        name= 'StaffDetail'
+        component = {StaffDetail}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'StaffEdit'
+        component = {StaffEdit}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'ShiftTab'
+        component = {ShiftTab}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'ShiftDetailScreen'
+        component = {ShiftDetailScreen}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantHireSchedulerScreen'
+        component = {HospitalityRestaurantHireSchedulerScreen}
         options={{headerShown: false}}
       />
 

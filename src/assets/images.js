@@ -6,6 +6,7 @@ const images = {
     healthcare: require('./images/health_icon.png'),
     construction: require('./images/construction_icon.png'),
     mark:  require('./images/mark.png'),
+    logo:  require('./images/logo.png'),
     profile: require('./images/woman.png'),
     checkList: require('./images/checklist.png'),
     shift: require('./images/money-bag.png'),
