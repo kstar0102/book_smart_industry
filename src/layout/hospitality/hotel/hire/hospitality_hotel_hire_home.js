@@ -59,7 +59,7 @@ export default function HospitalityHotelHireHome ({ navigation }) {
               <ImageButton title={"APPROVE SHIFTS"} onPress={() => handleNavigate('HospitalityHotelHireEditShift')} />
             </View>
             <View style={styles.buttonWrapper}>
-              <ImageButton title={"TEAM SCHEDULER"} onPress={() => handleNavigate('HospitalityRestaurantHireTimeSchduler')} />
+              <ImageButton title={"TEAM SCHEDULER"} onPress={() => handleNavigate('HospitalityRestaurantHireSchedulerScreen')} />
             </View>
           </View>
           <View style={styles.profile}>
