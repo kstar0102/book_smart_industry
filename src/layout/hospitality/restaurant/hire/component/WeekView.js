@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     backgroundColor: '#fff',
+    zIndex : -1
   },
   weekGrid: {
     flexDirection: 'row',

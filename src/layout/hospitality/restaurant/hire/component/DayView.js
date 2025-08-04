@@ -6,18 +6,6 @@ export default function DayView({ date = new Date(), setDate, mockEvents, setSel
   const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
   const events = mockEvents[dateStr] || [];
 
-  const goToPreviousDay = () => {
-    const prev = new Date(date);
-    prev.setDate(prev.getDate() - 1);
-    setDate(prev);
-  };
-
-  const goToNextDay = () => {
-    const next = new Date(date);
-    next.setDate(next.getDate() + 1);
-    setDate(next);
-  };
-
   const calculateOverlappingLayout = () => {
     return events.map((event, i) => {
       const overlapping = events.filter(
@@ -40,20 +28,7 @@ export default function DayView({ date = new Date(), setDate, mockEvents, setSel
   const layoutEvents = calculateOverlappingLayout();
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* 🔁 Navigation Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={goToPreviousDay} style={styles.navButton}>
-          <Text style={styles.navText}>◀</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </Text>
-        <TouchableOpacity onPress={goToNextDay} style={styles.navButton}>
-          <Text style={styles.navText}>▶</Text>
-        </TouchableOpacity>
-      </View>
-
+    <View style={{ flex: 1, zIndex: -1 }}>
       <View style={styles.dayContainer}>
         <View style={styles.timeColumn}>
           {Array.from({ length: 24 }, (_, hour) => (
@@ -121,12 +96,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     minHeight: 960,
+    zIndex : -2
   },
   timeColumn: {
     width: 50,
     backgroundColor: "#f9f9f9",
     borderRightWidth: 1,
     borderColor: "#ddd",
+    zIndex: -1
   },
   timeLabel: {
     height: 40,
@@ -139,6 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     position: "relative",
     backgroundColor: "#fff",
+    zIndex: -1
   },
   timeSlot: {
     height: 40,
@@ -151,7 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 4,
     overflow: "hidden",
-    zIndex: 5,
+    zIndex: 1,
   },
   eventText: {
     fontSize: 10,

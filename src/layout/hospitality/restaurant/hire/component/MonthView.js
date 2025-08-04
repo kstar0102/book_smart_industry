@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
     marginHorizontal: 10,
+    zIndex : -1
   },
   dayHeader: {
     width: `${100 / 7}%`,
