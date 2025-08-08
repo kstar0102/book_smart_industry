@@ -4,74 +4,145 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { addShiftType } from '../../../../../utils/useApi'; // Create this function below
 
-export default function AddShiftModal({ visible, onClose, onSubmit }) {
+const formatTime = (date) => {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+export default function AddShiftModal({ visible, onClose, onReload }) {
   const [name, setName] = useState('');
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [error, setError] = useState('');
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
 
-  const handleSubmit = () => {
-    if (!name || !start || !end) return;
-    onSubmit({ name, start, end });
-    setName('');
-    setStart('');
-    setEnd('');
+
+  const handleSubmit = async () => {
+    if (!name.trim()) {
+      setError('Validation', 'Please enter a name.');
+      return;
+    }
+
+    if (!startTime || !endTime) {
+      setError('Start and end time must be selected');
+      return;
+    }
+    if (endTime <= startTime) {
+      setError('End time must be later than start time');
+      return;
+    }
+    if (endTime <= startTime) {
+      setError('End time must be later than start time');
+      return;
+    }
+
+    const aic = await AsyncStorage.getItem('aic');
+    const body = {
+      aic: parseInt(aic, 10),
+      name,
+      start: formatTime(startTime),
+      end: formatTime(endTime),
+    };
+
+    const response = await addShiftType(body, 'restau_manager');
+    if (response.error) {
+      setError("Failed to add shift.");
+    } else {
+      onClose();
+      onReload(); 
+      setName('');
+      setError('');
+    }
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
+    <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.modal}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.title}>Add item</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Text style={styles.close}>✕</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.title}>Add Shift Type</Text>
 
           <TextInput
-            placeholder="Name"
-            placeholderTextColor="#888"
+            placeholder="Shift name"
             value={name}
             onChangeText={setName}
             style={styles.input}
           />
-          <TextInput
-            placeholder="e.g. 8AM"
-            placeholderTextColor="#888"
-            value={start}
-            onChangeText={setStart}
-            style={styles.input}
-          />
-          <TextInput
-            placeholder="e.g. 4PM"
-            placeholderTextColor="#888"
-            value={end}
-            onChangeText={setEnd}
-            style={styles.input}
-          />
 
-          <View style={styles.footer}>
-            <TouchableOpacity style={styles.cancel} onPress={onClose}>
+          <TouchableOpacity onPress={() => setShowStartPicker(true)}>
+            <TextInput
+              placeholder="Start time (e.g. 8:00 AM)"
+              style={[
+                styles.input,
+                { fontWeight: startTime ? 'bold' : 'normal', color: '#000' }
+              ]}
+              value={startTime ? formatTime(startTime) : ''}
+              editable={false}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => setShowEndPicker(true)}>
+            <TextInput
+              placeholder="End time (e.g. 4:00 PM)"
+              style={[
+                styles.input,
+                { fontWeight: endTime ? 'bold' : 'normal', color: '#000' }
+              ]}
+              value={endTime ? formatTime(endTime) : ''}
+              editable={false}
+            />
+          </TouchableOpacity>
+
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <View style={styles.buttons}>
+            <TouchableOpacity
+              onPress={() => {
+                setName('');
+                setStartTime(null);
+                setEndTime(null);
+                setError('');
+                onClose();
+              }}
+              style={styles.cancel}
+            >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.submit,
-                {
-                  backgroundColor:
-                    name && start && end ? '#290135' : '#ccc',
-                },
-              ]}
-              onPress={handleSubmit}
-              disabled={!name || !start || !end}
-            >
-              <Text style={styles.submitText}>Submit</Text>
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handleSubmit} style={styles.submit}>
+                <Text style={styles.submitText}>Submit</Text>
+              </TouchableOpacity>
           </View>
+
+          {showStartPicker && (
+            <DateTimePicker
+              value={startTime || new Date()}  // ← fallback
+              mode="time"
+              display="spinner"
+              onChange={(event, selectedDate) => {
+                setShowStartPicker(false);
+                if (selectedDate) setStartTime(selectedDate);
+              }}
+            />
+          )}
+
+          {showEndPicker && (
+            <DateTimePicker
+              value={endTime || new Date()}  // ← fallback
+              mode="time"
+              display="spinner"
+              onChange={(event, selectedDate) => {
+                setShowEndPicker(false);
+                if (selectedDate) setEndTime(selectedDate);
+              }}
+            />
+          )}
+
         </View>
       </View>
     </Modal>
@@ -81,66 +152,53 @@ export default function AddShiftModal({ visible, onClose, onSubmit }) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: '#00000055',
+    backgroundColor: '#00000099',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modal: {
-    width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 16,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    padding: 20,
+    borderRadius: 8,
+    width: '85%',
   },
   title: {
-    color: '#000',
     fontSize: 18,
-    fontWeight: '600',
-  },
-  close: {
-    color: '#888',
-    fontSize: 20,
+    marginBottom: 16,
+    fontWeight: 'bold',
   },
   input: {
-    backgroundColor: '#f2f2f2',
-    color: '#000',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 12,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 24,
-  },
-  cancel: {
-    flex: 1,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 6,
     padding: 12,
-    marginRight: 8,
-    alignItems: 'center',
+    marginBottom: 10,
+    borderRadius: 6,
+  },
+  error: {
+    color: 'red',
+    marginBottom: 8,
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancel: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#ccc',
+    borderRadius: 6,
   },
   cancelText: {
-    color: '#333',
-    fontWeight: '500',
+    fontWeight: 'bold',
   },
   submit: {
-    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#290135',
     borderRadius: 6,
-    padding: 12,
-    alignItems: 'center',
   },
   submitText: {
     color: '#fff',
-    fontWeight: '500',
+    fontWeight: 'bold',
   },
 });

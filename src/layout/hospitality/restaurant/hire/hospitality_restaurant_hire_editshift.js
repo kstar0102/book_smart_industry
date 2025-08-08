@@ -11,7 +11,10 @@ import SubNavbar from '../../../../components/SubNavbar';
 import AnimatedHeader from '../../../AnimatedHeader';
 import Loader from '../../../Loader';
 import { Dropdown } from 'react-native-element-dropdown';
-import { addDegreeItem, addLocationItem, addTitle, getDegreeList, getLocationList, getTimesheet, getTitleList, Job, Jobs, PostJob, removeJob, setAwarded, updateJobRatings, updateJobTSVerify } from '../../../../utils/useApi';
+import { addDegreeItem, addLocationItem, addTitle, getDegreeList, 
+  getLocationList, getTimesheet, getTitleList, Job, Jobs, PostJob, 
+  removeJob, setAwarded, updateJobRatings, 
+  updateJobTSVerify } from '../../../../utils/useApi';
 import { useFocusEffect } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
 import Pdf from 'react-native-pdf';

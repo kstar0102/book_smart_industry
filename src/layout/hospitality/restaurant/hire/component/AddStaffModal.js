@@ -1,67 +1,119 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
-  Switch,
-  Image,
-  Icon
+  FlatList,
+  ActivityIndicator,
+  Pressable,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getAllUsersInRestau,
+  addStaffToManager,
+  getStaffShiftInfo
+} from '../../../../../utils/useApi';
 
-export default function AddStaffModal({ visible, onClose, onSubmit }) {
-  const [name, setName] = useState('');
-  const [mobile, setMobile] = useState('');
-  const [email, setEmail] = useState('');
-  const [role, setRole] = useState('');
-  const [active, setActive] = useState(false);
-  const [photo, setPhoto] = useState(null); // for image picker integration
+export default function AddStaffModal({ visible, onClose, onSubmit  }) {
+  const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      fetchUsers();
+    }
+  }, [visible]);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const aic = await AsyncStorage.getItem('aic');
+  
+      const [allUsers, assignedUsers] = await Promise.all([
+        getAllUsersInRestau('restau_manager'),
+        getStaffShiftInfo('restau_manager', aic),
+      ]);
+  
+      const assignedAics = new Set(assignedUsers.map(user => user.aic));
+      const filteredUsers = allUsers.filter(user => !assignedAics.has(user.aic));
+  
+      setUsers(filteredUsers);
+      setSelectedUsers([]);
+    } catch (err) {
+      console.error('Failed to fetch staff data:', err);
+      alert('An error occurred while loading staff list.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const toggleSelect = (user) => {
+    setSelectedUsers((prev) => {
+      const exists = prev.find((u) => u.aic === user.aic);
+      const updated = exists
+        ? prev.filter((u) => u.aic !== user.aic)
+        : [...prev, user];
+      return updated;
+    });
+  };
+
+  const renderUser = ({ item }) => {
+    const isSelected = selectedUsers.some((u) => u.aic === item.aic);
+    return (
+      <Pressable
+        onPress={() => toggleSelect(item)}
+        style={[styles.userItem, isSelected && styles.selected]}
+      >
+        <View style={styles.checkbox}>
+          {isSelected && <Text style={styles.checkmark}>✓</Text>}
+        </View>
+        <Text style={styles.userText}>
+          {item.firstName} {item.lastName} - {item.email}
+        </Text>
+      </Pressable>
+    );
+  };
+
+  const handleSubmit = async () => {
+    const managerAic = await AsyncStorage.getItem('aic');
+    const result = await addStaffToManager(managerAic, selectedUsers);
+    if (!result.error) {
+      onSubmit(); // ✅ Reload staff list
+    } else {
+      alert('Failed to assign staff');
+    }
+  };
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.backdrop}>
         <View style={styles.modalContent}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Add item</Text>
-          </View>
+          <Text style={styles.headerText}>Select Staff</Text>
 
-          {/* Input Fields */}
-          <Text style={styles.label}>Name</Text>
-          <TextInput value={name} onChangeText={setName} style={styles.input} />
+          {loading ? (
+            <ActivityIndicator size="large" color="#000" />
+          ) : (
+            <FlatList
+              data={users}
+              keyExtractor={(item) => item.aic.toString()}
+              renderItem={renderUser}
+              style={{ marginVertical: 10 }}
+            />
+          )}
 
-          <Text style={styles.label}>Mobile</Text>
-          <TextInput value={mobile} onChangeText={setMobile} style={styles.input} keyboardType="phone-pad" />
-
-          <Text style={styles.label}>Email</Text>
-          <TextInput value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" />
-
-          <Text style={styles.label}>Photo</Text>
-          <TouchableOpacity style={styles.imagePicker}>
-            <Ionicons name="image-outline" size={20} color="#888" />
-            <Text style={styles.imageText}>Choose an image...</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.label}>Role</Text>
-          <TextInput value={role} onChangeText={setRole} style={styles.input} />
-
-          <View style={styles.switchRow}>
-            <Text style={styles.label}>Active</Text>
-            <Switch value={active} onValueChange={setActive} />
-          </View>
-
-          {/* Footer Buttons */}
           <View style={styles.footer}>
             <TouchableOpacity
-              style={[styles.submitButton, { backgroundColor: name ? '#290135' : '#ccc' }]}
-              disabled={!name}
-              onPress={() => {
-                onSubmit({ name, mobile, email, role, active });
-                onClose();
-              }}
+              style={[
+                styles.submitButton,
+                {
+                  backgroundColor: selectedUsers.length > 0 ? '#290135' : '#ccc',
+                },
+              ]}
+              disabled={selectedUsers.length === 0}
+              onPress={handleSubmit}
             >
               <Text style={styles.submitText}>Submit</Text>
             </TouchableOpacity>
@@ -89,54 +141,46 @@ const styles = StyleSheet.create({
     padding: 20,
     maxHeight: '90%',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
   headerText: {
     fontWeight: 'bold',
     fontSize: 18,
+    marginBottom: 10,
     color: '#000',
   },
-  label: {
-    marginTop: 10,
+  userItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  selected: {
+    backgroundColor: '#f0e7f5',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderColor: '#290135',
+    borderRadius: 3,
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkmark: {
+    color: '#290135',
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: 'bold',
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 4,
+  userText: {
     color: '#000',
-  },
-  imagePicker: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
-    marginTop: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  imageText: {
-    marginLeft: 8,
-    color: '#666',
-  },
-  switchRow: {
-    marginTop: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    fontSize: 14,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: 24,
+    marginTop: 20,
     gap: 12,
   },
   submitButton: {

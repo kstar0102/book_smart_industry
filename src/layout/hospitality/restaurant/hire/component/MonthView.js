@@ -1,10 +1,15 @@
-// MonthView.js
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function MonthView({ calendarDays, mockEvents, setSelectedEvent, setShowEventModal }) {
-    const pad = (n) => n.toString().padStart(2, '0'); 
-    return (
+  const dateKey = (y, m, d) =>
+    new Date(y, m, d).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+  return (
     <View style={styles.calendarGrid}>
       {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
         <Text key={d} style={styles.dayHeader}>{d}</Text>
@@ -12,7 +17,7 @@ export default function MonthView({ calendarDays, mockEvents, setSelectedEvent, 
 
       {calendarDays.map((dayObj, index) => {
         const { day, month, year, isFaded } = dayObj;
-        const key = `${year}-${pad(month + 1)}-${pad(day)}`; 
+        const key = dateKey(year, month, day);
         const dayEvents = mockEvents[key] || [];
 
         return (
@@ -23,6 +28,7 @@ export default function MonthView({ calendarDays, mockEvents, setSelectedEvent, 
                 key={idx}
                 style={[styles.eventDot, { backgroundColor: event.color }]}
                 onPress={() => {
+                  console.log(event);
                   setSelectedEvent(event);
                   setShowEventModal(true);
                 }}
@@ -46,6 +52,7 @@ export default function MonthView({ calendarDays, mockEvents, setSelectedEvent, 
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   calendarGrid: {

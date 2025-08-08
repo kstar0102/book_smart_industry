@@ -14,14 +14,24 @@ export const Signup = async (userData, endpoint) => {
 export const Signin = async (credentials, endpoint) => {
   try {
     const response = await axios.post(`api/${endpoint}/login`, credentials);
+    
     if (response.data.token) {
       await AsyncStorage.setItem('token', response.data.token);
+
+      const aic = response.data.user?.aic;
+      if (aic !== undefined && aic !== null) {
+        await AsyncStorage.setItem('aic', aic.toString());
+      } else {
+        console.warn('Warning: aic is undefined or null. Skipping save.');
+      }
     }
+
     return response.data;
   } catch (error) {
-    return {error: error};
+    return { error: error };
   }
 }
+
 
 export const sendFCMToken = async (credentials, endpoint) => {
   try {
@@ -32,6 +42,236 @@ export const sendFCMToken = async (credentials, endpoint) => {
     return {error: error.response.data.message};
   }
 }
+
+export const getShiftTypes = async (userData, endpoint) => {
+  try {
+    const existingToken = await AsyncStorage.getItem('token');
+
+    const response = await axios.post(`/api/${endpoint}/getShiftTypes`, userData, {
+      headers: {
+        Authorization: `Bearer ${existingToken}`,
+      },
+    });
+
+    if (response.data.token) {
+      await AsyncStorage.setItem('token', response.data.token);
+    }
+    return response.data;
+  } catch (error) {
+    // ✅ Log error response clearly
+    if (error.response) {
+    } else if (error.request) {
+      console.error("❌ AXIOS ERROR: No response received");
+      console.error(error.request);
+    } else {
+      console.error("❌ AXIOS SETUP ERROR:", error.message);
+    }
+    return { error };
+  }
+};
+
+export const addShiftType = async (body, endpoint) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post(`/api/${endpoint}/addShiftType`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("addShiftType error:", error.response?.data || error.message);
+    return { error };
+  }
+};
+
+export const deleteShiftType = async (body, endpoint) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post(`/api/${endpoint}/deleteShiftType`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.token) {
+      await AsyncStorage.setItem('token', response.data.token);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('deleteShiftType error:', error.message || error);
+    return { error };
+  }
+};
+
+export const updateShiftType = async (body, endpoint) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post(`/api/${endpoint}/updateShiftType`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.data.token) {
+      await AsyncStorage.setItem('token', response.data.token);
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('deleteShiftType error:', error.message || error);
+    return { error };
+  }
+};
+
+export const addStaffToManager = async (managerAic, staffList) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post('/api/restau_manager/addStaffToManager', {
+      managerAic,
+      staffList,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('addStaffToManager error:', error);
+    return { error };
+  }
+};
+
+export const addShiftToStaff = async (managerAic, staffId, shifts) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post(
+      '/api/restau_manager/addShiftToStaff',
+      {
+        managerAic,
+        staffId,
+        shifts,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('addShiftToStaff error:', error);
+    return { error };
+  }
+};
+
+export const getAllUsersInRestau = async (endpoint) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.get(`/api/${endpoint}/acknowledgedUsers`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    // console.log('✅ Users fetched:', response.data?.users);
+    return response.data?.users || []; 
+  } catch (error) {
+    console.error('deleteShiftType error:', error.message || error);
+    return { error };
+  }
+};
+
+export const getStaffShiftInfo = async (endpoint, managerAic) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+
+    const response = await axios.post(
+      `/api/${endpoint}/getAllStaffShiftInfo`,
+      { managerAic },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.data && response.data.staffInfo) {
+      return response.data.staffInfo;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error('getStaffShiftInfo error:', error.message || error);
+    return [];
+  }
+};
+
+export const deleteStaffFromManager = async (endpoint, managerAic, staffId) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post(
+      `/api/${endpoint}/deleteStaffFromManager`,
+      {
+        managerAic,
+        staffId: staffId.toString(), // ensure it's a string if needed
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    // ✅ Log error response clearly
+    if (error.response) {
+    } else if (error.request) {
+      console.error("❌ AXIOS ERROR: No response received");
+      console.error(error.request);
+    } else {
+      console.error("❌ AXIOS SETUP ERROR:", error.message);
+    }
+    return { error };
+  }
+};
+
+export async function editShiftFromStaff(endpoint, managerAic, staffId, shiftId, newDate, newTime) {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const response = await axios.post(
+      `/api/${endpoint}/editShiftFromStaff`,
+      {
+        managerAic,
+        staffId,
+        shiftId,
+        newDate,
+        newTime,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const status = response.status;
+    const data = await response.json();
+
+    if (status === 200) {
+      console.log('✅ Shift updated:', data.message);
+      return { success: true, data };
+    } else {
+      console.warn('⚠️ Failed to update shift:', data.message || 'Unknown error');
+      return { success: false, status, message: data.message };
+    }
+  } catch (error) {
+    console.error('❌ Network or server error:', error);
+    return { success: false, status: 500, message: error.message };
+  }
+}
+
 
 export const getAllFacility = async (userData, endpoint) => {
   try {
@@ -681,6 +921,8 @@ export const getAdminInfo = async (data) => {
 export const Jobs = async (data, endpoint, role) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
+    const aic = await AsyncStorage.getItem('aic');
+    console.log("aic:", aic);
     const response = await axios.post(`api/${endpoint}/shifts`, data, {
       headers: {
         Authorization: `Bearer ${existingToken}`,

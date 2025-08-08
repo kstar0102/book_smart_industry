@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback  } from "react";
 import {
   View,
   Text,
@@ -9,49 +9,43 @@ import {
   TextInput,
 } from 'react-native';
 import AddStaffModal from './AddStaffModal';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect  } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getStaffShiftInfo, } from '../../../../../utils/useApi';
 
-const mockStaff = [
-    {
-      id: '1',
-      name: 'Ron Mansolo',
-      mobile: '123-456-7890',
-      email: 'ron@email.com',
-      active: true,
-      role: 'Admin',
-      avatar: require('../../../../../assets/images/nurse.png'),
-      shifts: [
-        { date: 'March 5, 2024', time: '2:00 AM - 9:00 AM' },
-        { date: 'March 4, 2024', time: '2:00 AM - 9:00 AM' },
-        { date: 'March 3, 2024', time: '2:00 AM - 9:00 AM' },
-        { date: 'March 2, 2024', time: '2:00 AM - 9:00 AM' },
-        { date: 'March 1, 2024', time: '2:00 AM - 9:00 AM' },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Mike Grey',
-      mobile: '456-789-1234',
-      email: 'mg@email.com',
-      active: true,
-      role: 'Employee',
-      avatar: require('../../../../../assets/images/nurse.png'),
-      shifts: [
-        { date: 'February 29, 2024', time: '2:00 AM - 9:00 AM' },
-      ],
-    },
-    // Add others similarly...
-  ];
-  
 
 export default function StaffTab() {
     const navigation = useNavigation();
-    
     const [modalVisible, setModalVisible] = useState(false);
+    const [staffList, setStaffList] = useState([]);
+
+    useFocusEffect(
+      useCallback(() => {
+        loadShifts();
+      }, [loadShifts])
+    );
+
+    const loadShifts = useCallback(async () => {
+      try {
+        const aic = await AsyncStorage.getItem('aic');
+        const data = await getStaffShiftInfo('restau_manager', aic);
     
-    const [menuVisibleId, setMenuVisibleId] = useState(null);
-    const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-    const dotRefs = useRef({});
+        const mapped = data.map((user) => ({
+          id: user.id,
+          aic: user.aic.toString(),
+          name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          mobile: user.phoneNumber,
+          role: user.userRole,
+          shifts: user.shifts || [],
+          active: true,
+        }));
+    
+        setStaffList(mapped);
+      } catch (err) {
+        console.error('Failed to fetch staff shift info:', err);
+      }
+    }, []);
 
     const renderItem = ({ item }) => {
         return (
@@ -62,7 +56,7 @@ export default function StaffTab() {
                 onPress={() => navigation.navigate('StaffDetail', { staff: item })}
               >
                 <Image
-                  source={item.avatar || require('../../../../../assets/images/woman.png')}
+                  source={require('../../../../../assets/images/default_avatar.png')}
                   style={styles.avatar}
                 />
                 <View style={styles.info}>
@@ -70,65 +64,11 @@ export default function StaffTab() {
                   <Text style={styles.role}>{item.role}</Text>
                 </View>
               </TouchableOpacity>
-{/*       
-              <TouchableOpacity
-                ref={(ref) => {
-                  if (ref) dotRefs.current[item.id] = ref;
-                }}
-                onPress={() => {
-                  const ref = dotRefs.current[item.id];
-                  if (ref && ref.measureInWindow) {
-                    ref.measureInWindow((x, y, width, height) => {
-                      setMenuVisibleId(item.id);
-                      setMenuPosition({ x, y: y + height + 4 });
-                      console.log("x:", x, "y:", y, "height:", height);
-                      console.log("Rendering modal for ID:", menuVisibleId);
-
-                    });
-                  }
-                }}
-              >
-                <Text style={styles.dots}>⋯</Text>
-              </TouchableOpacity> */}
             </View>
-      
-            {/* MODAL MENU */}
-            {/* {menuVisibleId === item.id && (
-              <View
-                style={[
-                  styles.menu,
-                  {
-                    top: menuPosition.y,
-                    left: menuPosition.x - 220,
-                    position: 'absolute',
-                  },
-                ]}
-              >
-                <TouchableOpacity
-                  onPress={() => {
-                    setMenuVisibleId(null);
-                    navigation.navigate('StaffEdit', { staff: item });
-                  }}
-                >
-                  <Text style={styles.menuItem}>Edit</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    setMenuVisibleId(null);
-                    console.log('Delete', item.name);
-                  }}
-                >
-                  <Text style={styles.menuItem}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            )} */}
           </View>
         );
       };
       
-      
-      
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -143,19 +83,18 @@ export default function StaffTab() {
       </View>
 
       <FlatList
-        data={mockStaff}
+        data={staffList}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingHorizontal: 16 }}
       />
 
-     <AddStaffModal
+      <AddStaffModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onSubmit={(newStaff) => {
-            // handle staff addition logic
-            setModalVisible(false);
-            console.log(newStaff);
+        onSubmit={() => {
+          setModalVisible(false);
+          loadShifts();
         }}
     />
     </View>
@@ -245,6 +184,7 @@ const styles = StyleSheet.create({
   },
   role: {
     color: '#555',
-    fontSize: 12,
+    fontSize: 13,
+    letterSpacing : 0.5  
   },
 });

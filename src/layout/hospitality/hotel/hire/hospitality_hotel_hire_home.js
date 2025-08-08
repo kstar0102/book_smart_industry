@@ -76,31 +76,11 @@ export default function HospitalityHotelHireHome ({ navigation }) {
               </View>
             )}
             <View style={{height : 15}}/>
-            {/* {avatar.content && <Image
-              source={{ uri: `${avatar.content}` }}
-              resizeMode="cover"
-              style={styles.nurse}
-            />}
-            <Text style={styles.name}>{firstName || "DaleWong"}</Text> */}
-            {/* <TouchableOpacity style={styles.edit} onPress = {() => handleEdit()}>
-              <Text style={{color: 'white'}}> Edit Profile</Text>
-            </TouchableOpacity> */}
             <View style={styles.centered}>
               <TouchableOpacity style={styles.edit} onPress={() => handleEdit()}>
                 <Text style={{ color: 'white', fontWeight: 'bold' }}>Edit Profile</Text>
               </TouchableOpacity>
             </View>
-            {/* {
-              userInfo.map((item, index) => 
-                <View key={index} style={{flexDirection: 'column', width: '100%'}}>
-                  <Text style={styles.titles}>{item.title}</Text>
-                  <Text style={[
-                    styles.content, 
-                    item.title == "Phone" || item.title == "email" ? {color: '#2a53c1', textDecorationLine:'underline', width: '100%', fontSize: RFValue(15)} : {}
-                  ]}>{item.content}</Text>
-                </View>
-              )
-            } */}
             <View style={{height : 10}}/>
             <View style={styles.centered}>
               {userInfo.map((item, index) => (

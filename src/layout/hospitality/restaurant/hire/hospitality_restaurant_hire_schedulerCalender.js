@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -16,6 +16,9 @@ import CustomTopNav from '../../../../components/CustomTopNav';
 import HomeTab from './component/TeamSchedulerHome';
 import StaffTab from './component/TeamStaffTap';
 import ShiftTab from './component/shiftTap';
+
+
+// import { getShiftTypes } from '../../../../utils/useApi';
 
 
 const months = [
@@ -50,18 +53,20 @@ const getStartDay = (month, year) => {
 
 const { width, height } = Dimensions.get('window');
 
+
+
 const HospitalityRestaurantHireSchedulerScreen = ({ navigation }) => {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth());
   const [year, setYear] = useState(today.getFullYear());
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showEventModal, setShowEventModal] = useState(false);
   const [showMonthPicker, setShowMonthPicker] = useState(false);
   const [showViewDropdown, setShowViewDropdown] = useState(false);
 
   const [selectedTab, setSelectedTab] = useState("Home");
   const [viewMode, setViewMode] = useState("Month");
   const years = generateYears(2000, 2030);
+
+ 
 
   const handlePrevMonth = () => {
     if (month === 0) {
@@ -192,8 +197,6 @@ const HospitalityRestaurantHireSchedulerScreen = ({ navigation }) => {
             setShowViewDropdown={setShowViewDropdown}
             calendarDays={calendarDays}
             mockEvents={mockEvents}
-            setSelectedEvent={setSelectedEvent}
-            setShowEventModal={setShowEventModal}
           />
         )}
 
@@ -235,39 +238,6 @@ const HospitalityRestaurantHireSchedulerScreen = ({ navigation }) => {
 
             <TouchableOpacity onPress={() => setShowMonthPicker(false)}>
               <Text style={styles.closeText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Event Detail Modal */}
-      <Modal visible={showEventModal} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.eventModalContent}>
-            <Text style={styles.modalTitle}>Event Details</Text>
-
-            {Array.isArray(selectedEvent?.all)
-              ? selectedEvent.all.map((e, i) => (
-                  <View key={i} style={styles.eventDetailRow}>
-                    <View
-                      style={[
-                        styles.eventColorDot,
-                        { backgroundColor: e.color },
-                      ]}
-                    />
-                    <Text style={styles.eventDetailText}>
-                      {e.label} - {e.description}
-                    </Text>
-                  </View>
-                ))
-              : selectedEvent && (
-                  <Text style={styles.eventDetailText}>
-                    {selectedEvent.label} - {selectedEvent.description}
-                  </Text>
-                )}
-
-            <TouchableOpacity onPress={() => setShowEventModal(false)}>
-              <Text style={styles.closeText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>

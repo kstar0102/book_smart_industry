@@ -8,10 +8,13 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 import MFooter from '../../../../../components/Mfooter';
 import MHeader from '../../../../../components/Mheader';
 import { RFValue } from 'react-native-responsive-fontsize';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { deleteStaffFromManager } from '../../../../../utils/useApi';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,18 +33,49 @@ export default function StaffDetail({ route,  navigation}) {
       >
         <View style={styles.profileContainer}>
             <View style={styles.editWrapper}>
-                <TouchableOpacity style={styles.editButton}
-                 onPress={() => navigation.navigate('StaffEdit', { staff })}
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={async () => {
+                    Alert.alert(
+                      'Confirm Delete',
+                      'Are you sure you want to delete this staff member?',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                          text: 'Delete',
+                          style: 'destructive',
+                          onPress: async () => {
+                            const managerAic = await AsyncStorage.getItem('aic');
+                            if (!managerAic) {
+                              Alert.alert('Manager ID not found!');
+                              return;
+                            }
+
+                            const result = await deleteStaffFromManager(
+                              'restau_manager',
+                              managerAic,
+                              staff.id
+                            );
+
+                            if (result?.message?.includes('Staff deleted')) {
+                              navigation.goBack();
+                            } else {
+                              Alert.alert('Failed to delete staff.');
+                              console.log(result);
+                            }
+                          },
+                        },
+                      ]
+                    );
+                  }}
                 >
-                    <Text style={styles.editText}>Edit</Text>
+                  <Text style={styles.editText}>Delete</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.editButton}
-                 onPress={() => navigation.navigate('StaffEdit', { staff })}
-                >
-                    <Text style={styles.editText}>Delete</Text>
-                </TouchableOpacity>
+
+
             </View>
-            <Image source={staff.avatar} style={styles.profileImage} />
+            <Image source={require('../../../../../assets/images/default_avatar.png')} 
+              style={styles.profileImage} />
             <Text style={styles.profileName}>{staff.name}</Text>
         </View>
 
@@ -63,17 +97,10 @@ export default function StaffDetail({ route,  navigation}) {
           </View>
 
           <View style={styles.row}>
-            <Text style={styles.label}>Photo</Text>
-            <Image source={staff.avatar} style={styles.smallAvatar} />
-          </View>
-          <View style={styles.row}>
             <Text style={styles.label}>Role</Text>
             <Text style={styles.value}>{staff.role}</Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Active</Text>
-            <Text style={styles.value}>{staff.active ? '✔️' : '❌'}</Text>
-          </View>
+        
         </View>
 
         <Text style={styles.shiftHeader}>Scheduled Shifts</Text>

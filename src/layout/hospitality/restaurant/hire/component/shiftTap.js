@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,27 +7,35 @@ import {
   StyleSheet,
 } from 'react-native';
 import AddShiftModal from './AddShiftModal';
-import { useNavigation } from '@react-navigation/native';
-
-const initialShifts = [
-  { id: '1', name: 'EARLY', start: '6:00 PM', end: '2:00 AM' },
-  { id: '2', name: 'LATE', start: '2:00 AM', end: '9:00 AM' },
-  { id: '3', name: 'MID', start: '10:00 PM', end: '6:00 AM' },
-  { id: '4', name: 'MORNING', start: '9:00 AM', end: '5:00 PM' },
-];
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getShiftTypes } from '../../../../../utils/useApi';
 
 export default function ShiftTab() {
   const navigation = useNavigation();
-  const [shifts, setShifts] = useState(initialShifts);
+  const [shifts, setShifts] = useState([]);
+
   const [modalVisible, setModalVisible] = useState(false);
 
-  const addShift = (newShift) => {
-    setShifts((prev) => [
-      ...prev,
-      { ...newShift, id: String(prev.length + 1) },
-    ]);
-    setModalVisible(false);
+  useFocusEffect(
+    useCallback(() => {
+      fetchShiftTypes();
+    }, [])
+  );
+  
+  const fetchShiftTypes = async () => {
+    const aicValue = await AsyncStorage.getItem('aic');
+    const userData = { aic: parseInt(aicValue, 10) };
+    const response = await getShiftTypes(userData, 'restau_manager');
+  
+    if (response.error) {
+      console.warn("Failed to fetch shift types", response.error);
+    } else {
+      console.log("Fetched shift types:", response);
+      setShifts(response.shiftType); 
+    }
   };
+
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('ShiftDetailScreen', { shift: item })}>
@@ -59,8 +67,9 @@ export default function ShiftTab() {
       <AddShiftModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onSubmit={addShift}
+        onReload={fetchShiftTypes} // 🔁 fetch updated list
       />
+
     </View>
   );
 }

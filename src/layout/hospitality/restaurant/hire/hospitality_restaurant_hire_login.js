@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Alert, TouchableOpacity, Image, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity, Image, ScrollView, 
+  Pressable } from 'react-native';
 import Loader from '../../../Loader';
 import { TextInput } from 'react-native-paper';
 import { RFValue } from 'react-native-responsive-fontsize';
