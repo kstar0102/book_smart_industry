@@ -237,17 +237,15 @@ export const deleteStaffFromManager = async (endpoint, managerAic, staffId) => {
   }
 };
 
-export async function editShiftFromStaff(endpoint, managerAic, staffId, shiftId, newDate, newTime) {
+export const deleteShiftFromStaff = async (endpoint, managerAic, staffId, shiftId) => {
   try {
     const token = await AsyncStorage.getItem('token');
     const response = await axios.post(
-      `/api/${endpoint}/editShiftFromStaff`,
+      `/api/${endpoint}/deleteShiftFromStaff`,
       {
         managerAic,
-        staffId,
-        shiftId,
-        newDate,
-        newTime,
+        staffId: staffId.toString(), // keep staffId format consistent
+        shiftId
       },
       {
         headers: {
@@ -255,22 +253,62 @@ export async function editShiftFromStaff(endpoint, managerAic, staffId, shiftId,
         },
       }
     );
-
-    const status = response.status;
-    const data = await response.json();
-
-    if (status === 200) {
-      console.log('✅ Shift updated:', data.message);
-      return { success: true, data };
-    } else {
-      console.warn('⚠️ Failed to update shift:', data.message || 'Unknown error');
-      return { success: false, status, message: data.message };
-    }
+    return response.data;
   } catch (error) {
-    console.error('❌ Network or server error:', error);
-    return { success: false, status: 500, message: error.message };
+    if (error.response) {
+      console.error("❌ AXIOS RESPONSE ERROR:", error.response.data);
+    } else if (error.request) {
+      console.error("❌ AXIOS ERROR: No response received");
+      console.error(error.request);
+    } else {
+      console.error("❌ AXIOS SETUP ERROR:", error.message);
+    }
+    return { error };
+  }
+};
+
+
+// utils/useApi.js
+export async function editShiftFromStaff(
+  endpoint,
+  managerAic,
+  staffId,
+  shiftId,
+  newDate,
+  newTime
+) {
+  try {
+    const token = await AsyncStorage.getItem('token');
+
+    const { status, data } = await axios.post(
+      `/api/${endpoint}/editShiftFromStaff`,
+      { managerAic, staffId, shiftId, newDate, newTime },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // axios returns data directly; no response.json()
+    return {
+      success: status === 200,
+      status,
+      data,
+      message: data?.message,
+    };
+  } catch (error) {
+    const status = error?.response?.status ?? 0;
+    const message =
+      error?.response?.data?.message ??
+      error?.message ??
+      'Request failed';
+    // optional: console diagnostics
+    console.error('editShiftFromStaff error:', {
+      status,
+      message,
+      data: error?.response?.data,
+    });
+    return { success: false, status, message, data: error?.response?.data };
   }
 }
+
 
 
 export const getAllFacility = async (userData, endpoint) => {

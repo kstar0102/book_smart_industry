@@ -17,7 +17,9 @@ import AddWeeklyShiftsModal from './AddWeeklyShiftsModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   getStaffShiftInfo,
-  getShiftTypes
+  getShiftTypes,
+  editShiftFromStaff,
+  deleteShiftFromStaff
  } from '../../../../../utils/useApi';
 import { transformStaffListToMockEvents } from './transformStaffListToMockEvents'; // adjust path
 const HomeTab = ({
@@ -35,7 +37,6 @@ const HomeTab = ({
   showViewDropdown,
   setShowViewDropdown,
   calendarDays,
-  mockEvents,
 }) => {
   const [weekStartDate, setWeekStartDate] = useState(new Date());
   const [dayDate, setDayDate] = useState(new Date());
@@ -43,17 +44,18 @@ const HomeTab = ({
   const [staffList, setStaffList] = useState([]);
   const [showAddWeekModal, setShowAddWeekModal] = useState(false);
   const [ShiftData, setShiftData] = useState({});
-
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
-
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedShift, setSelectedShift] = useState(null);
-
   const [showDatePicker, setShowDatePicker] = useState(false);
-
   const [shiftTypes, setShiftTypes] = useState([]);
-  
+
+  const [eventDate, setEventDate] = useState(null);
+
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     fetchStaffInfo();
     fetchShiftTypes();
@@ -91,9 +93,9 @@ const HomeTab = ({
     }
   };
   
-  // useEffect(() => {
-  //   console.log('✅ ShiftData updated:', ShiftData);
-  // }, [ShiftData]);
+  useEffect(() => {
+    console.log('✅ ShiftData :', ShiftData);
+  }, [ShiftData]);
 
   const handlePrev = () => {
     if (viewMode === "Month") {
@@ -131,24 +133,63 @@ const HomeTab = ({
     }
   };
 
-  const handleEditShift = async () => {
-    const selectedShiftObj = shiftTypes.find(s => s.id === selectedShift);
-    if (!selectedEmployee || !selectedShiftObj || !selectedDate) {
-      alert('Please complete all fields');
-      return;
-    }
+  const handleConfirmDelete = async () => {
+    try {
+      setDeleting(true);
+      // optimisticallyRemoveShift(); 
+      const managerAic = await AsyncStorage.getItem('aic');
+      const result = await deleteShiftFromStaff(
+        'restau_manager',
+        managerAic,
+        selectedEvent.id,
+        selectedEvent.shiftId
+      );
   
+      if (result?.success) {
+        await fetchStaffInfo();
+        setShowConfirmDelete(false);
+        setShowEventModal(false);
+        setSelectedEvent(null);
+      } else {
+        alert(`Delete failed: ${result?.message || 'Unknown error'}`);
+        await fetchStaffInfo();
+        setShowConfirmDelete(false);
+      }
+    } catch (e) {
+      alert('Delete failed. Please try again.');
+      await fetchStaffInfo();
+      setShowConfirmDelete(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+  
+
+  const handleEditShift = async () => {
+    const managerAic = await AsyncStorage.getItem('aic');
+    const selectedShiftObj = shiftTypes.find(
+      s => String(s.id) === String(selectedShift)
+    );
+    // Format date in desired style
+    const formattedDate = selectedDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    // Combine start/end with arrow
+    const formattedTime = `${selectedShiftObj.start} ➜ ${selectedShiftObj.end}`;
+
+    console.log("newDate:", formattedDate);
+    console.log("newTime:", formattedTime);
+
     const result = await editShiftFromStaff(
       'restau_manager',
-      selectedEvent.aic,       // managerAic
-      selectedEmployee,        // staffId
-      selectedEvent.shiftId,   // shiftId
-      selectedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      `${selectedShiftObj.start} ➔ ${selectedShiftObj.end}`
+      managerAic,           
+      selectedEvent.id,     
+      selectedEvent.shiftId,
+      formattedDate,
+      formattedTime
     );
   
     if (result.success) {
@@ -157,6 +198,36 @@ const HomeTab = ({
       setShowEventModal(false);
     } else {
       alert(`Update failed: ${result.message}`);
+    }
+  };
+
+  const normalizeTime = (s = "") =>
+    s
+      .replace(/\u202F/g, " ")         // narrow no-break space -> space
+      .replace(/\s+/g, " ")            // collapse whitespace
+      .replace(/[^\dAPMapm: ]/g, "")   // strip arrows/extra chars
+      .trim()
+      .toUpperCase();
+
+  const handleMonthEventPress = (event, cellDate) => {
+    setSelectedEvent(event);
+    setEventDate(cellDate);
+    setShowEventModal(true);
+  
+    // Preselect shift by comparing times
+    if (event?.time && Array.isArray(shiftTypes) && shiftTypes.length) {
+      const [startRaw, endRaw] = event.time.split("➔").map(t => (t || "").trim());
+  
+      const startN = normalizeTime(startRaw);
+      const endN   = normalizeTime(endRaw);
+  
+      const matched = shiftTypes.find(s =>
+        normalizeTime(s.start) === startN && normalizeTime(s.end) === endN
+      );
+  
+      setSelectedShift(matched ? matched.id : null);
+    } else {
+      setSelectedShift(null);
     }
   };
   
@@ -175,68 +246,71 @@ const HomeTab = ({
         </View>
       </View>
 
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handlePrev} style={styles.navButton}>
-          <Text style={styles.navText}>◀</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.monthYearText}>
-          {viewMode === "Month"
-            ? `${months[month]} ${year}`
-            : viewMode === "Week"
-            ? weekStartDate.toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })
-            : dayDate.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
-        </Text>
-
-        <TouchableOpacity onPress={handleNext} style={styles.navButton}>
-          <Text style={styles.navText}>▶</Text>
-        </TouchableOpacity>
-
-        <View style={styles.viewModeWrapper}>
-          <TouchableOpacity
-            style={styles.viewModeButton}
-            onPress={() => setShowViewDropdown((prev) => !prev)}
-          >
-            <Text style={styles.viewModeButtonText}>{viewMode}</Text>
+      <View style={styles.headerContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={handlePrev} style={styles.navButton}>
+            <Text style={styles.navText}>◀</Text>
           </TouchableOpacity>
 
-          {showViewDropdown && (
-            <View style={styles.dropdown}>
-              {["Month", "Week", "Day"].map((mode) => (
-                <TouchableOpacity
-                  key={mode}
-                  onPress={() => {
-                    setViewMode(mode);
-                    setShowViewDropdown(false);
-                  }}
-                  style={[
-                    styles.dropdownItem,
-                    viewMode === mode && styles.dropdownSelected,
-                  ]}
-                >
-                  <Text
+          <Text style={styles.monthYearText}>
+            {viewMode === "Month"
+              ? `${months[month]} ${year}`
+              : viewMode === "Week"
+              ? weekStartDate.toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : dayDate.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+          </Text>
+
+          <TouchableOpacity onPress={handleNext} style={styles.navButton}>
+            <Text style={styles.navText}>▶</Text>
+          </TouchableOpacity>
+
+          <View style={styles.viewModeWrapper}>
+            <TouchableOpacity
+              style={styles.viewModeButton}
+              onPress={() => setShowViewDropdown((prev) => !prev)}
+            >
+              <Text style={styles.viewModeButtonText}>{viewMode}</Text>
+            </TouchableOpacity>
+
+            {showViewDropdown && (
+              <View style={styles.dropdownOverCalendar}>
+                {["Month", "Week", "Day"].map((mode) => (
+                  <TouchableOpacity
+                    key={mode}
+                    onPress={() => {
+                      setViewMode(mode);
+                      setShowViewDropdown(false);
+                    }}
                     style={[
-                      styles.dropdownText,
-                      viewMode === mode && styles.dropdownSelectedText,
+                      styles.dropdownItem,
+                      viewMode === mode && styles.dropdownSelected,
                     ]}
                   >
-                    {mode}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+                    <Text
+                      style={[
+                        styles.dropdownText,
+                        viewMode === mode && styles.dropdownSelectedText,
+                      ]}
+                    >
+                      {mode}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
         </View>
       </View>
+      
 
       {viewMode === "Month" && (
         <MonthView
@@ -244,24 +318,28 @@ const HomeTab = ({
           mockEvents={ShiftData}
           setSelectedEvent={setSelectedEvent}
           setShowEventModal={setShowEventModal}
+          setEventDate={setEventDate} 
+          onEventPress={handleMonthEventPress}
         />
       )}
       
 
-      {viewMode === "Week" && (
+      {viewMode === 'Week' && (
         <WeekView
           startDate={weekStartDate}
-          mockEvents={mockEvents}
-          setSelectedEvent={setSelectedEvent}
+          mockEvents={ShiftData}               
+          onEventPress={handleMonthEventPress} 
+          setSelectedEvent={setSelectedEvent}  
           setShowEventModal={setShowEventModal}
         />
       )}
+
 
       {viewMode === "Day" && (
         <DayView
           date={dayDate}
           setDate={setDayDate}
-          mockEvents={mockEvents}
+          mockEvents={ShiftData}
           setSelectedEvent={setSelectedEvent}
           setShowEventModal={setShowEventModal}
         />
@@ -284,7 +362,7 @@ const HomeTab = ({
       <Modal visible={showEventModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.eventModal}>
-            <TouchableOpacity style={styles.deleteButton}>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => setShowConfirmDelete(true)}>
               <Text style={styles.deleteButtonText}>🗑️ Delete</Text>
             </TouchableOpacity>
 
@@ -292,7 +370,16 @@ const HomeTab = ({
             <TouchableOpacity onPress={() => setShowDatePicker(true)}>
               <TextInput
                 mode="outlined"
-                value={selectedDate.toLocaleDateString()}
+                value={
+                  eventDate
+                    ? new Date(eventDate).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })
+                    : ''
+                }
                 editable={false}
                 style={styles.input}
               />
@@ -301,19 +388,22 @@ const HomeTab = ({
             <DatePicker
               modal
               open={showDatePicker}
-              date={selectedDate}
+              date={eventDate || new Date()} // Use eventDate as initial value
               mode="date"
               onConfirm={(date) => {
                 setShowDatePicker(false);
                 setSelectedDate(date);
+                setEventDate(date); // 👈 This line updates the visible input!
               }}
               onCancel={() => setShowDatePicker(false)}
             />
+
 
             <Text style={styles.label}>Employee</Text>
             <TextInput
               mode="outlined"
               value={selectedEvent?.label || ''}
+              editable={false}
               style={styles.input}
             />
 
@@ -346,6 +436,35 @@ const HomeTab = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowEventModal(false)}>
                 <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showConfirmDelete} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.confirmModal}>
+            <Text style={styles.confirmTitle}>Delete this shift?</Text>
+            <Text style={styles.confirmSubtitle}>
+              This action cannot be undone.
+            </Text>
+
+            <View style={styles.confirmRow}>
+              <TouchableOpacity
+                style={[styles.confirmBtn, styles.confirmCancel]}
+                onPress={() => setShowConfirmDelete(false)}
+                disabled={deleting}
+              >
+                <Text style={styles.confirmCancelText}>No</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.confirmBtn, styles.confirmDelete]}
+                onPress={handleConfirmDelete}
+                disabled={deleting}
+              >
+                <Text style={styles.confirmDeleteText}>{deleting ? 'Deleting…' : 'Yes, delete'}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -390,6 +509,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 13,
   },
+  headerContainer: {
+    position: 'relative', 
+  },
+  
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -397,6 +520,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 10,
     paddingHorizontal: 10,
+  },
+  
+  viewModeWrapper: {
+    position: "relative",
   },
   navButton: {
     paddingHorizontal: 10,
@@ -414,10 +541,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
-  viewModeWrapper: {
-    position: "relative",
-    zIndex: 999,
-  },
+ 
   viewModeButton: {
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -432,9 +556,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "bold",
   },
-  dropdown: {
+  dropdownOverCalendar: {
     position: "absolute",
-    top: 40,
+    top: 42,
     right: 0,
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -444,10 +568,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
-    elevation: 5,
+    elevation: 10,
     borderWidth: 1,
     borderColor: "#ccc",
-    zIndex: 999,
+    zIndex: 9999,
   },
   dropdownItem: {
     paddingVertical: 10,
@@ -560,6 +684,50 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: 'black',
     fontWeight: 'bold',
+  },
+  confirmModal: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    width: '85%',
+    elevation: 5,
+  },
+  confirmTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000',
+    marginBottom: 6,
+  },
+  confirmSubtitle: {
+    color: '#555',
+    marginBottom: 16,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    gap: 10,
+    justifyContent: 'flex-end',
+  },
+  confirmBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  confirmCancel: {
+    borderColor: '#333',
+    backgroundColor: 'transparent',
+  },
+  confirmCancelText: {
+    color: '#333',
+    fontWeight: '700',
+  },
+  confirmDelete: {
+    borderColor: '#d00',
+    backgroundColor: '#d00',
+  },
+  confirmDeleteText: {
+    color: '#fff',
+    fontWeight: '700',
   },
 });
 

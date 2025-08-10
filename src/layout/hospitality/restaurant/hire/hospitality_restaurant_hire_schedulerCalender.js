@@ -66,8 +66,6 @@ const HospitalityRestaurantHireSchedulerScreen = ({ navigation }) => {
   const [viewMode, setViewMode] = useState("Month");
   const years = generateYears(2000, 2030);
 
- 
-
   const handlePrevMonth = () => {
     if (month === 0) {
       setMonth(11);
@@ -89,56 +87,6 @@ const HospitalityRestaurantHireSchedulerScreen = ({ navigation }) => {
   const handleSelectMonth = (m) => {
     setMonth(m);
     setShowMonthPicker(false);
-  };
-  const mockEvents = {
-    "2025-07-29": [
-      {
-        label: "Joe D",
-        color: "#FFA500",
-        description: "Joe's event D",
-        startHour: 21,
-        endHour: 23,
-      },
-    ],
-    "2025-08-04": [
-      {
-        label: "Sam...",
-        color: "#FF6B6B",
-        description: "Sample training",
-        startHour: 10,
-        endHour: 12,
-      },
-      {
-        label: "roman cal...",
-        color: "#4CAF50",
-        description: "roman training",
-        startHour: 10,
-        endHour: 16,
-      },
-      {
-        label: "mazar sayee...",
-        color: "#3D5AFE",
-        description: "mazar training",
-        startHour: 6,
-        endHour: 12,
-      },
-      {
-        label: "anton sayee...",
-        color: "red",
-        description: "anton training",
-        startHour: 5,
-        endHour: 11,
-      },
-    ],
-    "2025-08-05": [
-      {
-        label: "Sam...",
-        color: "#00C853",
-        description: "Sample training",
-        startHour: 14,
-        endHour: 15.5,
-      },
-    ],
   };
 
   const buildCalendarDays = () => {
@@ -196,7 +144,6 @@ const HospitalityRestaurantHireSchedulerScreen = ({ navigation }) => {
             showViewDropdown={showViewDropdown}
             setShowViewDropdown={setShowViewDropdown}
             calendarDays={calendarDays}
-            mockEvents={mockEvents}
           />
         )}
 
