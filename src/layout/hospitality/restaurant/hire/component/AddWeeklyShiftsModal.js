@@ -173,13 +173,13 @@ export default function AddWeeklyShiftsModal({ visible, onClose, staffList, refr
         <View style={styles.modalContent}>
           <Text style={styles.title}>Add next week's Shifts</Text>
 
-          <Text style={styles.label}>Employee</Text>
+          <Text style={styles.label}>Staff</Text>
           <Dropdown
             style={styles.dropdown}
             data={employeeList}
             labelField="label"
             valueField="value"
-            placeholder="Select Employee"
+            placeholder="Select Staff"
             value={selectedEmployee}
             onChange={(item) => setSelectedEmployee(item.value)}
           />

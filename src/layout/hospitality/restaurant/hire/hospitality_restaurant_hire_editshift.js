@@ -1365,11 +1365,11 @@ export default function HospitalityRestaurantHireEditShift({ navigation }) {
                       <Text style={[styles.content, { color: 'blue' }]}>{selectedBidder[7] || ''}</Text>
                     </View>
                     <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
-                      <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Date</Text>
+                      <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Time</Text>
                       <Text style={styles.content}>{selectedJob?.shiftTime || ''}</Text>
                     </View>
                     <View style={{flexDirection: 'row', width: '100%', gap: 10}}>
-                      <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Time</Text>
+                      <Text style={[styles.titles, {backgroundColor: '#f2f2f2', marginBottom: 5, paddingLeft: 2}]}>Date</Text>
                       <Text style={styles.content}>{selectedJob?.shiftDate || ''}</Text>
                     </View>
                     <View style={{flexDirection: 'row', width: '100%'}}>

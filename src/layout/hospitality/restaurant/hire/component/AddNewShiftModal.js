@@ -155,7 +155,7 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
         <View style={styles.modalContent}>
           <Text style={styles.title}>Add New Shift</Text>
 
-          <Text style={styles.label}>Employee</Text>
+          <Text style={styles.label}>Staff</Text>
           <Dropdown
             style={styles.dropdown}
             containerStyle={styles.dropdownContainer}
@@ -166,7 +166,7 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
             maxHeight={200}
             labelField="label"
             valueField="value"
-            placeholder="Select Employee"
+            placeholder="Select Staff"
             value={selectedEmployee}
             onChange={item => setSelectedEmployee(item.value)}
           />

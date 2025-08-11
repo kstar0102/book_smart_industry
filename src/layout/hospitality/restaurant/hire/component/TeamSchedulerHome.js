@@ -571,7 +571,7 @@ const HomeTab = ({
             />
 
 
-            <Text style={styles.label}>Employee</Text>
+            <Text style={styles.label}>Staff</Text>
             <TextInput
               mode="outlined"
               value={selectedEvent?.label || ''}
