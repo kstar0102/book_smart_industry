@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,15 +10,14 @@ import {
   Modal,
   Alert,
   Platform,
+  Pressable,
 } from 'react-native';
 import MFooter from '../../../../../components/Mfooter';
 import MHeader from '../../../../../components/Mheader';
 import { RFValue } from 'react-native-responsive-fontsize';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { 
-  updateShiftType, 
-  deleteShiftType } from '../../../../../utils/useApi';
+import { updateShiftType, deleteShiftType } from '../../../../../utils/useApi';
 
 const { height } = Dimensions.get('window');
 
@@ -34,16 +33,14 @@ const formatTime = (date) => {
 };
 
 const parseTime = (input) => {
-  // Already a valid Date?
   if (input instanceof Date && !Number.isNaN(input.getTime())) return input;
 
   const str = String(input || '')
-    .replace(/\u202F|\u00A0/g, ' ')     // narrow NBSP / NBSP -> space
-    .replace(/\s+/g, ' ')               // collapse spaces
+    .replace(/\u202F|\u00A0/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
 
-  // 1) 12h: "H:MM AM" OR "H:MMAM" OR "H.MM AM"
   let m = str.match(/^(\d{1,2})[:.](\d{2})\s*(AM|PM)$/i);
   if (m) {
     let [, hh, mm, mer] = m;
@@ -51,14 +48,12 @@ const parseTime = (input) => {
     const minutes = parseInt(mm, 10);
     if (mer === 'PM' && h < 12) h += 12;
     if (mer === 'AM' && h === 12) h = 0;
-
     const d = new Date();
     d.setSeconds(0, 0);
     d.setHours(h, minutes);
     return d;
   }
 
-  // 2) 24h: "HH:MM"
   m = str.match(/^(\d{1,2})[:.](\d{2})$/);
   if (m) {
     let [, hh, mm] = m;
@@ -70,13 +65,11 @@ const parseTime = (input) => {
     return d;
   }
 
-  // 3) Fallback: now at 09:00 to avoid Invalid Date
   const d = new Date();
   d.setSeconds(0, 0);
   d.setHours(9, 0);
   return d;
 };
-
 
 export default function ShiftDetailScreen({ route, navigation }) {
   const { shift } = route.params;
@@ -87,35 +80,40 @@ export default function ShiftDetailScreen({ route, navigation }) {
   const [end, setEnd] = useState(parseTime(shift.end));
   const [currentShift, setCurrentShift] = useState(route.params.shift);
 
+  // Picker visibility
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
+
+  // iOS drafts (commit on Done even if unchanged)
+  const [draftStart, setDraftStart] = useState(start || new Date());
+  const [draftEnd, setDraftEnd] = useState(end || new Date());
+
+  // Press feedback
+  const [pressedStart, setPressedStart] = useState(false);
+  const [pressedEnd, setPressedEnd] = useState(false);
 
   const isChanged =
     name !== shift.name ||
     formatTime(start) !== shift.start ||
     formatTime(end) !== shift.end;
 
-  // const saveChanges = async () => {
-  //   const aic = await AsyncStorage.getItem('aic');
+  const openStartPicker = () => {
+    setDraftStart(start || new Date());
+    setShowStartPicker(true);
+  };
+  const openEndPicker = () => {
+    setDraftEnd(end || new Date());
+    setShowEndPicker(true);
+  };
 
-  //   const body = {
-  //     aic: parseInt(aic, 10),
-  //     shiftId: shift.id,
-  //     updatedShift: {
-  //       name,
-  //       start: formatTime(start),
-  //       end: formatTime(end),
-  //     },
-  //   };
-
-  //   const res = await updateShiftType(body, 'restau_manager');
-  //   if (!res.error) {
-  //     setCurrentShift({ id: shift.id, name, start: formatTime(start), end: formatTime(end) });
-  //     setModalVisible(false);
-  //   } else {
-  //     console.warn('Update failed:', res.error);
-  //   }
-  // };
+  const commitStart = () => {
+    setStart(draftStart || start || new Date());
+    setShowStartPicker(false);
+  };
+  const commitEnd = () => {
+    setEnd(draftEnd || end || new Date());
+    setShowEndPicker(false);
+  };
 
   const saveChanges = async () => {
     try {
@@ -123,21 +121,21 @@ export default function ShiftDetailScreen({ route, navigation }) {
         AsyncStorage.getItem('aic'),
         AsyncStorage.getItem('HireRole'),
       ]);
-  
+
       const aic = Number.parseInt(aicRaw ?? '', 10);
       const role = (roleRaw ?? '').trim();
-  
+
       const roleToEndpoint = {
         restaurantManager: 'restau_manager',
         hotelManager: 'hotel_manager',
       };
       const endpoint = roleToEndpoint[role];
-  
+
       if (Number.isNaN(aic) || !endpoint) {
         console.warn('saveChanges: invalid aic or unknown role', { aicRaw, role });
         return;
       }
-  
+
       const body = {
         aic,
         shiftId: shift.id,
@@ -147,20 +145,21 @@ export default function ShiftDetailScreen({ route, navigation }) {
           end: formatTime(end),
         },
       };
-  
+
       const res = await updateShiftType(body, endpoint);
-  
       if (res?.error) {
         console.warn('Update failed:', res.error);
         return;
       }
-  
+
       setCurrentShift({
         id: shift.id,
         name,
         start: formatTime(start),
         end: formatTime(end),
       });
+      setShowStartPicker(false);
+      setShowEndPicker(false);
       setModalVisible(false);
     } catch (err) {
       console.error('saveChanges error:', err);
@@ -179,26 +178,28 @@ export default function ShiftDetailScreen({ route, navigation }) {
               AsyncStorage.getItem('aic'),
               AsyncStorage.getItem('HireRole'),
             ]);
-  
+
             const aic = Number.parseInt(aicRaw ?? '', 10);
             const role = (roleRaw ?? '').trim();
-  
+
             const roleToEndpoint = {
               restaurantManager: 'restau_manager',
               hotelManager: 'hotel_manager',
             };
             const endpoint = roleToEndpoint[role];
-  
+
             if (Number.isNaN(aic) || !endpoint) {
               console.warn('deleteShift: invalid aic or unknown role', { aicRaw, role });
               return;
             }
-  
+
             const body = { aic, shiftId: shift.id };
             const res = await deleteShiftType(body, endpoint);
-  
+
             if (!res?.error) {
-              navigation.navigate('HospitalityRestaurantHireSchedulerScreen', { screen: 'ShiftTab' });
+              navigation.navigate('HospitalityRestaurantHireSchedulerScreen', {
+                screen: 'ShiftTab',
+              });
             } else {
               console.warn('Delete failed:', res.error);
             }
@@ -209,7 +210,6 @@ export default function ShiftDetailScreen({ route, navigation }) {
       },
     ]);
   };
-  
 
   return (
     <View style={styles.container}>
@@ -247,27 +247,49 @@ export default function ShiftDetailScreen({ route, navigation }) {
               style={styles.modalInput}
             />
 
-            <View style={{ width: '100%' }}>
-              <TouchableOpacity onPress={() => setShowStartPicker(true)} style={styles.fullWidthTouchable}>
-                <TextInput
-                  value={formatTime(start)}
-                  style={[styles.modalInput, styles.fullWidthInput]}
-                  editable={false}
-                />
-              </TouchableOpacity>
+            {/* Start time (Pressable fake input) */}
+            <Pressable
+              onPressIn={() => setPressedStart(true)}
+              onPressOut={() => setPressedStart(false)}
+              onPress={openStartPicker}
+              style={[styles.modalInput, pressedStart && { opacity: 0.7 }]}
+            >
+              <Text
+                style={[
+                  styles.fakeText,
+                  start ? styles.valueText : styles.placeholderText,
+                ]}
+              >
+                {start ? formatTime(start) : 'Start time (e.g. 8:00 AM)'}
+              </Text>
+            </Pressable>
 
-              <TouchableOpacity onPress={() => setShowEndPicker(true)} style={styles.fullWidthTouchable}>
-                <TextInput
-                  value={formatTime(end)}
-                  style={[styles.modalInput, styles.fullWidthInput]}
-                  editable={false}
-                />
-              </TouchableOpacity>
-            </View>
-
+            {/* End time (same style) */}
+            <Pressable
+              onPressIn={() => setPressedEnd(true)}
+              onPressOut={() => setPressedEnd(false)}
+              onPress={openEndPicker}
+              style={[styles.modalInput, pressedEnd && { opacity: 0.7 }]}
+            >
+              <Text
+                style={[
+                  styles.fakeText,
+                  end ? styles.valueText : styles.placeholderText,
+                ]}
+              >
+                {end ? formatTime(end) : 'End time (e.g. 4:00 PM)'}
+              </Text>
+            </Pressable>
 
             <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={() => {
+                  setShowStartPicker(false);
+                  setShowEndPicker(false);
+                  setModalVisible(false);
+                }}
+              >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -278,29 +300,72 @@ export default function ShiftDetailScreen({ route, navigation }) {
                 <Text style={styles.saveText}>Save</Text>
               </TouchableOpacity>
             </View>
+
+            {/* iOS wheels for START */}
+            {showStartPicker && Platform.OS === 'ios' && (
+              <View style={styles.iosSheet}>
+                <View style={styles.iosSheetHeader}>
+                  <TouchableOpacity onPress={commitStart}>
+                    <Text style={styles.doneText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={draftStart}
+                  mode="time"
+                  display="spinner"
+                  preferredDatePickerStyle="wheels"
+                  // themeVariant="light"
+                  textColor="black"
+                  onChange={(e, d) => d && setDraftStart(d)}
+                  style={{ height: 216 }}
+                />
+              </View>
+            )}
+
+            {/* iOS wheels for END */}
+            {showEndPicker && Platform.OS === 'ios' && (
+              <View style={styles.iosSheet}>
+                <View style={styles.iosSheetHeader}>
+                  <TouchableOpacity onPress={commitEnd}>
+                    <Text style={styles.doneText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={draftEnd}
+                  mode="time"
+                  display="spinner"
+                  preferredDatePickerStyle="wheels"
+                  // themeVariant="light"
+                  textColor="black"
+                  onChange={(e, d) => d && setDraftEnd(d)}
+                  style={{ height: 216 }}
+                />
+              </View>
+            )}
           </View>
         </View>
 
-        {showStartPicker && (
+        {/* Android dialogs (outside content so they appear as a popup) */}
+        {showStartPicker && Platform.OS === 'android' && (
           <DateTimePicker
-            value={start}
+            value={start || new Date()}
             mode="time"
-            display="spinner"
+            display="default"
             onChange={(event, selectedDate) => {
+              if (event?.type === 'set' && selectedDate) setStart(selectedDate);
               setShowStartPicker(false);
-              if (selectedDate) setStart(selectedDate);
             }}
           />
         )}
 
-        {showEndPicker && (
+        {showEndPicker && Platform.OS === 'android' && (
           <DateTimePicker
-            value={end}
+            value={end || new Date()}
             mode="time"
-            display="spinner"
+            display="default"
             onChange={(event, selectedDate) => {
+              if (event?.type === 'set' && selectedDate) setEnd(selectedDate);
               setShowEndPicker(false);
-              if (selectedDate) setEnd(selectedDate);
             }}
           />
         )}
@@ -312,6 +377,11 @@ export default function ShiftDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  // text styles for fake inputs
+  fakeText: { color: '#111827', fontWeight: '400' },
+  valueText: { color: '#111827', fontWeight: '600' },
+  placeholderText: { color: '#9CA3AF', fontWeight: '400' },
+
   container: { flex: 1, backgroundColor: '#fff' },
   buttonRow: {
     flexDirection: 'row',
@@ -339,6 +409,7 @@ const styles = StyleSheet.create({
   nameSection: { paddingHorizontal: 16, marginTop: 20 },
   label: { fontSize: 15, color: '#666', marginBottom: 4 },
   value: { fontSize: 16, color: '#000', fontWeight: '600' },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: '#00000077',
@@ -390,4 +461,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveText: { color: '#fff', fontWeight: 'bold' },
+
+  // iOS picker sheet
+  iosSheet: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginTop: 8,
+    width: '100%',
+  },
+  iosSheetHeader: {
+    alignItems: 'flex-end',
+    padding: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ddd',
+  },
+  doneText: { fontWeight: '600', color: '#290135' },
 });

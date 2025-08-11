@@ -94,7 +94,7 @@ export default function DayView({
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, zIndex : -1}}>
       <View style={styles.dayContainer}>
         {/* time gutter */}
         <View style={styles.timeColumn}>
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
     width: "100%",
     minHeight: ROW_HEIGHT * 24,
     backgroundColor: "#fff",
+    zIndex : -1
   },
   timeColumn: {
     width: 50,

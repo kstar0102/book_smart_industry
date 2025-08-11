@@ -7,7 +7,8 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
-  Alert
+  Alert,
+  Pressable
 } from "react-native";
 import DatePicker from 'react-native-date-picker';
 import MonthView from "./MonthView";
@@ -136,8 +137,8 @@ const HomeTab = ({
   };
     
   // useEffect(() => {
-  //   console.log('✅ ShiftData :', ShiftData);
-  // }, [ShiftData]);
+  //   console.log('✅ shiftTypes :', shiftTypes);
+  // }, [shiftTypes]);
 
   const ensurePrereqs = async () => {
     let needShiftTypes = !Array.isArray(shiftTypes) || shiftTypes.length === 0;
@@ -523,7 +524,7 @@ const HomeTab = ({
             </TouchableOpacity>
 
             <Text style={styles.label}>Day</Text>
-            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            {/* <TouchableOpacity onPress={() => setShowDatePicker(true)}>
               <TextInput
                 mode="outlined"
                 value={
@@ -539,7 +540,22 @@ const HomeTab = ({
                 editable={false}
                 style={styles.input}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+
+            <View style={{ position: 'relative' }}>
+              <TextInput
+                mode="outlined"
+                value={eventDate ? new Date(eventDate).toLocaleDateString('en-US', {
+                  weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+                }) : ''}
+                editable={false}
+                style={styles.input}
+              />
+              <Pressable
+                onPress={() => setShowDatePicker(true)}
+                style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
+              />
+            </View>
 
             <DatePicker
               modal

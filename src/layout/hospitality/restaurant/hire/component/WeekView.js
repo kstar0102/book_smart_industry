@@ -180,23 +180,26 @@ export default function WeekView({
                 <View
                   style={{
                     position: "absolute",
-                    top,             
+                    top,
                     left: 0,
                     right: 0,
                   }}
                 >
                   <TouchableOpacity
                     activeOpacity={0.8}
-                    // onPress={() => goEvent(firstEvent, date)}
-                    onPress={() => openDayModal(events, date)}
+                    onPress={() =>
+                      (restCount > 0)            
+                        ? openDayModal(events, date)  
+                        : goEvent(firstEvent, date)  
+                    }
                     style={[
                       styles.shiftEvent,
                       {
                         height,
                         backgroundColor: firstEvent.color,
                         width: "100%",
-                        justifyContent: "center", 
-                        alignItems: "center",     
+                        justifyContent: "center",
+                        alignItems: "center",
                       },
                     ]}
                   >
@@ -205,7 +208,7 @@ export default function WeekView({
                     </Text>
                   </TouchableOpacity>
 
-                  {/* +n chip just below the bar */}
+                  {/* "+n" chip just below the bar — still opens the modal */}
                   {restCount > 0 && (
                     <TouchableOpacity
                       style={styles.moreChipBelow}
@@ -216,6 +219,7 @@ export default function WeekView({
                   )}
                 </View>
               )}
+
 
 
             </View>
@@ -240,7 +244,7 @@ export default function WeekView({
 }
 
 const styles = StyleSheet.create({
-  weekContainer: { flex: 1, width: "100%", backgroundColor: "#fff" },
+  weekContainer: { flex: 1, width: "100%", backgroundColor: "#fff",zIndex : -1 },
   weekGrid: { flexDirection: "row", flex: 1 },
 
   timeColumn: {

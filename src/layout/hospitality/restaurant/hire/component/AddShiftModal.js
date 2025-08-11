@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -6,63 +6,62 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Platform,
+  Pressable,
+  Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addShiftType } from '../../../../../utils/useApi'; // Create this function below
+import { addShiftType } from '../../../../../utils/useApi';
 
-const formatTime = (date) => {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
+const formatTime = (date) =>
+  date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 export default function AddShiftModal({ visible, onClose, onReload }) {
   const [name, setName] = useState('');
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
   const [error, setError] = useState('');
+
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
 
+  // iOS picker visibility
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
 
-  // const handleSubmit = async () => {
-  //   if (!name.trim()) {
-  //     setError('Validation', 'Please enter a name.');
-  //     return;
-  //   }
+  // iOS draft values (what the wheels currently show)
+  const [draftStart, setDraftStart] = useState(new Date());
+  const [draftEnd, setDraftEnd] = useState(new Date());
 
-  //   if (!startTime || !endTime) {
-  //     setError('Start and end time must be selected');
-  //     return;
-  //   }
-  //   if (endTime <= startTime) {
-  //     setError('End time must be later than start time');
-  //     return;
-  //   }
-  //   if (endTime <= startTime) {
-  //     setError('End time must be later than start time');
-  //     return;
-  //   }
+  // Press feedback
+  const [isPressedStart, setIsPressedStart] = useState(false);
+  const [isPressedEnd, setIsPressedEnd] = useState(false);
 
-  //   const aic = await AsyncStorage.getItem('aic');
-  //   const body = {
-  //     aic: parseInt(aic, 10),
-  //     name,
-  //     start: formatTime(startTime),
-  //     end: formatTime(endTime),
-  //   };
+  useEffect(() => {
+    // helpful during dev
+    // console.log('showStartPicker ->', showStartPicker);
+    // console.log('showEndPicker ->', showEndPicker);
+  }, [showStartPicker, showEndPicker]);
 
-  //   const response = await addShiftType(body, 'restau_manager');
-  //   if (response.error) {
-  //     setError("Failed to add shift.");
-  //   } else {
-  //     onClose();
-  //     onReload(); 
-  //     setName('');
-  //     setError('');
-  //   }
-  // };
+  const openStartPicker = () => {
+    setDraftStart(startTime || new Date());
+    setShowStartPicker(true);
+  };
+  const openEndPicker = () => {
+    setDraftEnd(endTime || new Date());
+    setShowEndPicker(true);
+  };
+
+  const commitStart = () => {
+    // If user didn't scroll, commit the current draft (initialized on open)
+    setStartTime(draftStart || startTime || new Date());
+    setShowStartPicker(false);
+  };
+  const commitEnd = () => {
+    setEndTime(draftEnd || endTime || new Date());
+    setShowEndPicker(false);
+  };
+
   const handleSubmit = async () => {
-    // basic validation
     if (!name?.trim()) {
       setError('Please enter a name.');
       return;
@@ -75,44 +74,40 @@ export default function AddShiftModal({ visible, onClose, onReload }) {
       setError('End time must be later than start time.');
       return;
     }
-  
+
     try {
       const [aicRaw, roleRaw] = await Promise.all([
         AsyncStorage.getItem('aic'),
         AsyncStorage.getItem('HireRole'),
       ]);
-  
+
       const aic = Number.parseInt(aicRaw ?? '', 10);
       const role = (roleRaw ?? '').trim();
-  
+
       const roleToEndpoint = {
         restaurantManager: 'restau_manager',
         hotelManager: 'hotel_manager',
       };
       const endpoint = roleToEndpoint[role];
-  
+
       if (!endpoint || Number.isNaN(aic)) {
         setError('Unable to determine your role or account. Please re-login and try again.');
         return;
       }
-  
+
       const body = {
         aic,
         name: name.trim(),
         start: formatTime(startTime),
         end: formatTime(endTime),
       };
-      console.log(body);
-      console.log(endpoint);
-  
+
       const response = await addShiftType(body, endpoint);
-  
       if (response?.error) {
         setError('Failed to add shift.');
         return;
       }
-  
-      // success
+
       onClose?.();
       onReload?.();
       setName('');
@@ -122,7 +117,6 @@ export default function AddShiftModal({ visible, onClose, onReload }) {
       setError('Something went wrong. Please try again.');
     }
   };
-  
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -137,29 +131,39 @@ export default function AddShiftModal({ visible, onClose, onReload }) {
             style={styles.input}
           />
 
-          <TouchableOpacity onPress={() => setShowStartPicker(true)}>
-            <TextInput
-              placeholder="Start time (e.g. 8:00 AM)"
+          {/* Start time (Pressable “fake input”) */}
+          <Pressable
+            onPressIn={() => setIsPressedStart(true)}
+            onPressOut={() => setIsPressedStart(false)}
+            onPress={openStartPicker}
+            style={[styles.input, isPressedStart && { opacity: 0.7 }]}
+          >
+            <Text
               style={[
-                styles.input,
-                { fontWeight: startTime ? 'bold' : 'normal', color: '#000' }
+                styles.fakeText,
+                startTime ? styles.valueText : styles.placeholderText,
               ]}
-              value={startTime ? formatTime(startTime) : ''}
-              editable={false}
-            />
-          </TouchableOpacity>
+            >
+              {startTime ? formatTime(startTime) : 'Start time (e.g. 8:00 AM)'}
+            </Text>
+          </Pressable>
 
-          <TouchableOpacity onPress={() => setShowEndPicker(true)}>
-            <TextInput
-              placeholder="End time (e.g. 4:00 PM)"
+          {/* End time (same format as start) */}
+          <Pressable
+            onPressIn={() => setIsPressedEnd(true)}
+            onPressOut={() => setIsPressedEnd(false)}
+            onPress={openEndPicker}
+            style={[styles.input, isPressedEnd && { opacity: 0.7 }]}
+          >
+            <Text
               style={[
-                styles.input,
-                { fontWeight: endTime ? 'bold' : 'normal', color: '#000' }
+                styles.fakeText,
+                endTime ? styles.valueText : styles.placeholderText,
               ]}
-              value={endTime ? formatTime(endTime) : ''}
-              editable={false}
-            />
-          </TouchableOpacity>
+            >
+              {endTime ? formatTime(endTime) : 'End time (e.g. 4:00 PM)'}
+            </Text>
+          </Pressable>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -170,41 +174,83 @@ export default function AddShiftModal({ visible, onClose, onReload }) {
                 setStartTime(null);
                 setEndTime(null);
                 setError('');
-                onClose();
+                onClose?.();
               }}
               style={styles.cancel}
             >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
-              <TouchableOpacity onPress={handleSubmit} style={styles.submit}>
-                <Text style={styles.submitText}>Submit</Text>
-              </TouchableOpacity>
+            <TouchableOpacity onPress={handleSubmit} style={styles.submit}>
+              <Text style={styles.submitText}>Submit</Text>
+            </TouchableOpacity>
           </View>
 
-          {showStartPicker && (
-            <DateTimePicker
-              value={startTime || new Date()}  // ← fallback
-              mode="time"
-              display="spinner"
-              onChange={(event, selectedDate) => {
-                setShowStartPicker(false);
-                if (selectedDate) setStartTime(selectedDate);
-              }}
-            />
-          )}
+          {/* START PICKER */}
+          {showStartPicker &&
+            (Platform.OS === 'ios' ? (
+              <View style={styles.iosSheet}>
+                <View style={styles.iosSheetHeader}>
+                  <TouchableOpacity onPress={commitStart}>
+                    <Text style={styles.doneText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={draftStart}
+                  mode="time"
+                  display="spinner"
+                  preferredDatePickerStyle="wheels"
+                  textColor="black"
+                  onChange={(e, d) => {
+                    if (d) setDraftStart(d);
+                  }}
+                  style={{ height: 216 }}
+                />
+              </View>
+            ) : (
+              <DateTimePicker
+                value={startTime || new Date()}
+                mode="time"
+                display="default"
+                onChange={(e, d) => {
+                  // Android dialog returns 'set' or 'dismissed'
+                  if (e?.type === 'set' && d) setStartTime(d);
+                  setShowStartPicker(false);
+                }}
+              />
+            ))}
 
-          {showEndPicker && (
-            <DateTimePicker
-              value={endTime || new Date()}  // ← fallback
-              mode="time"
-              display="spinner"
-              onChange={(event, selectedDate) => {
-                setShowEndPicker(false);
-                if (selectedDate) setEndTime(selectedDate);
-              }}
-            />
-          )}
-
+          {/* END PICKER */}
+          {showEndPicker &&
+            (Platform.OS === 'ios' ? (
+              <View style={styles.iosSheet}>
+                <View style={styles.iosSheetHeader}>
+                  <TouchableOpacity onPress={commitEnd}>
+                    <Text style={styles.doneText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+                <DateTimePicker
+                  value={draftEnd}
+                  mode="time"
+                  display="spinner"
+                  preferredDatePickerStyle="wheels"
+                  textColor="black"
+                  onChange={(e, d) => {
+                    if (d) setDraftEnd(d);
+                  }}
+                  style={{ height: 216 }}
+                />
+              </View>
+            ) : (
+              <DateTimePicker
+                value={endTime || new Date()}
+                mode="time"
+                display="default"
+                onChange={(e, d) => {
+                  if (e?.type === 'set' && d) setEndTime(d);
+                  setShowEndPicker(false);
+                }}
+              />
+            ))}
         </View>
       </View>
     </Modal>
@@ -212,6 +258,10 @@ export default function AddShiftModal({ visible, onClose, onReload }) {
 }
 
 const styles = StyleSheet.create({
+  fakeText: { color: '#111827', fontWeight: '400' },
+  valueText: { color: '#111827', fontWeight: '600' },
+  placeholderText: { color: '#9CA3AF', fontWeight: '400' },
+
   overlay: {
     flex: 1,
     backgroundColor: '#00000099',
@@ -263,4 +313,17 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  iosSheet: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginTop: 8,
+  },
+  iosSheetHeader: {
+    alignItems: 'flex-end',
+    padding: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#ddd',
+  },
+  doneText: { fontWeight: '600', color: '#290135' },
 });
