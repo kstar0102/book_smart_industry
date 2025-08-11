@@ -97,6 +97,7 @@ export default function HospitalityHotelHireSignIn({ navigation }) {
     try {
       setRequest(true);
       const response = await Signin({ contactEmail: loginEmail, password: loginPW, userRole: 'hotelManager' }, 'hotel_manager');
+      console.log(response);
       if (response?.user) {
         setRequest(false);
         setAIC(response?.user.aic);

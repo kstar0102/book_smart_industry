@@ -24,43 +24,105 @@ export default function AddShiftModal({ visible, onClose, onReload }) {
   const [endTime, setEndTime] = useState(null);
 
 
+  // const handleSubmit = async () => {
+  //   if (!name.trim()) {
+  //     setError('Validation', 'Please enter a name.');
+  //     return;
+  //   }
+
+  //   if (!startTime || !endTime) {
+  //     setError('Start and end time must be selected');
+  //     return;
+  //   }
+  //   if (endTime <= startTime) {
+  //     setError('End time must be later than start time');
+  //     return;
+  //   }
+  //   if (endTime <= startTime) {
+  //     setError('End time must be later than start time');
+  //     return;
+  //   }
+
+  //   const aic = await AsyncStorage.getItem('aic');
+  //   const body = {
+  //     aic: parseInt(aic, 10),
+  //     name,
+  //     start: formatTime(startTime),
+  //     end: formatTime(endTime),
+  //   };
+
+  //   const response = await addShiftType(body, 'restau_manager');
+  //   if (response.error) {
+  //     setError("Failed to add shift.");
+  //   } else {
+  //     onClose();
+  //     onReload(); 
+  //     setName('');
+  //     setError('');
+  //   }
+  // };
   const handleSubmit = async () => {
-    if (!name.trim()) {
-      setError('Validation', 'Please enter a name.');
+    // basic validation
+    if (!name?.trim()) {
+      setError('Please enter a name.');
       return;
     }
-
     if (!startTime || !endTime) {
-      setError('Start and end time must be selected');
+      setError('Start and end time must be selected.');
       return;
     }
     if (endTime <= startTime) {
-      setError('End time must be later than start time');
+      setError('End time must be later than start time.');
       return;
     }
-    if (endTime <= startTime) {
-      setError('End time must be later than start time');
-      return;
-    }
-
-    const aic = await AsyncStorage.getItem('aic');
-    const body = {
-      aic: parseInt(aic, 10),
-      name,
-      start: formatTime(startTime),
-      end: formatTime(endTime),
-    };
-
-    const response = await addShiftType(body, 'restau_manager');
-    if (response.error) {
-      setError("Failed to add shift.");
-    } else {
-      onClose();
-      onReload(); 
+  
+    try {
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = Number.parseInt(aicRaw ?? '', 10);
+      const role = (roleRaw ?? '').trim();
+  
+      const roleToEndpoint = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = roleToEndpoint[role];
+  
+      if (!endpoint || Number.isNaN(aic)) {
+        setError('Unable to determine your role or account. Please re-login and try again.');
+        return;
+      }
+  
+      const body = {
+        aic,
+        name: name.trim(),
+        start: formatTime(startTime),
+        end: formatTime(endTime),
+      };
+      console.log(body);
+      console.log(endpoint);
+  
+      const response = await addShiftType(body, endpoint);
+  
+      if (response?.error) {
+        setError('Failed to add shift.');
+        return;
+      }
+  
+      // success
+      onClose?.();
+      onReload?.();
       setName('');
       setError('');
+    } catch (err) {
+      console.error('addShiftType error:', err);
+      setError('Something went wrong. Please try again.');
     }
   };
+  
 
   return (
     <Modal visible={visible} transparent animationType="fade">

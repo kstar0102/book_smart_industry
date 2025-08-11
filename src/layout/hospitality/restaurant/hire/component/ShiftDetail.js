@@ -16,25 +16,67 @@ import MHeader from '../../../../../components/Mheader';
 import { RFValue } from 'react-native-responsive-fontsize';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { updateShiftType, deleteShiftType } from '../../../../../utils/useApi';
+import { 
+  updateShiftType, 
+  deleteShiftType } from '../../../../../utils/useApi';
 
 const { height } = Dimensions.get('window');
 
+const timeFmt = new Intl.DateTimeFormat(undefined, {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true,
+});
+
 const formatTime = (date) => {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+  return timeFmt.format(date);
 };
 
-const parseTime = (timeString) => {
-  const date = new Date();
-  const [time, modifier] = timeString.split(' ');
-  let [hours, minutes] = time.split(':').map(Number);
+const parseTime = (input) => {
+  // Already a valid Date?
+  if (input instanceof Date && !Number.isNaN(input.getTime())) return input;
 
-  if (modifier === 'PM' && hours < 12) hours += 12;
-  if (modifier === 'AM' && hours === 12) hours = 0;
+  const str = String(input || '')
+    .replace(/\u202F|\u00A0/g, ' ')     // narrow NBSP / NBSP -> space
+    .replace(/\s+/g, ' ')               // collapse spaces
+    .trim()
+    .toUpperCase();
 
-  date.setHours(hours, minutes, 0, 0);
-  return date;
+  // 1) 12h: "H:MM AM" OR "H:MMAM" OR "H.MM AM"
+  let m = str.match(/^(\d{1,2})[:.](\d{2})\s*(AM|PM)$/i);
+  if (m) {
+    let [, hh, mm, mer] = m;
+    let h = parseInt(hh, 10);
+    const minutes = parseInt(mm, 10);
+    if (mer === 'PM' && h < 12) h += 12;
+    if (mer === 'AM' && h === 12) h = 0;
+
+    const d = new Date();
+    d.setSeconds(0, 0);
+    d.setHours(h, minutes);
+    return d;
+  }
+
+  // 2) 24h: "HH:MM"
+  m = str.match(/^(\d{1,2})[:.](\d{2})$/);
+  if (m) {
+    let [, hh, mm] = m;
+    const h = Math.min(Math.max(parseInt(hh, 10), 0), 23);
+    const minutes = Math.min(Math.max(parseInt(mm, 10), 0), 59);
+    const d = new Date();
+    d.setSeconds(0, 0);
+    d.setHours(h, minutes);
+    return d;
+  }
+
+  // 3) Fallback: now at 09:00 to avoid Invalid Date
+  const d = new Date();
+  d.setSeconds(0, 0);
+  d.setHours(9, 0);
+  return d;
 };
+
 
 export default function ShiftDetailScreen({ route, navigation }) {
   const { shift } = route.params;
@@ -53,25 +95,75 @@ export default function ShiftDetailScreen({ route, navigation }) {
     formatTime(start) !== shift.start ||
     formatTime(end) !== shift.end;
 
-  const saveChanges = async () => {
-    const aic = await AsyncStorage.getItem('aic');
+  // const saveChanges = async () => {
+  //   const aic = await AsyncStorage.getItem('aic');
 
-    const body = {
-      aic: parseInt(aic, 10),
-      shiftId: shift.id,
-      updatedShift: {
+  //   const body = {
+  //     aic: parseInt(aic, 10),
+  //     shiftId: shift.id,
+  //     updatedShift: {
+  //       name,
+  //       start: formatTime(start),
+  //       end: formatTime(end),
+  //     },
+  //   };
+
+  //   const res = await updateShiftType(body, 'restau_manager');
+  //   if (!res.error) {
+  //     setCurrentShift({ id: shift.id, name, start: formatTime(start), end: formatTime(end) });
+  //     setModalVisible(false);
+  //   } else {
+  //     console.warn('Update failed:', res.error);
+  //   }
+  // };
+
+  const saveChanges = async () => {
+    try {
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = Number.parseInt(aicRaw ?? '', 10);
+      const role = (roleRaw ?? '').trim();
+  
+      const roleToEndpoint = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = roleToEndpoint[role];
+  
+      if (Number.isNaN(aic) || !endpoint) {
+        console.warn('saveChanges: invalid aic or unknown role', { aicRaw, role });
+        return;
+      }
+  
+      const body = {
+        aic,
+        shiftId: shift.id,
+        updatedShift: {
+          name,
+          start: formatTime(start),
+          end: formatTime(end),
+        },
+      };
+  
+      const res = await updateShiftType(body, endpoint);
+  
+      if (res?.error) {
+        console.warn('Update failed:', res.error);
+        return;
+      }
+  
+      setCurrentShift({
+        id: shift.id,
         name,
         start: formatTime(start),
         end: formatTime(end),
-      },
-    };
-
-    const res = await updateShiftType(body, 'restau_manager');
-    if (!res.error) {
-      setCurrentShift({ id: shift.id, name, start: formatTime(start), end: formatTime(end) });
+      });
       setModalVisible(false);
-    } else {
-      console.warn('Update failed:', res.error);
+    } catch (err) {
+      console.error('saveChanges error:', err);
     }
   };
 
@@ -82,23 +174,42 @@ export default function ShiftDetailScreen({ route, navigation }) {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          const aic = await AsyncStorage.getItem('aic');
-          const body = {
-            aic: parseInt(aic, 10),
-            shiftId: shift.id,
-          };
-
-          const res = await deleteShiftType(body, 'restau_manager');
-
-          if (!res.error) {
-            navigation.navigate('HospitalityRestaurantHireSchedulerScreen', { screen: 'ShiftTab' });
-          } else {
-            console.warn('Delete failed:', res.error);
+          try {
+            const [aicRaw, roleRaw] = await Promise.all([
+              AsyncStorage.getItem('aic'),
+              AsyncStorage.getItem('HireRole'),
+            ]);
+  
+            const aic = Number.parseInt(aicRaw ?? '', 10);
+            const role = (roleRaw ?? '').trim();
+  
+            const roleToEndpoint = {
+              restaurantManager: 'restau_manager',
+              hotelManager: 'hotel_manager',
+            };
+            const endpoint = roleToEndpoint[role];
+  
+            if (Number.isNaN(aic) || !endpoint) {
+              console.warn('deleteShift: invalid aic or unknown role', { aicRaw, role });
+              return;
+            }
+  
+            const body = { aic, shiftId: shift.id };
+            const res = await deleteShiftType(body, endpoint);
+  
+            if (!res?.error) {
+              navigation.navigate('HospitalityRestaurantHireSchedulerScreen', { screen: 'ShiftTab' });
+            } else {
+              console.warn('Delete failed:', res.error);
+            }
+          } catch (err) {
+            console.error('deleteShift error:', err);
           }
         },
       },
     ]);
   };
+  
 
   return (
     <View style={styles.container}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Dimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import images from '../../../../assets/images';
@@ -9,11 +9,25 @@ import ImageButton from '../../../../components/ImageButton';
 import { useAtom } from 'jotai';
 import { firstNameAtom, lastNameAtom, contactPhoneAtom, contactEmailAtom, avatarAtom } from '../../../../context/HotelHireProvider'
 import { RFValue } from 'react-native-responsive-fontsize';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
 export default function HospitalityHotelHireHome ({ navigation }) {
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const role = await AsyncStorage.getItem("HireRole");
+        console.log("Role:", role );
+      } catch (error) {
+        console.error("Error reading role from storage", error);
+      }
+    };
+  
+    fetchRole();
+  }, []);
+
   const [firstName, setFirstName] = useAtom(firstNameAtom);
   const [lastName, setLastName] = useAtom(lastNameAtom);
   const [contactPhone, setContactPhone] = useAtom(contactPhoneAtom);

@@ -23,19 +23,59 @@ export default function ShiftTab() {
     }, [])
   );
   
-  const fetchShiftTypes = async () => {
-    const aicValue = await AsyncStorage.getItem('aic');
-    const userData = { aic: parseInt(aicValue, 10) };
-    const response = await getShiftTypes(userData, 'restau_manager');
+  // const fetchShiftTypes = async () => {
+  //   const aicValue = await AsyncStorage.getItem('aic');
+  //   const userData = { aic: parseInt(aicValue, 10) };
+  //   const response = await getShiftTypes(userData, 'restau_manager');
   
-    if (response.error) {
-      console.warn("Failed to fetch shift types", response.error);
-    } else {
-      console.log("Fetched shift types:", response);
-      setShifts(response.shiftType); 
+  //   if (response.error) {
+  //     console.warn("Failed to fetch shift types", response.error);
+  //   } else {
+  //     console.log("Fetched shift types:", response);
+  //     setShifts(response.shiftType); 
+  //   }
+  // };
+
+  const fetchShiftTypes = async () => {
+    try {
+      // Grab both values in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = Number.parseInt(aicRaw ?? '', 10);
+      const role = (roleRaw ?? '').trim();
+  
+      // Map role -> endpoint
+      const roleToEndpoint = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = roleToEndpoint[role];
+  
+      if (!endpoint || Number.isNaN(aic)) {
+        console.warn('fetchShiftTypes: missing endpoint or aic', { role, endpoint, aicRaw });
+        setShifts([]); // keep UI stable
+        return;
+      }
+  
+      const res = await getShiftTypes({ aic }, endpoint);
+  
+      if (res?.error) {
+        console.warn('Failed to fetch shift types:', res.error);
+        setShifts([]);
+        return;
+      }
+  
+      const list = Array.isArray(res?.shiftType) ? res.shiftType : [];
+      setShifts(list);
+    } catch (err) {
+      console.error('fetchShiftTypes error:', err);
+      setShifts([]);
     }
   };
-
+  
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('ShiftDetailScreen', { shift: item })}>

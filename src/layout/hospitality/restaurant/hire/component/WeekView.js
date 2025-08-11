@@ -176,48 +176,47 @@ export default function WeekView({
                 <View key={h} style={styles.timeSlot} />
               ))}
 
-{firstEvent && (
-  <View
-    style={{
-      position: "absolute",
-      top,
-      left: 0,
-      right: 0,              // 👈 full width so chip has space
-      flexDirection: "row",
-      alignItems: "center",
-      paddingRight: 6,
-    }}
-  >
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={() => goEvent(firstEvent, date)}
-      style={[
-        styles.shiftEvent,
-        {
-          height,
-          backgroundColor: firstEvent.color,
-          // leave guaranteed room for the chip
-          maxWidth: restCount > 0 ? "78%" : "100%",
-          flexShrink: 1,
-        },
-      ]}
-    >
-      <Text style={styles.shiftText} numberOfLines={2}>
-        {firstEvent.label}
-        {/* {!!firstEvent.time && `\n${normalizeSpaces(firstEvent.time)}`} */}
-      </Text>
-    </TouchableOpacity>
+              {firstEvent && (
+                <View
+                  style={{
+                    position: "absolute",
+                    top,             
+                    left: 0,
+                    right: 0,
+                  }}
+                >
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    // onPress={() => goEvent(firstEvent, date)}
+                    onPress={() => openDayModal(events, date)}
+                    style={[
+                      styles.shiftEvent,
+                      {
+                        height,
+                        backgroundColor: firstEvent.color,
+                        width: "100%",
+                        justifyContent: "center", 
+                        alignItems: "center",     
+                      },
+                    ]}
+                  >
+                    <Text style={styles.shiftTextCentered} numberOfLines={2}>
+                      {firstEvent.label}
+                    </Text>
+                  </TouchableOpacity>
 
-    {restCount > 0 && (
-      <TouchableOpacity
-        style={[styles.moreChipBeside, { marginLeft: 8, zIndex: 10,}]} // 👈 above the bar
-        onPress={() => openDayModal(events, date)}
-      >
-        <Text style={styles.moreChipText}>+{restCount}</Text>
-      </TouchableOpacity>
-    )}
-  </View>
-)}
+                  {/* +n chip just below the bar */}
+                  {restCount > 0 && (
+                    <TouchableOpacity
+                      style={styles.moreChipBelow}
+                      onPress={() => openDayModal(events, date)}
+                    >
+                      <Text style={styles.moreChipText}>+{restCount}</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+
 
             </View>
           );
@@ -276,30 +275,48 @@ const styles = StyleSheet.create({
   dayHeaderText: { fontSize: 12, fontWeight: "600", color: "#333" },
 
   timeSlot: { height: ROW_HEIGHT, borderBottomWidth: 1, borderColor: "#f1f1f1" },
-
+  
+  // the colored bar (we center its text inline via justify/align in the component)
   shiftEvent: {
     position: "absolute",
     borderRadius: 6,
-    justifyContent: "center",
     paddingHorizontal: 6,
     overflow: "hidden",
     zIndex: 5,
   },
-  shiftText: { fontSize: 10, color: "#fff", fontWeight: "bold", lineHeight: 14 },
 
-  moreChipCenter: {
-    position: "absolute",
-    right: 6,
-    top: 6,
+  // centered text inside the bar
+  shiftTextCentered: {
+    fontSize: 10,
+    color: "#fff",
+    fontWeight: "bold",
+    lineHeight: 14,
+    textAlign: "center",
+  },
+
+  // (legacy) if you use non-centered bar labels elsewhere
+  shiftText: {
+    fontSize: 10,
+    color: "#fff",
+    fontWeight: "bold",
+    lineHeight: 14,
+  },
+
+  // +n chip directly under the bar, centered horizontally
+  moreChipBelow: {
+    alignSelf: "center",
+    marginTop: 10,
     backgroundColor: "#eee",
     borderRadius: 12,
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 4,
     borderWidth: 1,
     borderColor: "#ccc",
+    zIndex: 10
   },
   moreChipText: { fontSize: 11, color: "#333", fontWeight: "600" },
 
+  // if you still need a side chip somewhere else
   moreChipBeside: {
     backgroundColor: "#eee",
     borderRadius: 12,
@@ -307,9 +324,8 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderWidth: 1,
     borderColor: "#ccc",
-    alignSelf: "flex-start",
   },
-  
+
   // Day modal
   overlay: {
     flex: 1,

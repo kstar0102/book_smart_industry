@@ -17,10 +17,6 @@ import HomeTab from './component/TeamSchedulerHome';
 import StaffTab from './component/TeamStaffTap';
 import ShiftTab from './component/shiftTap';
 
-
-// import { getShiftTypes } from '../../../../utils/useApi';
-
-
 const months = [
   "January",
   "February",

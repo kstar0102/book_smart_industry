@@ -35,7 +35,7 @@ export default function StaffDetail({ route,  navigation}) {
             <View style={styles.editWrapper}>
                 <TouchableOpacity
                   style={styles.editButton}
-                  onPress={async () => {
+                  onPress={() => {
                     Alert.alert(
                       'Confirm Delete',
                       'Are you sure you want to delete this staff member?',
@@ -45,23 +45,41 @@ export default function StaffDetail({ route,  navigation}) {
                           text: 'Delete',
                           style: 'destructive',
                           onPress: async () => {
-                            const managerAic = await AsyncStorage.getItem('aic');
-                            if (!managerAic) {
-                              Alert.alert('Manager ID not found!');
-                              return;
-                            }
-
-                            const result = await deleteStaffFromManager(
-                              'restau_manager',
-                              managerAic,
-                              staff.id
-                            );
-
-                            if (result?.message?.includes('Staff deleted')) {
-                              navigation.goBack();
-                            } else {
-                              Alert.alert('Failed to delete staff.');
-                              console.log(result);
+                            try {
+                              const [aicRaw, roleRaw] = await Promise.all([
+                                AsyncStorage.getItem('aic'),
+                                AsyncStorage.getItem('HireRole'),
+                              ]);
+                
+                              const managerAic = Number.parseInt(aicRaw ?? '', 10);
+                              const role = (roleRaw ?? '').trim();
+                
+                              const roleToEndpoint = {
+                                restaurantManager: 'restau_manager',
+                                hotelManager: 'hotel_manager',
+                              };
+                              const endpoint = roleToEndpoint[role];
+                
+                              if (!endpoint || Number.isNaN(managerAic)) {
+                                Alert.alert('Unable to determine your role or account. Please re-login and try again.');
+                                return;
+                              }
+                
+                              const result = await deleteStaffFromManager(
+                                endpoint,
+                                String(managerAic),
+                                staff.id
+                              );
+                
+                              if (result?.message?.includes('Staff deleted')) {
+                                navigation.goBack();
+                              } else {
+                                Alert.alert('Failed to delete staff.');
+                                console.log('Delete response:', result);
+                              }
+                            } catch (err) {
+                              console.error('deleteStaffFromManager error:', err);
+                              Alert.alert('Something went wrong. Please try again.');
                             }
                           },
                         },

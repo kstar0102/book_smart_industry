@@ -19,8 +19,10 @@ export const Signin = async (credentials, endpoint) => {
       await AsyncStorage.setItem('token', response.data.token);
 
       const aic = response.data.user?.aic;
+      const userRole = response.data.user?.userRole;
       if (aic !== undefined && aic !== null) {
         await AsyncStorage.setItem('aic', aic.toString());
+        await AsyncStorage.setItem('HireRole', userRole.toString());
       } else {
         console.warn('Warning: aic is undefined or null. Skipping save.');
       }
@@ -126,10 +128,11 @@ export const updateShiftType = async (body, endpoint) => {
   }
 };
 
-export const addStaffToManager = async (managerAic, staffList) => {
+export const addStaffToManager = async (endpoint, managerAic, staffList) => {
   try {
     const token = await AsyncStorage.getItem('token');
-    const response = await axios.post('/api/restau_manager/addStaffToManager', {
+    const response = await axios.post(
+      `/api/${endpoint}/addStaffToManager`, {
       managerAic,
       staffList,
     }, {
@@ -144,11 +147,11 @@ export const addStaffToManager = async (managerAic, staffList) => {
   }
 };
 
-export const addShiftToStaff = async (managerAic, staffId, shifts) => {
+export const addShiftToStaff = async (endpoint, managerAic, staffId, shifts) => {
   try {
     const token = await AsyncStorage.getItem('token');
     const response = await axios.post(
-      '/api/restau_manager/addShiftToStaff',
+      `/api/${endpoint}/addShiftToStaff`,
       {
         managerAic,
         staffId,
@@ -160,16 +163,26 @@ export const addShiftToStaff = async (managerAic, staffId, shifts) => {
         },
       }
     );
-    return response.data;
+    const data = response.data || {};
+    return {
+      success: true,
+      message: data.message ?? 'Shift(s) added.',
+      staffInfo: data.staffInfo ?? [],
+    };
   } catch (error) {
-    console.error('addShiftToStaff error:', error);
-    return { error };
+    console.error('addShiftToStaff error:', error?.response?.data || error);
+    return {
+      success: false,
+      message: error?.response?.data?.message || 'Request failed.',
+      error,
+    };
   }
 };
 
 export const getAllUsersInRestau = async (endpoint) => {
   try {
     const token = await AsyncStorage.getItem('token');
+    // console.log(token);
     const response = await axios.get(`/api/${endpoint}/acknowledgedUsers`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -178,7 +191,7 @@ export const getAllUsersInRestau = async (endpoint) => {
     // console.log('✅ Users fetched:', response.data?.users);
     return response.data?.users || []; 
   } catch (error) {
-    console.error('deleteShiftType error:', error.message || error);
+    console.error('get all user error:', error.message || error);
     return { error };
   }
 };

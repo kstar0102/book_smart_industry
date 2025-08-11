@@ -7,7 +7,10 @@ import {
   StyleSheet,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getShiftTypes, addShiftToStaff } from '../../../../../utils/useApi';
+import { 
+  getShiftTypes, 
+  addShiftToStaff 
+} from '../../../../../utils/useApi';
 import { TextInput } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import DatePicker from 'react-native-date-picker';
@@ -35,60 +38,115 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
 
   const fetchShiftTypes = async () => {
     try {
-      const aicValue = await AsyncStorage.getItem('aic');
-      const userData = { aic: parseInt(aicValue, 10) };
-      const response = await getShiftTypes(userData, 'restau_manager');
-
-      if (Array.isArray(response?.shiftType)) {
-        setShiftTypes(response.shiftType);
-      } else {
+      // Read aic + role in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = Number.parseInt((aicRaw || '').trim(), 10);
+      const role = (roleRaw || '').trim();
+  
+      // Map role -> endpoint
+      const endpointMap = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = endpointMap[role];
+  
+      if (!Number.isFinite(aic) || !endpoint) {
+        console.warn('fetchShiftTypes: missing/invalid aic or unsupported role', { aicRaw, role });
         setShiftTypes([]);
-        console.warn('ShiftTypes API did not return an array:', response);
+        return;
       }
+  
+      const userData = { aic };
+      const response = await getShiftTypes(userData, endpoint);
+  
+      const types = Array.isArray(response?.shiftType) ? response.shiftType : [];
+      if (!types.length) {
+        console.warn('ShiftTypes API returned empty or invalid list:', response);
+      }
+  
+      setShiftTypes(types);
     } catch (err) {
       console.error('Failed to fetch shift types:', err);
       setShiftTypes([]);
     }
   };
+  
 
   const handleSubmit = async () => {
+    // Basic field checks
     if (!selectedEmployee || !selectedShift || !selectedDate) {
-      alert("Please select all fields");
+      alert('Please select all fields');
       return;
     }
   
-    const selectedShiftObj = shiftTypes.find(s => s.id === selectedShift);
+    // Find the chosen shift type (be type-safe on id comparison)
+    const selectedShiftObj = shiftTypes.find(
+      (s) => String(s.id) === String(selectedShift)
+    );
     if (!selectedShiftObj) {
-      alert("Invalid shift selected");
+      alert('Invalid shift selected');
       return;
     }
   
     try {
-      const managerAic = await AsyncStorage.getItem('aic');
+      // Read aic + role in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
   
-      const shift = {
-        date: selectedDate.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-        time: `${selectedShiftObj.start} ➔ ${selectedShiftObj.end}`,
+      const aic = Number.parseInt((aicRaw || '').trim(), 10);
+      const role = (roleRaw || '').trim();
+  
+      // Map role -> API endpoint key
+      const endpointMap = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
       };
+      const endpoint = endpointMap[role];
   
-      const result = await addShiftToStaff(
-        parseInt(managerAic, 10),
-        selectedEmployee,
-        [shift] // wrap in array for single shift
-      );
+      if (!Number.isFinite(aic) || !endpoint) {
+        alert('Missing account info. Please re-login.');
+        return;
+      }
   
-      console.log('Shift added successfully:', result);
-      await refreshShiftData();
-      onClose(); // close modal
+      // Ensure we have a Date instance (avoid timezone surprises from strings)
+      const d = selectedDate instanceof Date ? selectedDate : new Date(selectedDate);
+      const formattedDate = d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+  
+      // Keep the same arrow your data uses ("➔") so comparisons stay consistent
+      const formattedTime = `${selectedShiftObj.start} ➔ ${selectedShiftObj.end}`;
+  
+      const shiftPayload = [
+        {
+          date: formattedDate,
+          time: formattedTime,
+        },
+      ];
+  
+      const result = await addShiftToStaff(endpoint, aic, selectedEmployee, shiftPayload);
+  
+      if (result?.success) {
+        await refreshShiftData();
+        onClose(); // close modal
+      } else {
+        const msg = result?.message || 'Failed to submit shift.';
+        alert(msg);
+      }
     } catch (err) {
       console.error('Error submitting shift:', err);
-      alert('Failed to submit shift.');
+      alert('Failed to submit shift. Please try again.');
     }
   };
+  
   
 
   return (

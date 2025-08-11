@@ -27,21 +27,74 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
     }
   }, [visible]);
 
+  // const fetchUsers = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const aic = await AsyncStorage.getItem('aic');
+  
+  //     const [allUsers, assignedUsers] = await Promise.all([
+  //       getAllUsersInRestau('restau_manager'),
+  //       getStaffShiftInfo('restau_manager', aic),
+  //     ]);
+  
+  //     const assignedAics = new Set(assignedUsers.map(user => user.aic));
+  //     const filteredUsers = allUsers.filter(user => !assignedAics.has(user.aic));
+  
+  //     setUsers(filteredUsers);
+  //     setSelectedUsers([]);
+  //   } catch (err) {
+  //     console.error('Failed to fetch staff data:', err);
+  //     alert('An error occurred while loading staff list.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const aic = await AsyncStorage.getItem('aic');
-  
-      const [allUsers, assignedUsers] = await Promise.all([
-        getAllUsersInRestau('restau_manager'),
-        getStaffShiftInfo('restau_manager', aic),
+      // Read required values in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
       ]);
   
-      const assignedAics = new Set(assignedUsers.map(user => user.aic));
-      const filteredUsers = allUsers.filter(user => !assignedAics.has(user.aic));
+      const managerAic = (aicRaw || '').trim();
+      const role = (roleRaw || '').trim();
   
-      setUsers(filteredUsers);
-      setSelectedUsers([]);
+      const roleToEndpoint = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+  
+      const endpoint = roleToEndpoint[role];
+      if (!endpoint || !managerAic) {
+        console.warn('fetchUsers: missing endpoint or managerAic', { role, endpoint, managerAic });
+        alert('Missing manager info. Please re-login and try again.');
+        return;
+      }
+  
+      // Fetch both lists in parallel
+      const [allUsersRes, assignedUsersRes] = await Promise.all([
+        getAllUsersInRestau(endpoint),
+        getStaffShiftInfo(endpoint, managerAic),
+      ]);
+  
+      const allUsers = Array.isArray(allUsersRes) ? allUsersRes : [];
+      const assignedUsers = Array.isArray(assignedUsersRes) ? assignedUsersRes : [];
+  
+      // Build a set of assigned AICs (as strings to be safe)
+      const assignedAics = new Set(
+        assignedUsers
+          .map(u => (u?.aic != null ? String(u.aic) : null))
+          .filter(Boolean)
+      );
+  
+      // Filter out already assigned users
+      const filtered = allUsers.filter(u => !assignedAics.has(String(u?.aic)));
+  
+      setUsers(filtered);
+      setSelectedUsers([]); // reset selection
     } catch (err) {
       console.error('Failed to fetch staff data:', err);
       alert('An error occurred while loading staff list.');
@@ -49,6 +102,7 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
       setLoading(false);
     }
   };
+  
   
   const toggleSelect = (user) => {
     setSelectedUsers((prev) => {
@@ -78,8 +132,28 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
   };
 
   const handleSubmit = async () => {
-    const managerAic = await AsyncStorage.getItem('aic');
-    const result = await addStaffToManager(managerAic, selectedUsers);
+    const [aicRaw, roleRaw] = await Promise.all([
+      AsyncStorage.getItem('aic'),
+      AsyncStorage.getItem('HireRole'),
+    ]);
+
+    const aic = (aicRaw || '').trim();
+    const role = (roleRaw || '').trim();
+
+    // Map role -> API endpoint
+    const endpointMap = {
+      restaurantManager: 'restau_manager',
+      hotelManager: 'hotel_manager',
+    };
+    const endpoint = endpointMap[role];
+
+    if (!endpoint || !aic) {
+      console.warn('loadShifts: missing endpoint or aic', { role, endpoint, aic });
+      setStaffList([]);
+      return;
+    }
+
+    const result = await addStaffToManager(endpoint, aic, selectedUsers);
     if (!result.error) {
       onSubmit(); // ✅ Reload staff list
     } else {

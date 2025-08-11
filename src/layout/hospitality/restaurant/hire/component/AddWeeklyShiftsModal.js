@@ -10,7 +10,10 @@ import {
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getShiftTypes, addShiftToStaff } from '../../../../../utils/useApi';
+import { 
+  getShiftTypes, 
+  addShiftToStaff 
+} from '../../../../../utils/useApi';
 import moment from 'moment';
 
 export default function AddWeeklyShiftsModal({ visible, onClose, staffList, refreshShiftData }) {
@@ -38,17 +41,42 @@ export default function AddWeeklyShiftsModal({ visible, onClose, staffList, refr
 
   const fetchShiftTypes = async () => {
     try {
-      const aic = await AsyncStorage.getItem('aic');
-      const res = await getShiftTypes({ aic: parseInt(aic, 10) }, 'restau_manager');
+      // Read once, in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = Number.parseInt((aicRaw || '').trim(), 10);
+      const role = (roleRaw || '').trim();
+  
+      // Map role -> endpoint used by your API
+      const endpointMap = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = endpointMap[role];
+  
+      if (!Number.isFinite(aic) || !endpoint) {
+        console.warn('fetchShiftTypes: missing aic or endpoint', { aic, role, endpoint });
+        setShiftTypes([]);
+        return;
+      }
+  
+      const res = await getShiftTypes({ aic }, endpoint);
+  
       if (Array.isArray(res?.shiftType)) {
         setShiftTypes(res.shiftType);
       } else {
+        console.warn('fetchShiftTypes: unexpected payload', res);
         setShiftTypes([]);
       }
     } catch (err) {
       console.error('ShiftType Error:', err);
+      setShiftTypes([]); // fail safe
     }
   };
+  
 
   const handleSelectShift = (day, shift) => {
     setSelectedShifts((prev) => {
@@ -63,41 +91,81 @@ export default function AddWeeklyShiftsModal({ visible, onClose, staffList, refr
 
   const handleSubmit = async () => {
     try {
-      const managerAic = parseInt(await AsyncStorage.getItem('aic'));
-      const shifts = [];
+      // Basic guards
+      if (!selectedEmployee) {
+        Alert.alert('Missing field', 'Please select an employee.');
+        return;
+      }
+      if (!selectedShifts || Object.keys(selectedShifts).length === 0) {
+        Alert.alert('No shifts selected', 'Please pick at least one shift.');
+        return;
+      }
   
-      Object.entries(selectedShifts).forEach(([day, shiftsArray]) => {
-        const rawDate = nextWeekDates[day];
+      // Read AsyncStorage in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const managerAic = Number.parseInt((aicRaw || '').trim(), 10);
+      const role = (roleRaw || '').trim();
+  
+      // Map role -> API endpoint
+      const endpointMap = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = endpointMap[role];
+  
+      if (!Number.isFinite(managerAic) || !endpoint) {
+        console.warn('handleSubmit: missing aic/endpoint', { managerAic, role, endpoint });
+        Alert.alert('Error', 'Unable to determine account/role. Please re-login.');
+        return;
+      }
+  
+      // Build payload
+      const shifts = [];
+      for (const [dayKey, shiftsArray] of Object.entries(selectedShifts)) {
+        const rawDate = nextWeekDates?.[dayKey];
+        if (!rawDate) continue; // skip unknown day keys
+  
         const formattedDate = new Date(rawDate).toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
         });
-      
-        shiftsArray.forEach((shift) => {
+  
+        (shiftsArray || []).forEach((s) => {
+          if (!s?.start || !s?.end) return;
           shifts.push({
             date: formattedDate,
-            time: `${shift.start} ➔ ${shift.end}`,
+            time: `${s.start} ➔ ${s.end}`,
           });
         });
-      });
-      
+      }
   
-      const result = await addShiftToStaff(managerAic, selectedEmployee, shifts);
+      if (shifts.length === 0) {
+        Alert.alert('No valid shifts', 'Please select valid shift times.');
+        return;
+      }
+  
+      // Call API
+      const result = await addShiftToStaff(endpoint, managerAic, selectedEmployee, shifts);
   
       if (result && !result.error) {
         Alert.alert('Success', 'Shifts assigned successfully!');
-        await refreshShiftData();
-        onClose(); // Close modal
+        await refreshShiftData?.();
+        onClose?.();
       } else {
         console.error(result?.error);
-        Alert.alert('Error', 'Failed to assign shifts. Please try again.');
+        Alert.alert('Error', result?.message || 'Failed to assign shifts. Please try again.');
       }
     } catch (err) {
       console.error('Submission error:', err);
       Alert.alert('Error', 'Something went wrong. Please try again.');
     }
   };
+  
 
   return (
     <Modal visible={visible} transparent animationType="slide">

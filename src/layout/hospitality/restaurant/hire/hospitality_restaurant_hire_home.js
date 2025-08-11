@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Dimensions } from 'react-native';
 import { Text } from 'react-native-paper';
 import images from '../../../../assets/images';
@@ -7,6 +7,7 @@ import MHeader from '../../../../components/Mheader';
 import SubNavbar from '../../../../components/SubNavbar';
 import ImageButton from '../../../../components/ImageButton';
 import { useAtom } from 'jotai';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { firstNameAtom, lastNameAtom, contactPhoneAtom, contactEmailAtom, avatarAtom } from '../../../../context/RestaurantHireProvider'
 import { RFValue } from 'react-native-responsive-fontsize';
 
@@ -19,6 +20,19 @@ export default function HospitalityRestaurantHireHome ({ navigation }) {
   const [contactPhone, setContactPhone] = useAtom(contactPhoneAtom);
   const [contactEmail, setContactEmail] = useAtom(contactEmailAtom);
   const [avatar, setAvatar] = useAtom(avatarAtom);
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const role = await AsyncStorage.getItem("HireRole");
+        console.log("Role:", role );
+      } catch (error) {
+        console.error("Error reading role from storage", error);
+      }
+    };
+  
+    fetchRole();
+  }, []);
 
   const handleNavigate = (navigateUrl) => {
     navigation.navigate(navigateUrl);

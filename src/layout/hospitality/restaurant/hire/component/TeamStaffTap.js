@@ -18,6 +18,7 @@ export default function StaffTab() {
     const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
     const [staffList, setStaffList] = useState([]);
+    const [query, setQuery] = useState("");
 
     useFocusEffect(
       useCallback(() => {
@@ -27,47 +28,100 @@ export default function StaffTab() {
 
     const loadShifts = useCallback(async () => {
       try {
-        const aic = await AsyncStorage.getItem('aic');
-        const data = await getStaffShiftInfo('restau_manager', aic);
+        // Read AsyncStorage in parallel
+        const [aicRaw, roleRaw] = await Promise.all([
+          AsyncStorage.getItem('aic'),
+          AsyncStorage.getItem('HireRole'),
+        ]);
     
-        const mapped = data.map((user) => ({
-          id: user.id,
-          aic: user.aic.toString(),
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          mobile: user.phoneNumber,
-          role: user.userRole,
-          shifts: user.shifts || [],
-          active: true,
+        const aic = (aicRaw || '').trim();
+        const role = (roleRaw || '').trim();
+    
+        // Map role -> API endpoint
+        const endpointMap = {
+          restaurantManager: 'restau_manager',
+          hotelManager: 'hotel_manager',
+        };
+        const endpoint = endpointMap[role];
+    
+        if (!endpoint || !aic) {
+          console.warn('loadShifts: missing endpoint or aic', { role, endpoint, aic });
+          setStaffList([]);
+          return;
+        }
+    
+        // Fetch
+        const data = await getStaffShiftInfo(endpoint, aic);
+    
+        // Shape + guard
+        const list = (Array.isArray(data) ? data : []).map((user) => ({
+          id: String(user?.id ?? ''),
+          aic: String(user?.aic ?? aic),
+          name:
+            [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+            user?.name ||
+            '—',
+          email: user?.email ?? '',
+          mobile: user?.phoneNumber ?? user?.mobile ?? '',
+          role: user?.userRole ?? user?.role ?? '',
+          shifts: Array.isArray(user?.shifts) ? user.shifts : [],
+          active: Boolean(user?.active ?? true),
         }));
     
-        setStaffList(mapped);
+        setStaffList(list);
       } catch (err) {
         console.error('Failed to fetch staff shift info:', err);
+        setStaffList([]);
       }
-    }, []);
+    }, [setStaffList]);
+
+    // Normalize text for robust search (case/accents/extra spaces)
+    const norm = (s = "") =>
+      s
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // strip accents
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const filteredStaff = React.useMemo(() => {
+      const q = norm(query);
+      if (!q) return staffList;
+      return staffList.filter((u) => {
+        const haystack = [
+          u.name,
+          u.role,
+          u.email,
+          u.mobile,
+          u.aic,
+        ].map(norm).join(" | ");
+        return haystack.includes(q);
+      });
+    }, [query, staffList]);
+    
 
     const renderItem = ({ item }) => {
-        return (
-          <View>
-            <View style={styles.row}>
-              <TouchableOpacity
-                style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}
-                onPress={() => navigation.navigate('StaffDetail', { staff: item })}
-              >
-                <Image
-                  source={require('../../../../../assets/images/default_avatar.png')}
-                  style={styles.avatar}
-                />
-                <View style={styles.info}>
-                  <Text style={styles.name}>{item.name}</Text>
-                  <Text style={styles.role}>{item.role}</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+      return (
+        <View>
+          <View style={styles.row}>
+            <TouchableOpacity
+              style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}
+              onPress={() => navigation.navigate('StaffDetail', { staff: item })}
+            >
+              <Image
+                source={require('../../../../../assets/images/default_avatar.png')}
+                style={styles.avatar}
+              />
+              <View style={styles.info}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.role}>{item.role}</Text>
+              </View>
+            </TouchableOpacity>
           </View>
-        );
-      };
+        </View>
+      );
+    };
       
   return (
     <View style={styles.container}>
@@ -76,6 +130,8 @@ export default function StaffTab() {
           placeholder="Search"
           placeholderTextColor="#999"
           style={styles.searchInput}
+          value={query}
+          onChangeText={setQuery}
         />
         <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
             <Text style={styles.addText}>+ Add</Text>
@@ -83,10 +139,15 @@ export default function StaffTab() {
       </View>
 
       <FlatList
-        data={staffList}
+        data={filteredStaff}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         contentContainerStyle={{ paddingHorizontal: 16 }}
+        ListEmptyComponent={
+          <Text style={{ padding: 16, color: "#555" }}>
+            {query ? "No staff match your search." : "No staff yet."}
+          </Text>
+        }
       />
 
       <AddStaffModal

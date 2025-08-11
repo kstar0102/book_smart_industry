@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
+  Alert
 } from "react-native";
 import DatePicker from 'react-native-date-picker';
 import MonthView from "./MonthView";
@@ -22,6 +23,7 @@ import {
   deleteShiftFromStaff
  } from '../../../../../utils/useApi';
 import { transformStaffListToMockEvents } from './transformStaffListToMockEvents'; // adjust path
+
 const HomeTab = ({
   navigation,
   month,
@@ -63,11 +65,36 @@ const HomeTab = ({
 
   const fetchStaffInfo = async () => {
     try {
-      const aic = await AsyncStorage.getItem('aic');
-      const data = await getStaffShiftInfo('restau_manager', aic);
-      setStaffList(data);
-      const transformed = transformStaffListToMockEvents(data);
-      setShiftData(transformed);
+      // Read both keys in parallel for speed
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = aicRaw?.trim();
+      const role = roleRaw?.trim();
+  
+      // Map app role to API endpoint
+      const endpointMap = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+  
+      const endpoint = endpointMap[role];
+  
+      if (!aic || !endpoint) {
+        console.warn('Missing AIC or unsupported role:', { aic, role });
+        setStaffList([]);
+        setShiftData({});
+        return;
+      }
+  
+      const data = await getStaffShiftInfo(endpoint, aic);
+  
+      // Be defensive about the API response
+      const list = Array.isArray(data) ? data : [];
+      setStaffList(list);
+      setShiftData(transformStaffListToMockEvents(list));
     } catch (err) {
       console.error('Error fetching staff list:', err);
       setStaffList([]);
@@ -77,25 +104,84 @@ const HomeTab = ({
 
   const fetchShiftTypes = async () => {
     try {
-      const aicValue = await AsyncStorage.getItem('aic');
-      const userData = { aic: parseInt(aicValue, 10) };
-      const response = await getShiftTypes(userData, 'restau_manager');
-
-      if (Array.isArray(response?.shiftType)) {
-        setShiftTypes(response.shiftType);
-      } else {
-        setShiftTypes([]);
-        console.warn('ShiftTypes API did not return an array:', response);
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem("aic"),
+        AsyncStorage.getItem("HireRole"),
+      ]);
+  
+      const aic = Number.parseInt((aicRaw || "").trim(), 10);
+      const role = (roleRaw || "").trim();
+  
+      const endpointMap = {
+        restaurantManager: "restau_manager",
+        hotelManager: "hotel_manager",
+      };
+      const endpoint = endpointMap[role];
+  
+      if (!Number.isFinite(aic) || !endpoint) {
+        setShiftTypes([]); // just empty if invalid
+        return;
       }
+  
+      const res = await getShiftTypes({ aic }, endpoint);
+      const types = Array.isArray(res?.shiftType) ? res.shiftType : [];
+  
+      // ✅ No warning — just set the array (empty or not)
+      setShiftTypes(types);
+  
     } catch (err) {
-      console.error('Failed to fetch shift types:', err);
+      console.error("Failed to fetch shift types:", err);
       setShiftTypes([]);
     }
   };
-  
-  useEffect(() => {
-    console.log('✅ ShiftData :', ShiftData);
-  }, [ShiftData]);
+    
+  // useEffect(() => {
+  //   console.log('✅ ShiftData :', ShiftData);
+  // }, [ShiftData]);
+
+  const ensurePrereqs = async () => {
+    let needShiftTypes = !Array.isArray(shiftTypes) || shiftTypes.length === 0;
+    let needStaff      = !Array.isArray(staffList)  || staffList.length === 0;
+    if (needShiftTypes) {
+      await fetchShiftTypes();
+      needShiftTypes = !Array.isArray(shiftTypes) || shiftTypes.length === 0;
+    }
+    if (needStaff) {
+      await fetchStaffInfo();
+      needStaff = !Array.isArray(staffList) || staffList.length === 0;
+    }
+    return { needShiftTypes, needStaff };
+  };
+
+  const openCreateSingleShift = async () => {
+    const { needShiftTypes, needStaff } = await ensurePrereqs();
+    if (needShiftTypes || needStaff) {
+      Alert.alert(
+        "Missing data",
+        `${[
+          needShiftTypes ? "Shift types" : null,
+          needStaff ? "Staff list" : null,
+        ].filter(Boolean).join(" and ")} not selected yet. Please make it first.`
+      );
+      return;
+    }
+    setShowAddShiftModal(true);
+  };
+
+  const openCreateNextWeek = async () => {
+    const { needShiftTypes, needStaff } = await ensurePrereqs();
+    if (needShiftTypes || needStaff) {
+      Alert.alert(
+        "Missing data",
+        `${[
+          needShiftTypes ? "Shift types" : null,
+          needStaff ? "Staff list" : null,
+        ].filter(Boolean).join(" and ")} not selected yet. Please make it first.`
+      );
+      return;
+    }
+    setShowAddWeekModal(true);
+  };
 
   const handlePrev = () => {
     if (viewMode === "Month") {
@@ -135,27 +221,58 @@ const HomeTab = ({
 
   const handleConfirmDelete = async () => {
     try {
+      // Guards
+      if (!selectedEvent?.id || !selectedEvent?.shiftId) {
+        alert('No event selected to delete.');
+        return;
+      }
+  
       setDeleting(true);
-      // optimisticallyRemoveShift(); 
-      const managerAic = await AsyncStorage.getItem('aic');
+  
+      // Read AIC + Role in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = Number.parseInt((aicRaw || '').trim(), 10);
+      const role = (roleRaw || '').trim();
+  
+      // Map role -> endpoint
+      const endpointMap = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = endpointMap[role];
+  
+      if (!Number.isFinite(aic) || !endpoint) {
+        console.warn('Missing/invalid AIC or unsupported role:', { aicRaw, role });
+        alert('Unable to delete shift: account/role not set.');
+        return;
+      }
+  
+      // Call API
       const result = await deleteShiftFromStaff(
-        'restau_manager',
-        managerAic,
-        selectedEvent.id,
-        selectedEvent.shiftId
+        endpoint,
+        aic,                    // or String(aic) if your API expects string
+        selectedEvent.id,       // staffId
+        selectedEvent.shiftId   // shiftId
       );
   
+      // Handle response
       if (result?.success) {
-        await fetchStaffInfo();
+        await fetchStaffInfo();          // refresh grid
         setShowConfirmDelete(false);
         setShowEventModal(false);
         setSelectedEvent(null);
+        alert('Shift deleted.');
       } else {
         alert(`Delete failed: ${result?.message || 'Unknown error'}`);
-        await fetchStaffInfo();
+        await fetchStaffInfo();          // ensure UI not stale
         setShowConfirmDelete(false);
       }
     } catch (e) {
+      console.error('Delete error:', e);
       alert('Delete failed. Please try again.');
       await fetchStaffInfo();
       setShowConfirmDelete(false);
@@ -163,43 +280,78 @@ const HomeTab = ({
       setDeleting(false);
     }
   };
-  
 
   const handleEditShift = async () => {
-    const managerAic = await AsyncStorage.getItem('aic');
-    const selectedShiftObj = shiftTypes.find(
-      s => String(s.id) === String(selectedShift)
-    );
-    // Format date in desired style
-    const formattedDate = selectedDate.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-    // Combine start/end with arrow
-    const formattedTime = `${selectedShiftObj.start} ➜ ${selectedShiftObj.end}`;
-
-    console.log("newDate:", formattedDate);
-    console.log("newTime:", formattedTime);
-
-    const result = await editShiftFromStaff(
-      'restau_manager',
-      managerAic,           
-      selectedEvent.id,     
-      selectedEvent.shiftId,
-      formattedDate,
-      formattedTime
-    );
+    try {
+      // 1) Basic guards
+      if (!selectedEvent?.id || !selectedEvent?.shiftId) {
+        alert('No event selected.');
+        return;
+      }
+      if (!selectedDate) {
+        alert('Pick a date first.');
+        return;
+      }
+      const selectedShiftObj = shiftTypes.find(s => String(s.id) === String(selectedShift));
+      if (!selectedShiftObj) {
+        alert('Pick a shift time.');
+        return;
+      }
   
-    if (result.success) {
-      alert('Shift updated!');
-      await fetchStaffInfo(); // refresh data on HomeTab
-      setShowEventModal(false);
-    } else {
-      alert(`Update failed: ${result.message}`);
+      // 2) Read AIC + Role in parallel
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+  
+      const aic = Number.parseInt((aicRaw || '').trim(), 10);
+      const role = (roleRaw || '').trim();
+  
+      // 3) Map role -> endpoint
+      const endpointMap = {
+        restaurantManager: 'restau_manager',
+        hotelManager: 'hotel_manager',
+      };
+      const endpoint = endpointMap[role];
+  
+      if (!Number.isFinite(aic) || !endpoint) {
+        console.warn('Missing/invalid AIC or unsupported role:', { aicRaw, role });
+        alert('Unable to update shift: account/role not set.');
+        return;
+      }
+  
+      // 4) Format payload
+      const formattedDate = selectedDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+      const formattedTime = `${selectedShiftObj.start} ➜ ${selectedShiftObj.end}`;
+  
+      // 5) Call API
+      const result = await editShiftFromStaff(
+        endpoint,          // role-aware endpoint
+        aic,               // managerAic
+        selectedEvent.id,  // staffId
+        selectedEvent.shiftId,
+        formattedDate,
+        formattedTime
+      );
+  
+      // 6) Handle response
+      if (result?.success) {
+        await fetchStaffInfo();        // refresh
+        setShowEventModal(false);      // close
+        alert('Shift updated!');
+      } else {
+        alert(`Update failed: ${result?.message || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error('Edit shift failed:', err);
+      alert('Network error while updating shift. Please try again.');
     }
   };
+  
 
   const normalizeTime = (s = "") =>
     s
@@ -236,11 +388,15 @@ const HomeTab = ({
     <ScrollView style={{ width: "100%" }} showsVerticalScrollIndicator={false}>
       <View style={styles.topRightControls}>
         <View style={styles.shiftButtonGroup}>
-          <TouchableOpacity style={styles.shiftButtonPrimary} onPress={() => setShowAddShiftModal(true)}>
+          <TouchableOpacity 
+            style={styles.shiftButtonPrimary} 
+            onPress={openCreateSingleShift}>
             <Text style={styles.shiftButtonText}>Create Single Shift</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.shiftButtonSecondary} onPress={() => setShowAddWeekModal(true)}>
+          <TouchableOpacity 
+            style={styles.shiftButtonSecondary} 
+            onPress={openCreateNextWeek}>
             <Text style={styles.shiftButtonText}>Create Next Week's Shifts</Text>
           </TouchableOpacity>
         </View>
