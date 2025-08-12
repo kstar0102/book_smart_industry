@@ -266,19 +266,25 @@ export const deleteShiftFromStaff = async (endpoint, managerAic, staffId, shiftI
         },
       }
     );
-    return response.data;
+    
+    return { success: true, message: response.data.message || 'Shift deleted successfully.' };
+
   } catch (error) {
+    // Handle different types of errors and return a consistent structure
     if (error.response) {
       console.error("❌ AXIOS RESPONSE ERROR:", error.response.data);
+      return { success: false, message: error.response.data.message || 'Error occurred during deletion' };
     } else if (error.request) {
       console.error("❌ AXIOS ERROR: No response received");
       console.error(error.request);
+      return { success: false, message: 'No response received from the server.' };
     } else {
       console.error("❌ AXIOS SETUP ERROR:", error.message);
+      return { success: false, message: 'Error setting up request.' };
     }
-    return { error };
   }
 };
+
 
 
 // utils/useApi.js

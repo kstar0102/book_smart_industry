@@ -224,7 +224,7 @@ const HomeTab = ({
     try {
       // Guards
       if (!selectedEvent?.id || !selectedEvent?.shiftId) {
-        alert('No event selected to delete.');
+        Alert.alert('No event selected to delete.');
         return;
       }
   
@@ -248,7 +248,7 @@ const HomeTab = ({
   
       if (!Number.isFinite(aic) || !endpoint) {
         console.warn('Missing/invalid AIC or unsupported role:', { aicRaw, role });
-        alert('Unable to delete shift: account/role not set.');
+        Alert.alert('Unable to delete shift: account/role not set.');
         return;
       }
   
@@ -268,7 +268,7 @@ const HomeTab = ({
         setSelectedEvent(null);
         alert('Shift deleted.');
       } else {
-        alert(`Delete failed: ${result?.message || 'Unknown error'}`);
+        Alert.alert(`Delete failed: ${result?.message || 'Unknown error'}`);
         await fetchStaffInfo();          // ensure UI not stale
         setShowConfirmDelete(false);
       }
@@ -519,29 +519,36 @@ const HomeTab = ({
       <Modal visible={showEventModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.eventModal}>
-            <TouchableOpacity style={styles.deleteButton} onPress={() => setShowConfirmDelete(true)}>
-              <Text style={styles.deleteButtonText}>🗑️ Delete</Text>
-            </TouchableOpacity>
+
+          <Pressable 
+            style={styles.deleteButton} 
+            onPress={() => {
+              Alert.alert(
+                "Delete this shift?",  // Title of the alert
+                "This action cannot be undone.",  // Message to show in the alert
+                [
+                  {
+                    text: "No",
+                    onPress: () => setShowConfirmDelete(false), // Close the modal on "No"
+                    style: "cancel"
+                  },
+                  {
+                    text: "Yes, delete",
+                    onPress: handleConfirmDelete, // Call the delete function on "Yes"
+                    style: "destructive"  // Optional: Make the button red
+                  }
+                ],
+                { cancelable: false }  // Disable dismissing the alert by tapping outside
+              );
+            }}
+          >
+            <Text style={styles.deleteButtonText}>🗑️ Delete</Text>
+          </Pressable>
+
+
 
             <Text style={styles.label}>Day</Text>
-            {/* <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-              <TextInput
-                mode="outlined"
-                value={
-                  eventDate
-                    ? new Date(eventDate).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })
-                    : ''
-                }
-                editable={false}
-                style={styles.input}
-              />
-            </TouchableOpacity> */}
-
+           
             <View style={{ position: 'relative' }}>
               <TextInput
                 mode="outlined"
@@ -608,35 +615,6 @@ const HomeTab = ({
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowEventModal(false)}>
                 <Text style={styles.cancelText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={showConfirmDelete} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.confirmModal}>
-            <Text style={styles.confirmTitle}>Delete this shift?</Text>
-            <Text style={styles.confirmSubtitle}>
-              This action cannot be undone.
-            </Text>
-
-            <View style={styles.confirmRow}>
-              <TouchableOpacity
-                style={[styles.confirmBtn, styles.confirmCancel]}
-                onPress={() => setShowConfirmDelete(false)}
-                disabled={deleting}
-              >
-                <Text style={styles.confirmCancelText}>No</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.confirmBtn, styles.confirmDelete]}
-                onPress={handleConfirmDelete}
-                disabled={deleting}
-              >
-                <Text style={styles.confirmDeleteText}>{deleting ? 'Deleting…' : 'Yes, delete'}</Text>
               </TouchableOpacity>
             </View>
           </View>
