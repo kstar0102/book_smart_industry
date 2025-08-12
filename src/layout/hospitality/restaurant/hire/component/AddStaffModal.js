@@ -20,35 +20,13 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [orgLabel, setOrgLabel] = useState('');
 
   useEffect(() => {
     if (visible) {
       fetchUsers();
     }
   }, [visible]);
-
-  // const fetchUsers = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const aic = await AsyncStorage.getItem('aic');
-  
-  //     const [allUsers, assignedUsers] = await Promise.all([
-  //       getAllUsersInRestau('restau_manager'),
-  //       getStaffShiftInfo('restau_manager', aic),
-  //     ]);
-  
-  //     const assignedAics = new Set(assignedUsers.map(user => user.aic));
-  //     const filteredUsers = allUsers.filter(user => !assignedAics.has(user.aic));
-  
-  //     setUsers(filteredUsers);
-  //     setSelectedUsers([]);
-  //   } catch (err) {
-  //     console.error('Failed to fetch staff data:', err);
-  //     alert('An error occurred while loading staff list.');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -68,6 +46,8 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
       };
   
       const endpoint = roleToEndpoint[role];
+      setOrgLabel(role === 'restaurantManager' ? 'Restaurant' : 'Hotel');
+
       if (!endpoint || !managerAic) {
         console.warn('fetchUsers: missing endpoint or managerAic', { role, endpoint, managerAic });
         alert('Missing manager info. Please re-login and try again.');
@@ -81,6 +61,7 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
       ]);
   
       const allUsers = Array.isArray(allUsersRes) ? allUsersRes : [];
+      console.log(allUsers);
       const assignedUsers = Array.isArray(assignedUsersRes) ? assignedUsersRes : [];
   
       // Build a set of assigned AICs (as strings to be safe)
@@ -125,7 +106,7 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
           {isSelected && <Text style={styles.checkmark}>✓</Text>}
         </View>
         <Text style={styles.userText}>
-          {item.firstName} {item.lastName} - {item.email}
+          {item.firstName} {item.lastName} - {orgLabel} - {item.title}
         </Text>
       </Pressable>
     );
