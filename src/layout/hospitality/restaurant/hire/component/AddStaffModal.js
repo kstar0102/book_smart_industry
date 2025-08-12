@@ -54,28 +54,24 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
         return;
       }
   
-      // Fetch both lists in parallel
       const [allUsersRes, assignedUsersRes] = await Promise.all([
         getAllUsersInRestau(endpoint),
         getStaffShiftInfo(endpoint, managerAic),
       ]);
   
       const allUsers = Array.isArray(allUsersRes) ? allUsersRes : [];
-      console.log(allUsers);
       const assignedUsers = Array.isArray(assignedUsersRes) ? assignedUsersRes : [];
   
-      // Build a set of assigned AICs (as strings to be safe)
       const assignedAics = new Set(
         assignedUsers
           .map(u => (u?.aic != null ? String(u.aic) : null))
           .filter(Boolean)
       );
   
-      // Filter out already assigned users
       const filtered = allUsers.filter(u => !assignedAics.has(String(u?.aic)));
   
       setUsers(filtered);
-      setSelectedUsers([]); // reset selection
+      setSelectedUsers([]); 
     } catch (err) {
       console.error('Failed to fetch staff data:', err);
       alert('An error occurred while loading staff list.');
@@ -121,7 +117,6 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
     const aic = (aicRaw || '').trim();
     const role = (roleRaw || '').trim();
 
-    // Map role -> API endpoint
     const endpointMap = {
       restaurantManager: 'restau_manager',
       hotelManager: 'hotel_manager',
@@ -136,7 +131,7 @@ export default function AddStaffModal({ visible, onClose, onSubmit  }) {
 
     const result = await addStaffToManager(endpoint, aic, selectedUsers);
     if (!result.error) {
-      onSubmit(); // ✅ Reload staff list
+      onSubmit(); 
     } else {
       alert('Failed to assign staff');
     }
