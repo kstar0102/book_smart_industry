@@ -131,6 +131,7 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
           time: formattedTime,
         },
       ];
+      console.log(shiftPayload);
   
       const result = await addShiftToStaff(endpoint, aic, selectedEmployee, shiftPayload);
   

@@ -116,10 +116,6 @@ export default function HospitalityRestaurantWorkMyShift ({ navigation }) {
     }, [])
   );
 
-  // useEffect(() => {
-  //   getData();
-  // }, []);
-
   async function requestStoragePermission() {
     try {
       const granted = await PermissionsAndroid.request(

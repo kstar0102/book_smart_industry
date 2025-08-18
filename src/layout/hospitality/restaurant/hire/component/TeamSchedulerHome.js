@@ -23,7 +23,28 @@ import {
   editShiftFromStaff,
   deleteShiftFromStaff
  } from '../../../../../utils/useApi';
-import { transformStaffListToMockEvents } from './transformStaffListToMockEvents'; // adjust path
+import { transformStaffListToMockEvents } from './transformStaffListToMockEvents';
+
+// Status helpers (put above the component or anywhere before use)
+const normalizeStatus = (s) => {
+  const v = (s || '').toLowerCase();
+  if (v === 'pending') return 'PENDING';
+  if (v === 'accept' || v === 'approved' || v === 'approve') return 'APPROVED';
+  if (v === 'reject' || v === 'rejected') return 'REJECTED';
+  if (v === 'cancel' || v === 'cancelled') return 'CANCELLED';
+  return v ? v.toUpperCase() : 'PENDING';
+};
+
+const statusColors = (label) => {
+  switch (label) {
+    case 'PENDING':   return { bg: '#FEF9C3', fg: '#A16207' };
+    case 'APPROVED':  return { bg: '#DCFCE7', fg: '#166534' };
+    case 'REJECTED':  return { bg: '#FEE2E2', fg: '#991B1B' };
+    case 'CANCELLED': return { bg: '#E5E7EB', fg: '#374151' };
+    default:          return { bg: '#EEE',    fg: '#000'     };
+  }
+};
+
 
 const HomeTab = ({
   navigation,
@@ -91,7 +112,6 @@ const HomeTab = ({
       }
   
       const data = await getStaffShiftInfo(endpoint, aic);
-  
       // Be defensive about the API response
       const list = Array.isArray(data) ? data : [];
       setStaffList(list);
@@ -135,10 +155,11 @@ const HomeTab = ({
       setShiftTypes([]);
     }
   };
-    
+  
+  // every time staffList actually changes (thanks to the diff above)
   // useEffect(() => {
-  //   console.log('✅ shiftTypes :', shiftTypes);
-  // }, [shiftTypes]);
+  //   console.log('✅ staffList:', JSON.stringify(staffList, null, 2));
+  // }, [staffList]);
 
   const ensurePrereqs = async () => {
     let needShiftTypes = !Array.isArray(shiftTypes) || shiftTypes.length === 0;
@@ -230,7 +251,6 @@ const HomeTab = ({
   
       setDeleting(true);
   
-      // Read AIC + Role in parallel
       const [aicRaw, roleRaw] = await Promise.all([
         AsyncStorage.getItem('aic'),
         AsyncStorage.getItem('HireRole'),
@@ -262,7 +282,7 @@ const HomeTab = ({
   
       // Handle response
       if (result?.success) {
-        await fetchStaffInfo();          // refresh grid
+        await fetchStaffInfo();          
         setShowConfirmDelete(false);
         setShowEventModal(false);
         setSelectedEvent(null);
@@ -284,18 +304,17 @@ const HomeTab = ({
 
   const handleEditShift = async () => {
     try {
-      // 1) Basic guards
       if (!selectedEvent?.id || !selectedEvent?.shiftId) {
-        alert('No event selected.');
+        Alert.alert('No event selected.');
         return;
       }
       if (!selectedDate) {
-        alert('Pick a date first.');
+        Alert.alert('Pick a date first.');
         return;
       }
       const selectedShiftObj = shiftTypes.find(s => String(s.id) === String(selectedShift));
       if (!selectedShiftObj) {
-        alert('Pick a shift time.');
+        Alert.alert('Pick a shift time.');
         return;
       }
   
@@ -352,7 +371,6 @@ const HomeTab = ({
       alert('Network error while updating shift. Please try again.');
     }
   };
-  
 
   const normalizeTime = (s = "") =>
     s
@@ -411,10 +429,10 @@ const HomeTab = ({
 
           <Text style={styles.monthYearText}>
             {viewMode === "Month"
-              ? `${months[month]} ${year}`
+              ? `${months[month].slice(0, 3)} ${year}`
               : viewMode === "Week"
               ? weekStartDate.toLocaleDateString("en-US", {
-                  month: "long",
+                  month: "short",
                   day: "numeric",
                   year: "numeric",
                 })
@@ -520,32 +538,38 @@ const HomeTab = ({
         <View style={styles.modalOverlay}>
           <View style={styles.eventModal}>
 
-          <Pressable 
-            style={styles.deleteButton} 
-            onPress={() => {
-              Alert.alert(
-                "Delete this shift?",  // Title of the alert
-                "This action cannot be undone.",  // Message to show in the alert
-                [
-                  {
-                    text: "No",
-                    onPress: () => setShowConfirmDelete(false), // Close the modal on "No"
-                    style: "cancel"
-                  },
-                  {
-                    text: "Yes, delete",
-                    onPress: handleConfirmDelete, // Call the delete function on "Yes"
-                    style: "destructive"  // Optional: Make the button red
-                  }
-                ],
-                { cancelable: false }  // Disable dismissing the alert by tapping outside
+          <View style={styles.modalHeaderRow}>
+            {/* Status chip on the left */}
+            {(() => {
+              const label = normalizeStatus(
+                selectedEvent?.status ?? selectedEvent?.data?.status
               );
-            }}
-          >
-            <Text style={styles.deleteButtonText}>🗑️ Delete</Text>
-          </Pressable>
+              const colors = statusColors(label);
+              return (
+                <View style={[styles.statusChip, { backgroundColor: colors.bg }]}>
+                  <Text style={[styles.statusText, { color: colors.fg }]}>{label}</Text>
+                </View>
+              );
+            })()}
 
-
+            {/* Delete button on the right (unchanged action) */}
+            <Pressable
+              style={styles.deleteButton}
+              onPress={() => {
+                Alert.alert(
+                  'Delete this shift?',
+                  'This action cannot be undone.',
+                  [
+                    { text: 'No', onPress: () => setShowConfirmDelete(false), style: 'cancel' },
+                    { text: 'Yes, delete', onPress: handleConfirmDelete, style: 'destructive' },
+                  ],
+                  { cancelable: false }
+                );
+              }}
+            >
+              <Text style={styles.deleteButtonText}>🗑️ Delete</Text>
+            </Pressable>
+          </View>
 
             <Text style={styles.label}>Day</Text>
            
@@ -626,6 +650,23 @@ const HomeTab = ({
 };
 
 const styles = StyleSheet.create({
+  modalHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  
+  statusChip: {
+    borderRadius: 999,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
+  },
+  
+  statusText: {
+    fontWeight: '700',
+  },
   topRightControls: {
     flexDirection: "row",
     justifyContent: "flex-end",

@@ -1,378 +1,473 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from "react-native";
+// WeekView.js
+import React, { useMemo } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  I18nManager,
+  Dimensions,
+} from "react-native";
+import { RFValue } from "react-native-responsive-fontsize";
 
-const ROW_HEIGHT = 40; // px per hour
-const HOURS = Array.from({ length: 24 }, (_, h) => h);
+const HOUR_COL_WIDTH = 54;
+const MIN_ROW_HEIGHT = 44;
+const LANE_HEIGHT = 22;
+const LANE_GAP = 4;
+const V_PADDING = 6;
 
-// "August 16, 2025" keys
-const dateKey = (y, m, d) =>
-  new Date(y, m, d).toLocaleDateString("en-US", {
+const START_MIN = 0;
+const END_MIN = 24 * 60;
+
+// viewport height for internal vertical scrolling
+const SCREEN_H = Dimensions.get("window").height;
+// Give WeekView its own vertical scrollable area (~60% screen height, min 280)
+const MAX_VIEWPORT_HEIGHT = Math.max(280, Math.floor(SCREEN_H * 0.6));
+
+// 12a, 1..11, 12p, 1..11
+const TIME_LABELS = [
+  "12a",
+  ...Array.from({ length: 11 }, (_, i) => `${i + 1}`),
+  "12p",
+  ...Array.from({ length: 11 }, (_, i) => `${i + 1}`),
+];
+
+const ARROW_SPLIT = /[➔➜→\-–—]/;
+
+const toDateKey = (date) =>
+  date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
-const pad = (n) => n.toString().padStart(2, "0");
+const getStartOfWeekSun = (d) => {
+  const date = new Date(d);
+  const day = date.getDay();
+  date.setDate(date.getDate() - day);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
 
-// Build a Sun→Sat (or whatever weekstart) from startDate
-const generateWeekDates = (startDate) => {
-  const week = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(startDate);
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() + i);
-    week.push({
-      day: d.getDate(),
-      month: d.getMonth(),
-      year: d.getFullYear(),
-      label: d.toLocaleDateString("en-US", { weekday: "short", day: "numeric" }),
-      date: d,
-    });
+const range = (n) => Array.from({ length: n }, (_, i) => i);
+
+function parseTimeToMinutes(s) {
+  if (!s) return null;
+  const raw = s.replace(/\u202F/g, " ").replace(/\s+/g, " ").trim();
+
+  let m = raw.match(/^(\d{1,2}):?(\d{2})$/);
+  if (m) {
+    const hh = parseInt(m[1], 10);
+    const mm = parseInt(m[2], 10);
+    if (hh >= 0 && hh < 24 && mm >= 0 && mm < 60) return hh * 60 + mm;
   }
-  return week;
-};
 
-// ── Helpers to parse "10:04 AM ➔ 5:04 PM" robustly ─────────────────────────────
-const normalizeSpaces = (s = "") =>
-  s.replace(/\u202F/g, " ").replace(/\s+/g, " ").trim();
+  m = raw.match(/^(\d{1,2}):?(\d{2})\s*([AaPp][Mm])$/);
+  if (m) {
+    let hh = parseInt(m[1], 10);
+    const mm = parseInt(m[2], 10);
+    const ampm = m[3].toUpperCase();
+    if (hh === 12) hh = 0;
+    if (ampm === "PM") hh += 12;
+    return hh * 60 + mm;
+  }
 
-const parseTimeToHourFloat = (t = "") => {
-  const s = normalizeSpaces(t);
-  const m = s.match(/^(\d{1,2})(?::(\d{2}))?\s*([AP]M)$/i);
-  if (!m) return null;
-  let hour = parseInt(m[1], 10) % 12;
-  const mins = m[2] ? parseInt(m[2], 10) : 0;
-  const ap = m[3].toUpperCase();
-  if (ap === "PM") hour += 12;
-  return hour + mins / 60;
-};
+  m = raw.match(/^(\d{1,2})\s*([AaPp][Mm])$/);
+  if (m) {
+    let hh = parseInt(m[1], 10);
+    const ampm = m[2].toUpperCase();
+    if (hh === 12) hh = 0;
+    if (ampm === "PM") hh += 12;
+    return hh * 60;
+  }
 
-const splitTimeRange = (range = "") => {
-  const clean = normalizeSpaces(range);
-  // supports ➔, →, ->, –, —
-  const parts = clean.split(/\s*(?:➔|→|->|—|–|>)\s*/);
-  if (parts.length < 2) return [null, null];
-  return [parts[0], parts[1]];
-};
-
-// ── Small inline modal listing all events for a given day ───────────────────────
-function DayEventsModal({ visible, onClose, date, events, onPick }) {
-  const title =
-    date &&
-    date.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-
-  return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.dayModal}>
-          <Text style={styles.dayModalTitle}>{title}</Text>
-          <ScrollView style={{ maxHeight: 360 }}>
-            {events.map((ev, idx) => (
-              <TouchableOpacity
-                key={idx}
-                style={styles.dayModalItem}
-                onPress={() => onPick(ev)}
-              >
-                <View style={[styles.colorDot, { backgroundColor: ev.color }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.dayModalItemText}>{ev.label}</Text>
-                  {!!ev.time && (
-                    <Text style={styles.dayModalItemSub}>{normalizeSpaces(ev.time)}</Text>
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          <TouchableOpacity style={styles.dayModalClose} onPress={onClose}>
-            <Text style={styles.dayModalCloseText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
+  m = raw.match(/^(\d{1,2})$/);
+  if (m) {
+    const hh = parseInt(m[1], 10);
+    if (hh >= 0 && hh < 24) return hh * 60;
+  }
+  return null;
 }
 
-// ── Main WeekView ──────────────────────────────────────────────────────────────
+function parseEventTimeRange(timeStr) {
+  if (!timeStr) return null;
+  const [startRaw, endRaw] = timeStr.split(ARROW_SPLIT).map((x) => (x || "").trim());
+  const start = parseTimeToMinutes(startRaw);
+  const end = parseTimeToMinutes(endRaw);
+  if (start == null || end == null) return null;
+  return { start, end };
+}
+
+function monthAbbrevWithDot(d) {
+  const m = d.toLocaleString("en-US", { month: "short" });
+  return `${m}.`;
+}
+
+function layoutLanes(events) {
+  const items = events
+    .map((e, i) => ({ e, i, r: parseEventTimeRange(e.time) }))
+    .filter((x) => x.r)
+    .sort((a, b) => a.r.start - b.r.start);
+
+  const lanes = [];
+  const placed = [];
+
+  for (const item of items) {
+    const { r } = item;
+    let laneIndex = 0;
+    for (; laneIndex < lanes.length; laneIndex++) {
+      if (r.start >= lanes[laneIndex]) break;
+    }
+    if (laneIndex === lanes.length) lanes.push(r.end);
+    else lanes[laneIndex] = r.end;
+
+    placed.push({ ...item, lane: laneIndex });
+  }
+
+  return { placed, laneCount: Math.max(1, lanes.length) };
+}
+
 export default function WeekView({
   startDate,
-  mockEvents,               // ShiftData keyed like "August 16, 2025": [{...}]
-  onEventPress,             // (event, date) => void
-  setSelectedEvent,         // fallback if onEventPress not provided
-  setShowEventModal,        // fallback if onEventPress not provided
+  mockEvents = {},
+  onEventPress,
+  setSelectedEvent,
+  setShowEventModal,
 }) {
-  const [dayModalOpen, setDayModalOpen] = useState(false);
-  const [dayModalDate, setDayModalDate] = useState(null);
-  const [dayModalEvents, setDayModalEvents] = useState([]);
+  const weekDays = useMemo(() => {
+    const sunday = getStartOfWeekSun(startDate || new Date());
+    return range(7).map((i) => {
+      const d = new Date(sunday);
+      d.setDate(sunday.getDate() + i);
+      return d;
+    });
+  }, [startDate]);
 
-  const currentWeekDates = generateWeekDates(startDate);
+  const weekRangeLabel = useMemo(() => {
+    const sunday = getStartOfWeekSun(startDate || new Date());
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
+    const left = `${monthAbbrevWithDot(sunday)}${sunday.getDate()}`;
+    const right = `${saturday.getDate()}`;
+    return `${left}–${right}`;
+  }, [startDate]);
 
-  const openDayModal = (events, date) => {
-    setDayModalEvents(events);
-    setDayModalDate(date);
-    setDayModalOpen(true);
-  };
+  const totalMinutes = END_MIN - START_MIN;
+  const totalHours = 24;
+  const timelineWidth = totalHours * HOUR_COL_WIDTH;
 
-  const closeDayModal = () => {
-    setDayModalOpen(false);
-    setDayModalEvents([]);
-    setDayModalDate(null);
-  };
+  const todayKey = toDateKey(new Date());
 
-  const goEvent = (event, date) => {
-    if (onEventPress) onEventPress(event, date);
+  const handleEventPress = (ev, date) => {
+    if (onEventPress) onEventPress(ev, date);
     else {
-      setSelectedEvent?.(event);
+      setSelectedEvent?.(ev);
       setShowEventModal?.(true);
     }
   };
 
   return (
-    <View style={styles.weekContainer}>
-      <View style={styles.weekGrid}>
-        {/* Time labels */}
-        <View style={styles.timeColumn}>
-          {HOURS.map((h) => (
-            <Text key={h} style={styles.timeLabel}>
-              {h === 0 ? "12 AM" : h < 12 ? `${h} AM` : h === 12 ? "12 PM" : `${h - 12} PM`}
-            </Text>
-          ))}
-        </View>
-
-        {/* 7 day columns */}
-        {currentWeekDates.map((dateObj, index) => {
-          const { day, month, year, label, date } = dateObj;
-          const key = dateKey(year, month, day);
-          const events = Array.isArray(mockEvents?.[key]) ? mockEvents[key] : [];
-
-          // Always show just the first event visually in the grid
-          const firstEvent = events[0] || null;
-          const restCount = events.length > 1 ? events.length - 1 : 0;
-
-          // Position first event by its start time (so timeline still makes sense)
-          let top = 0;
-          let height = ROW_HEIGHT;
-          if (firstEvent?.time) {
-            const [s, e] = splitTimeRange(firstEvent.time);
-            const sF = parseTimeToHourFloat(s ?? "") ?? 0;
-            const eF = parseTimeToHourFloat(e ?? "") ?? Math.max(sF + 1, 1);
-            top = sF * ROW_HEIGHT;
-            height = Math.max((eF - sF) * ROW_HEIGHT, ROW_HEIGHT / 2);
-          }
-
-          return (
-            <View key={index} style={styles.dayColumn}>
-              <View style={styles.dayHeaderBox}>
-                <Text style={styles.dayHeaderText}>{label}</Text>
+    <View style={{ width: "100%" }}>
+      {/* Outer vertical scroll so tall content is scrollable even inside HomeTab's ScrollView */}
+      <ScrollView
+        style={{ maxHeight: MAX_VIEWPORT_HEIGHT }}
+        nestedScrollEnabled
+        showsVerticalScrollIndicator
+        contentContainerStyle={{ paddingBottom: 8 }}
+      >
+        {/* Inner horizontal scroll for the time axis */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator
+          nestedScrollEnabled
+          contentContainerStyle={{ paddingBottom: 4 }}
+        >
+          <View style={{ minWidth: timelineWidth + 120 }}>
+            {/* Header */}
+            <View style={styles.headerRow}>
+              <View style={styles.dayLabelHeaderCell}>
+                <Text style={styles.weekRangeText}>{weekRangeLabel}</Text>
               </View>
 
-              {/* hour grid */}
-              {HOURS.map((h) => (
-                <View key={h} style={styles.timeSlot} />
-              ))}
+              <View style={[styles.timeHeaderRow, { width: timelineWidth }]}>
+                {TIME_LABELS.map((label, i) => (
+                  <View
+                    key={`time-${i}`}
+                    style={[styles.timeHeaderCell, { width: HOUR_COL_WIDTH }]}
+                  >
+                    <Text style={styles.timeHeaderText}>{label}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
 
-              {firstEvent && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top,
-                    left: 0,
-                    right: 0,
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() =>
-                      (restCount > 0)            
-                        ? openDayModal(events, date)  
-                        : goEvent(firstEvent, date)  
-                    }
+            {/* Rows: Sunday -> Saturday */}
+            {weekDays.map((dateObj) => {
+              const key = toDateKey(dateObj);
+              const events = Array.isArray(mockEvents[key]) ? mockEvents[key] : [];
+
+              const { placed, laneCount } = layoutLanes(events);
+              const contentHeight =
+                V_PADDING * 2 + laneCount * LANE_HEIGHT + (laneCount - 1) * LANE_GAP;
+              const rowHeight = Math.max(MIN_ROW_HEIGHT, contentHeight);
+
+              const isToday = key === todayKey;
+
+              return (
+                <View key={key} style={styles.row}>
+                  {/* Day label */}
+                  <View
                     style={[
-                      styles.shiftEvent,
+                      styles.dayLabelCell,
                       {
-                        height,
-                        backgroundColor: firstEvent.color,
-                        width: "100%",
-                        justifyContent: "center",
+                        height: rowHeight,
+                        backgroundColor: isToday ? "#EFE9FF" : "#fff",
+                        borderColor: isToday ? "#EFE9FF" : "#ccc",
+                        flexDirection: "row",
                         alignItems: "center",
+                        justifyContent: "space-between",
                       },
                     ]}
                   >
-                    <Text style={styles.shiftTextCentered} numberOfLines={2}>
-                      {firstEvent.label}
-                    </Text>
-                  </TouchableOpacity>
-
-                  {/* "+n" chip just below the bar — still opens the modal */}
-                  {restCount > 0 && (
-                    <TouchableOpacity
-                      style={styles.moreChipBelow}
-                      onPress={() => openDayModal(events, date)}
+                    <Text
+                      style={[
+                        styles.dayLabelBottom,
+                        { color: "black" },
+                      ]}
                     >
-                      <Text style={styles.moreChipText}>+{restCount}</Text>
-                    </TouchableOpacity>
-                  )}
+                      {dateObj.getDate()}{" "}
+                      {dateObj.toLocaleDateString("en-US", { month: "short" })}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.dayLabelTop,
+                        { fontWeight: isToday ? "900" : "700" },
+                      ]}
+                    >
+                      {dateObj.toLocaleDateString("en-US", { weekday: "short" })}
+                    </Text>
+                  </View>
+
+                  {/* Timeline row (today tinted + stripes adjusted) */}
+                  <View
+                    style={[
+                      styles.timelineRow,
+                      {
+                        width: timelineWidth,
+                        height: rowHeight,
+                        backgroundColor: isToday ? "#EFE9FF" : "#fff",
+                        borderColor: isToday ? "#EFE9FF" : "#ccc",
+                      },
+                    ]}
+                  >
+                    {/* Hour bands (apply today tint here so background actually shows) */}
+                    <View
+                      style={[
+                        styles.gridColumns,
+                        { backgroundColor: isToday ? "#EFE9FF" : "#fff" },
+                      ]}
+                    >
+                      {range(totalHours).map((i) => (
+                        <View
+                          key={`col-${i}`}
+                          style={[
+                            styles.gridCol,
+                            {
+                              width: HOUR_COL_WIDTH,
+                              backgroundColor: isToday
+                                ? (i % 2 === 1 ? "#EFE9FF" : "#EFE9FF")
+                                : (i % 2 === 1 ? "#fafafa" : "#fff"),
+                            },
+                          ]}
+                        />
+                      ))}
+                    </View>
+
+                    {/* Hour & half-hour guides */}
+                    <View style={[StyleSheet.absoluteFill, { flexDirection: "row" }]}>
+                      {range(totalHours + 1).map((i) => (
+                        <View
+                          key={`vline-${i}`}
+                          style={[
+                            styles.vLine,
+                            { left: i * HOUR_COL_WIDTH - (I18nManager.isRTL ? 1 : 0) },
+                          ]}
+                        />
+                      ))}
+                      {range(totalHours).map((i) => (
+                        <View
+                          key={`half-${i}`}
+                          style={[
+                            styles.vLineHalf,
+                            { left: i * HOUR_COL_WIDTH + HOUR_COL_WIDTH / 2 },
+                          ]}
+                        />
+                      ))}
+                    </View>
+
+                    {/* Events (lanes, no overlap) */}
+                    <View style={StyleSheet.absoluteFill}>
+                      {placed.map(({ e: ev, r, lane }, idx) => {
+                        const start = Math.max(r.start, START_MIN);
+                        const end = Math.min(r.end, END_MIN);
+                        if (end <= START_MIN || start >= END_MIN) return null;
+
+                        const offsetMin = start - START_MIN;
+                        const durationMin = Math.max(end - start, 10);
+
+                        const leftPx = (offsetMin / totalMinutes) * timelineWidth;
+                        const widthPx = (durationMin / totalMinutes) * timelineWidth;
+
+                        const top = V_PADDING + lane * (LANE_HEIGHT + LANE_GAP);
+                        const height = LANE_HEIGHT;
+
+                        return (
+                          <TouchableOpacity
+                            key={`${ev.id || "ev"}-${ev.shiftId || idx}-${key}`}
+                            activeOpacity={0.9}
+                            onPress={() => handleEventPress(ev, dateObj)}
+                            style={[
+                              styles.eventBlock,
+                              {
+                                left: leftPx,
+                                width: Math.max(widthPx, 18),
+                                top,
+                                height,
+                                backgroundColor: ev.color || "#290135",
+                              },
+                            ]}
+                          >
+                            <Text numberOfLines={1} style={styles.eventText}>
+                              {ev.label} {ev.time}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
                 </View>
-              )}
-
-
-
-            </View>
-          );
-        })}
-      </View>
-
-      {/* Day modal listing all events for a day */}
-      <DayEventsModal
-        visible={dayModalOpen}
-        onClose={closeDayModal}
-        date={dayModalDate}
-        events={dayModalEvents}
-        onPick={(ev) => {
-          const date = dayModalDate || new Date();
-          closeDayModal();
-          goEvent(ev, date);
-        }}
-      />
+              );
+            })}
+          </View>
+        </ScrollView>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  weekContainer: { flex: 1, width: "100%", backgroundColor: "#fff",zIndex : -1 },
-  weekGrid: { flexDirection: "row", flex: 1 },
-
-  timeColumn: {
-    width: 50,
-    backgroundColor: "#f9f9f9",
-    borderRightWidth: 1,
-    borderColor: "#ddd",
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginHorizontal: 10,
+    marginTop: 6,
   },
-  timeLabel: {
-    height: ROW_HEIGHT,
-    fontSize: 10,
-    textAlign: "right",
-    paddingRight: 6,
-    color: "#555",
-  },
-
-  dayColumn: {
-    flex: 1,
-    borderRightWidth: 1,
-    borderColor: "#eee",
-    position: "relative",
-    backgroundColor: "#fff",
-  },
-  dayHeaderBox: {
+  dayLabelHeaderCell: {
+    width: 80,
     height: 30,
     justifyContent: "center",
-    alignItems: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: 8,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 6,
+    borderLeftWidth: 1,
+    borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: "#ccc",
-    backgroundColor: "#f0f0f0",
   },
-  dayHeaderText: { fontSize: 12, fontWeight: "600", color: "#333" },
-
-  timeSlot: { height: ROW_HEIGHT, borderBottomWidth: 1, borderColor: "#f1f1f1" },
-  
-  // the colored bar (we center its text inline via justify/align in the component)
-  shiftEvent: {
+  weekRangeText: {
+    color: "#000",
+    fontWeight: "800",
+    fontSize: 12,
+  },
+  timeHeaderRow: {
+    flexDirection: "row",
+    borderTopWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#f8f8f8",
+    borderTopRightRadius: 6,
+  },
+  timeHeaderCell: {
+    height: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    borderLeftWidth: 1,
+    borderColor: "#eee",
+    paddingHorizontal: 1,
+  },
+  timeHeaderText: {
+    fontSize: 11,
+    color: "#555",
+    fontWeight: "700",
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginHorizontal: 10,
+  },
+  dayLabelCell: {
+    width: 80,
+    paddingVertical: 4,
+    paddingHorizontal: 3,
+    borderLeftWidth: 1,
+    borderRightWidth: 0.5,
+    borderBottomWidth: 1,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+  },
+  dayLabelTop: {
+    fontSize: RFValue(10),
+    color: "black",
+    fontWeight: "300",
+  },
+  dayLabelBottom: {
+    fontSize: RFValue(9.5),
+    marginTop: 1,
+    fontWeight: "400",
+  },
+  timelineRow: {
+    borderRightWidth: 1,
+    borderBottomWidth: 2,
+    overflow: "hidden",
+  },
+  gridColumns: {
+    flexDirection: "row",
+    ...StyleSheet.absoluteFillObject,
+  },
+  gridCol: {
+    height: "100%",
+    backgroundColor: "#fff",
+  },
+  gridColAlt: {
+    backgroundColor: "#fafafa",
+  },
+  vLine: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: StyleSheet.hairlineWidth,
+    backgroundColor: "#ddd",
+  },
+  vLineHalf: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: StyleSheet.hairlineWidth,
+    backgroundColor: "#eee",
+  },
+  eventBlock: {
     position: "absolute",
     borderRadius: 6,
     paddingHorizontal: 6,
-    overflow: "hidden",
-    zIndex: 5,
-  },
-
-  // centered text inside the bar
-  shiftTextCentered: {
-    fontSize: 10,
-    color: "#fff",
-    fontWeight: "bold",
-    lineHeight: 14,
-    textAlign: "center",
-  },
-
-  // (legacy) if you use non-centered bar labels elsewhere
-  shiftText: {
-    fontSize: 10,
-    color: "#fff",
-    fontWeight: "bold",
-    lineHeight: 14,
-  },
-
-  // +n chip directly under the bar, centered horizontally
-  moreChipBelow: {
-    alignSelf: "center",
-    marginTop: 10,
-    backgroundColor: "#eee",
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    zIndex: 10
-  },
-  moreChipText: { fontSize: 11, color: "#333", fontWeight: "600" },
-
-  // if you still need a side chip somewhere else
-  moreChipBeside: {
-    backgroundColor: "#eee",
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-
-  // Day modal
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
     justifyContent: "center",
-    alignItems: "center",
   },
-  dayModal: {
-    backgroundColor: "#fff",
-    width: "88%",
-    borderRadius: 12,
-    padding: 16,
-  },
-  dayModalTitle: {
-    fontSize: 16,
+  eventText: {
+    color: "#fff",
+    fontSize: 10,
     fontWeight: "700",
-    color: "#111",
-    marginBottom: 10,
   },
-  dayModalItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: "#eee",
-  },
-  colorDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  dayModalItemText: { color: "#111", fontWeight: "600" },
-  dayModalItemSub: { color: "#666", fontSize: 12, marginTop: 2 },
-
-  dayModalClose: {
-    alignSelf: "flex-end",
-    marginTop: 12,
-    borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-  },
-  dayModalCloseText: { color: "#333", fontWeight: "700" },
 });

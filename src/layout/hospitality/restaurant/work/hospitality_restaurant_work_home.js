@@ -38,24 +38,30 @@ export default function HospitalityRestaurantWorkHome ({ navigation }) {
         <MHeader navigation={navigation} />
         <SubNavbar navigation={navigation} name={'HospitalityRestaurantWorkLogin'}/>
         <ScrollView style={{width: '100%', marginTop: height * 0.22}} showsVerticalScrollIndicator={false}>
+
           <View style={styles.topView}>
             <TouchableOpacity onPress={() => navigation.navigate("HospitalityRestaurantWorkBookShift")}>
               <AnimatedHeader title="Restaurant Book Shifts Now!" style={{ paddingHorizontal: 30 }} />
             </TouchableOpacity>
           </View>
           <View style={styles.imageButton}>
-          <View style={styles.buttonWrapper}>
-            <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityRestaurantWorkEditProfile')} />
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Profile"} onPress={() => handleNavigate('HospitalityRestaurantWorkEditProfile')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityRestaurantWorkTimesheetForm')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Shifts"} onPress={() => handleNavigate('HospitalityRestaurantWorkMyShift')} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <ImageButton title={"My Reporting"} onPress={() => handleNavigate('HospitalityRestaurantWorkReporting')} />
+            </View>
           </View>
-          <View style={styles.buttonWrapper}>
-            <ImageButton title={"Electronic Timesheet"} onPress={() => handleNavigate('HospitalityRestaurantWorkTimesheetForm')} />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <ImageButton title={"My Shifts"} onPress={() => handleNavigate('HospitalityRestaurantWorkMyShift')} />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <ImageButton title={"My Reporting"} onPress={() => handleNavigate('HospitalityRestaurantWorkReporting')} />
-          </View>
+          <View style={styles.bottomView}>
+            <TouchableOpacity onPress={() => navigation.navigate("HospitalityRestaurantWorkAssignedShift")}>
+              <AnimatedHeader title="Restaurant Assigned Shifts!" style={{ paddingHorizontal: 30 }} />
+            </TouchableOpacity>
           </View>
           <View style={{ flex:1, justifyContent: 'center', width: '100%', alignItems: 'center' }}>
             <View style={styles.profile}>
@@ -112,12 +118,23 @@ const styles = StyleSheet.create({
   },
 
   topView: {
-    marginTop: RFValue(5),
-    marginLeft: '10%',
-    width: '80%',
+    marginTop: RFValue(3),
+    width: '90%',
     flexDirection: 'column',
-    justifyContent:'center',
-    alignItems: 'center'
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom : RFValue(5)
+  },
+
+  bottomView: {
+    marginTop: RFValue(0),
+    width: '90%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom : RFValue(7)
   },
   imageButton: {
     flexDirection: 'row',

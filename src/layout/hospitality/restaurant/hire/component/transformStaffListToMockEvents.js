@@ -1,6 +1,5 @@
 export const transformStaffListToMockEvents = (staffList) => {
     const result = {};
-  
     staffList.forEach((staff, index) => {
       const color = `hsl(${(index * 137.5) % 360}, 70%, 50%)`;
   
@@ -14,7 +13,8 @@ export const transformStaffListToMockEvents = (staffList) => {
         const aic = staff.aic;
         const id = staff.id;
         const shiftId = shift.id;
-  
+        const status = shift.status
+
         if (!result[date]) result[date] = [];
   
         result[date].push({
@@ -24,6 +24,7 @@ export const transformStaffListToMockEvents = (staffList) => {
           aic,
           id,
           shiftId,
+          status
         });
       });
     });

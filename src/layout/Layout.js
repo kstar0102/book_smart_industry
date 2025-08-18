@@ -82,6 +82,7 @@ import HospitalityRestaurantWorkUploadTimesheet from './hospitality/restaurant/w
 import HospitalityRestaurantWorkReporting from './hospitality/restaurant/work/hospitality_restaurant_work_reporting.js';
 import HospitalityRestaurantWorkBookShift from './hospitality/restaurant/work/hospitality_restaurant_work_bookshift.js';
 import HospitalityRestaurantWorkApplyShift from './hospitality/restaurant/work/hospitality_restaurant_work_applyshift.js';
+import HospitalityRestaurantWorkAssignedShift from './hospitality/restaurant/work/hospitality_restaurant_work_assignedShift.js';
 
 import HospitalityRestaurantHireHome from './hospitality/restaurant/hire/hospitality_restaurant_hire_home.js';
 import HospitalityRestaurantHirePostShift from './hospitality/restaurant/hire/hospitality_restaurant_hire_postshift.js';
@@ -109,6 +110,7 @@ import HospitalityHotelWorkBookShift from './hospitality/hotel/work/hospitality_
 import HospitalityHotelWorkApplyShift from './hospitality/hotel/work/hospitality_hotel_work_applyshift.js';
 import HospitalityHotelWorkUploadTimesheet from './hospitality/hotel/work/hospitality_hotel_work_uploadtimesheet.js';
 import HospitalityHotelWorkTerms from './hospitality/hotel/work/hospitality_hotel_work_terms.js';
+import HospitalityHotelWorkAssignedShift from './hospitality/hotel/work/hospitality_hotel_work_assignedShift.js';
 
 import HospitalityHotelHireSignIn from './hospitality/hotel/hire/hospitality_hotel_hire_signin.js';
 import HospitalityHotelHireSignUp from './hospitality/hotel/hire/hospitality_hotel_hire_signup.js';
@@ -218,6 +220,18 @@ function Layout() {
       <Stack.Screen 
         name= 'ShiftDetailScreen'
         component = {ShiftDetailScreen}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityRestaurantWorkAssignedShift'
+        component = {HospitalityRestaurantWorkAssignedShift}
+        options={{headerShown: false}}
+      />
+
+      <Stack.Screen 
+        name= 'HospitalityHotelWorkAssignedShift'
+        component = {HospitalityHotelWorkAssignedShift}
         options={{headerShown: false}}
       />
 

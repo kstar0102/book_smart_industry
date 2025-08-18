@@ -10,12 +10,104 @@ export const Signup = async (userData, endpoint) => {
     return {error: error};
   }
 };
+/** Normalize errors into a consistent shape */
+const normalizeError = (err) => {
+  // Axios error?
+  if (err && err.isAxiosError) {
+    const status = err.response?.status;
+    const data = err.response?.data;
+    const message =
+      data?.message ||
+      err.message ||
+      'Network or server error';
+    return { code: status, message, details: data };
+  }
+  // Generic
+  return { code: undefined, message: err?.message ?? String(err) };
+};
+
+/** GET assigned shifts for the logged-in user (reads aic from AsyncStorage) */
+export const getAssignedShifts = async (endpoint) => {
+  try {
+    const aicStr = await AsyncStorage.getItem('aic');
+    console.log(aicStr);
+    console.log(endpoint);
+    if (!aicStr) throw new Error('Missing AIC in storage');
+    const userId = Number(aicStr);
+    const res = await axios.post(
+      `api/${endpoint}/getAssignedShift`,
+      { userId });
+
+    console.log("getAssignedShifts", res.data?.assignedShift);
+
+    const list = Array.isArray(res.data?.assignedShift)
+      ? res.data.assignedShift
+      : [];
+
+    return { ok: true, data: list };
+  } catch (err) {
+    return { ok: false, error: normalizeError(err) };
+  }
+};
+
+/**
+ * Update one assigned shift status from the user side.
+ * status must be one of: "accept" | "reject" | "cancel"
+ * Returns { ok, data } on success (adminRowsUpdated >= 1), else { ok:false, error }
+ */
+export const setStatusFromUser = async ({endpoint, assignedShiftId, status }) => {
+  try {
+    const aicStr = await AsyncStorage.getItem('aic');
+    const existingToken = await AsyncStorage.getItem('token');
+    if (!aicStr) throw new Error('Missing AIC in storage');
+
+    const payload = {
+      userAic: Number(aicStr),
+      assignedShiftId: Number(assignedShiftId),
+      status, // 'accept' | 'reject' | 'cancel'
+    };
+
+    const res = await axios.post(
+      `api/${endpoint}/setStatusFromUser`, 
+      payload,
+      { headers: {
+        Authorization: `Bearer ${existingToken}`,
+      }},
+    );
+
+    // Robust success check: message text + rows updated
+    const okByRows = typeof res.data?.adminRowsUpdated === 'number'
+      ? res.data.adminRowsUpdated > 0
+      : true; // if backend omits it, still treat 200 as success
+
+    const okByMessage = typeof res.data?.message === 'string'
+      ? /synchron/i.test(res.data.message) || /ok/i.test(res.data.message)
+      : true;
+
+    if (okByRows && okByMessage) {
+      return { ok: true, data: res.data };
+    }
+
+    // 200 but backend signals failure
+    return {
+      ok: false,
+      error: {
+        code: res.status,
+        message: res.data?.message || 'Update failed',
+        details: res.data,
+      },
+    };
+  } catch (err) {
+    return { ok: false, error: normalizeError(err) };
+  }
+};
 
 export const Signin = async (credentials, endpoint) => {
   try {
     const response = await axios.post(`api/${endpoint}/login`, credentials);
     
     if (response.data.token) {
+      // console.log(response.data.token);
       await AsyncStorage.setItem('token', response.data.token);
 
       const aic = response.data.user?.aic;
@@ -49,7 +141,8 @@ export const getShiftTypes = async (userData, endpoint) => {
   try {
     const existingToken = await AsyncStorage.getItem('token');
 
-    const response = await axios.post(`/api/${endpoint}/getShiftTypes`, userData, {
+    const response = await axios.post(
+      `/api/${endpoint}/getShiftTypes`, userData, {
       headers: {
         Authorization: `Bearer ${existingToken}`,
       },
@@ -285,9 +378,6 @@ export const deleteShiftFromStaff = async (endpoint, managerAic, staffId, shiftI
   }
 };
 
-
-
-// utils/useApi.js
 export async function editShiftFromStaff(
   endpoint,
   managerAic,
