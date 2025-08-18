@@ -62,6 +62,11 @@ export default function HospitalityHotelWorkHome ({ navigation }) {
               <ImageButton title={"My Reporting"} onPress={() => handleNavigate('HospitalityHotelWorkReporting')} />
             </View>
           </View>
+          <View style={styles.bottomView}>
+            <TouchableOpacity onPress={() => navigation.navigate("HospitalityHotelWorkAssignedShift")}>
+              <AnimatedHeader title="Hotel Assigned Shifts!" style={{ paddingHorizontal: 30 }} />
+            </TouchableOpacity>
+          </View>
           <View style={{ flex:1, justifyContent: 'center', width: '100%', alignItems: 'center' }}>
             <View style={styles.profile}>
               <View style={{height : 10}}/>
@@ -97,6 +102,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
     width: '100%'
+  },
+  bottomView: {
+    marginTop: RFValue(0),
+    width: '90%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    marginBottom : RFValue(7)
   },
   itemcentered: {
     alignItems: 'center',

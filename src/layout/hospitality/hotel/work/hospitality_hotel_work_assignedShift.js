@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,36 +6,111 @@ import {
   FlatList,
   StatusBar,
   Dimensions,
-  navigation,
-  TouchableOpacity
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import MFooter from '../../../../components/Mfooter';
 import MHeader from '../../../../components/Mheader';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { getAssignedShifts, setStatusFromUser } from '../../../../utils/useApi';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 const FOOTER_HEIGHT = RFValue(130);
-
-const MOCK_SHIFTS = [
-  { location: 'Central Kitchen', date: '2025-08-10', time: '08:00 — 16:00', status: 'PENDING' },
-  { location: 'Riverside Bistro', date: '2025-08-11', time: '12:00 — 20:00', status: 'PENDING' },
-  { location: 'Grand Hotel – Banquet', date: '2025-08-12', time: '18:00 — 23:00', status: 'APPROVED' },
-  { location: 'Airport Lounge T2', date: '2025-08-13', time: '07:00 — 15:00', status: 'PENDING' },
-  { location: 'Old Town Café', date: '2025-08-14', time: '09:00 — 17:00', status: 'REJECTED' },
-];
 
 const statusStyle = (status) => {
   switch (status) {
-    case 'PENDING': return { bg: '#FEF9C3', fg: '#A16207' };
-    case 'APPROVED': return { bg: '#DCFCE7', fg: '#166534' };
-    case 'REJECTED': return { bg: '#FEE2E2', fg: '#991B1B' };
-    default: return { bg: '#EEE', fg: '#000' };
+    case 'PENDING':   return { bg: '#FEF9C3', fg: '#A16207' };
+    case 'APPROVED':  return { bg: '#DCFCE7', fg: '#166534' };
+    case 'REJECTED':  return { bg: '#FEE2E2', fg: '#991B1B' };
+    case 'CANCELLED': return { bg: '#E5E7EB', fg: '#374151' };
+    default:          return { bg: '#EEE',    fg: '#000'     };
   }
 };
 
+const normalizeStatus = (s) => {
+  const v = (s || '').toLowerCase();
+  if (v === 'pending') return 'PENDING';
+  if (v === 'accept' || v === 'approved' || v === 'approve') return 'APPROVED';
+  if (v === 'reject' || v === 'rejected') return 'REJECTED';
+  if (v === 'cancel' || v === 'cancelled') return 'CANCELLED';
+  return 'PENDING';
+};
+
+const mapApiItem = (api) => ({
+  id: api.id, // this is assignedShiftId from your API
+  assignedShiftId: api.id,
+  location: api.companyName,
+  date: api.date,
+  time: api.time,
+  status: normalizeStatus(api.status),
+});
+
 export default function HospitalityHotelWorkAssignedShift() {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [shifts, setShifts] = useState([]);
+  const [busyId, setBusyId] = useState(null); 
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res = await getAssignedShifts("hotel_user");
+    if (!res.ok) {
+      console.error(res.error);
+      Alert.alert('Error', res.error?.message || 'Failed to load assigned shifts.');
+      setShifts([]);
+    } else {
+      setShifts(res.data.map(mapApiItem));
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
+  const onChangeStatus = useCallback(async (item, next) => {
+    console.log(item);
+    // next: 'accept' | 'reject' | 'cancel'
+    setBusyId(item.id);
+    const res = await setStatusFromUser
+    ({endpoint: 'hotel_user',   assignedShiftId: item.assignedShiftId, status: next });
+    setBusyId(null);
+
+    if (!res.ok) {
+      console.error(res.error);
+      Alert.alert('Update failed', res.error?.message || 'Please try again.');
+      return;
+    }
+
+    // Optionally, verify the "to" status in response
+    const to = res.data?.user?.to;
+    if (to && to !== next) {
+      // Backend returned a different status than requested
+      Alert.alert('Warning', `Server applied status "${to}" (requested "${next}").`);
+    }
+
+    // Optimistic UI update
+    setShifts((prev) =>
+      prev.map((s) =>
+        s.id === item.id ? { ...s, status: normalizeStatus(to || next) } : s
+      )
+    );
+  }, []);
+
   const renderItem = ({ item }) => {
     const chip = statusStyle(item.status);
+    const isPending = item.status === 'PENDING';
+    const isBusy = busyId === item.id;
+
     return (
       <View style={styles.card}>
         <View style={[styles.statusChip, { backgroundColor: chip.bg }]}>
@@ -44,21 +119,13 @@ export default function HospitalityHotelWorkAssignedShift() {
 
         <View style={styles.row}>
           <Text style={styles.label}>Location :</Text>
-          <Text 
-            style={styles.value} 
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
+          <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
             {item.location}
           </Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Date :</Text>
-          <Text 
-            style={styles.value}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
+          <Text style={styles.value} numberOfLines={1} ellipsizeMode="tail">
             {item.date}
           </Text>
         </View>
@@ -67,22 +134,31 @@ export default function HospitalityHotelWorkAssignedShift() {
           <Text style={styles.value}>{item.time}</Text>
         </View>
 
-        
-
-        {/* Actions */}
-        {item.status === 'PENDING' ? (
+        {isPending ? (
           <View style={styles.actionRow}>
-            <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]} onPress={() => {}}>
-              <Text style={styles.actionText}>Accept</Text>
+            <TouchableOpacity
+              disabled={isBusy}
+              style={[styles.actionBtn, styles.acceptBtn, isBusy && styles.disabledBtn]}
+              onPress={() => onChangeStatus(item, 'accept')}
+            >
+              {isBusy ? <ActivityIndicator /> : <Text style={styles.actionText}>Accept</Text>}
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionBtn, styles.rejectBtn]} onPress={() => {}}>
-              <Text style={styles.actionText}>Reject</Text>
+            <TouchableOpacity
+              disabled={isBusy}
+              style={[styles.actionBtn, styles.rejectBtn, isBusy && styles.disabledBtn]}
+              onPress={() => onChangeStatus(item, 'reject')}
+            >
+              {isBusy ? <ActivityIndicator /> : <Text style={styles.actionText}>Reject</Text>}
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.actionCRow}>
-            <TouchableOpacity style={[styles.actionBtn, styles.cancelBtn]} onPress={() => {}}>
-              <Text style={styles.actionText}>Cancel</Text>
+            <TouchableOpacity
+              disabled={isBusy}
+              style={[styles.actionBtn, styles.cancelBtn, isBusy && styles.disabledBtn]}
+              onPress={() => onChangeStatus(item, 'pending')}
+            >
+              {isBusy ? <ActivityIndicator /> : <Text style={styles.actionText}>Cancel</Text>}
             </TouchableOpacity>
           </View>
         )}
@@ -90,71 +166,60 @@ export default function HospitalityHotelWorkAssignedShift() {
     );
   };
 
-  const ListHeader = (
+  const ListHeader = useMemo(() => (
     <View style={styles.headerWrap}>
       <View style={styles.topView}>
-      <AnimatedHeader title="RESTAURANT ASSIGNED SHIFTS" />
+        <Text style={styles.title}>HOTEL ASSIGNED SHIFTS</Text>
         <View style={styles.bottomBar} />
       </View>
-
       <Text style={styles.subtitle}>
-        All shifts are assigned directly to you by manager. Please 
-        <Text style = {{fontWeight : "bold"}}>{' '}approve</Text> or 
-        <Text style = {{fontWeight : "bold"}}>{' '}cancel</Text> them.
+        All shifts are assigned directly to you by manager. Please
+        <Text style={{ fontWeight: 'bold' }}>{' '}approve</Text> or
+        <Text style={{ fontWeight: 'bold' }}>{' '}cancel</Text> them.
       </Text>
     </View>
-  );
+  ), []);
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent"/>
-      <MHeader navigation={navigation} back={true}/>
+      <StatusBar translucent backgroundColor="transparent" />
+      <MHeader navigation={navigation} back={true} />
+
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
+        </View>
+      ) : (
         <FlatList
-          data={MOCK_SHIFTS}
-          keyExtractor={(_, i) => String(i)}
+          data={shifts}
+          keyExtractor={(item) => String(item.id)}
           renderItem={renderItem}
           ListHeaderComponent={ListHeader}
           contentContainerStyle={[
             styles.listContent,
-            { marginTop: height * 0.15,
-              paddingBottom: FOOTER_HEIGHT + RFValue(34),
-            }
+            { marginTop: height * 0.15, paddingBottom: FOOTER_HEIGHT + RFValue(34) },
           ]}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <Text style={{ textAlign: 'center', marginTop: RFValue(24) }}>
+              No assigned shifts.
+            </Text>
+          }
         />
+      )}
       <MFooter />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    width: '100%', 
-    backgroundColor: '#fff' 
-  },
-
-  listContent: {
-    paddingHorizontal: RFValue(16),
-    paddingBottom: RFValue(40),
-  },
-
-  headerWrap: {
-    alignItems: 'center',
-    paddingTop: RFValue(1),
-  },
-
-  topView: { 
-    marginTop: RFValue(4), 
-    width: '100%', 
-    alignItems: 'center' 
-  },
-
-  title: { 
-    fontSize: RFValue(18), 
-    fontWeight: 'bold', 
-    color: '#000' 
-  },
+  container: { flex: 1, width: '100%', backgroundColor: '#fff' },
+  listContent: { paddingHorizontal: RFValue(16), paddingBottom: RFValue(40) },
+  headerWrap: { alignItems: 'center', paddingTop: RFValue(1) },
+  topView: { marginTop: RFValue(4), width: '100%', alignItems: 'center' },
+  title: { fontSize: RFValue(18), fontWeight: 'bold', color: '#000' },
   bottomBar: {
     marginTop: RFValue(30),
     height: RFValue(5),
@@ -168,7 +233,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: RFValue(16),
     paddingHorizontal: RFValue(12),
-    marginBottom : RFValue(15)
+    marginBottom: RFValue(15),
   },
   card: {
     backgroundColor: '#dcd6fa',
@@ -178,54 +243,43 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     marginBottom: RFValue(10),
   },
-  row: { 
-    flexDirection: 'row', 
-    marginBottom: RFValue(6) 
-  },
-  label: { 
-    color : 'black',
+  row: { flexDirection: 'row', marginBottom: RFValue(6) },
+  label: {
+    color: 'black',
     fontWeight: 'bold',
     fontSize: RFValue(15),
     lineHeight: RFValue(20),
-    width: '30%'
+    width: '30%',
   },
-  value: { 
-    width: '70%', 
-    color: 'black', 
+  value: {
+    width: '70%',
+    color: 'black',
     fontSize: RFValue(13.5),
-    overflow: 'hidden', 
-    minWidth: 0,  },
+    overflow: 'hidden',
+    minWidth: 0,
+  },
   statusChip: {
     alignSelf: 'flex-end',
     paddingVertical: RFValue(4),
     paddingHorizontal: RFValue(10),
     borderRadius: RFValue(999),
     marginTop: RFValue(2),
-    marginBottom : RFValue(10)
+    marginBottom: RFValue(10),
   },
   statusText: { fontWeight: '700', fontSize: RFValue(12) },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: RFValue(8),
-    marginTop: RFValue(5),
-  },
-  actionCRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: RFValue(8),
-    marginTop: RFValue(5),
-  },
+  actionRow: { flexDirection: 'row', justifyContent: 'space-between', gap: RFValue(8), marginTop: RFValue(5) },
+  actionCRow: { flexDirection: 'row', justifyContent: 'flex-end', gap: RFValue(8), marginTop: RFValue(5) },
   actionBtn: {
     paddingVertical: RFValue(8),
     paddingHorizontal: RFValue(14),
     borderRadius: RFValue(8),
     width: 130,
-    alignItems: 'center',      
+    alignItems: 'center',
     justifyContent: 'center',
   },
+  disabledBtn: { opacity: 0.6 },
   acceptBtn: { backgroundColor: '#A020F0' },
   rejectBtn: { backgroundColor: '#991B1B' },
   cancelBtn: { backgroundColor: '#6B7280' },
-  actionText: { color: '#fff', fontWeight: '700', fontSize: RFValue(12)},
+  actionText: { color: '#fff', fontWeight: '700', fontSize: RFValue(12) },
 });

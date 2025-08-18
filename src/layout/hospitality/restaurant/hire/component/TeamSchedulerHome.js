@@ -552,7 +552,6 @@ const HomeTab = ({
               );
             })()}
 
-            {/* Delete button on the right (unchanged action) */}
             <Pressable
               style={styles.deleteButton}
               onPress={() => {
