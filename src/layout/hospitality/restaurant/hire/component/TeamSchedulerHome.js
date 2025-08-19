@@ -8,7 +8,8 @@ import {
   StyleSheet,
   Modal,
   Alert,
-  Pressable
+  Pressable,
+  ActivityIndicator 
 } from "react-native";
 import DatePicker from 'react-native-date-picker';
 import MonthView from "./MonthView";
@@ -21,11 +22,26 @@ import {
   getStaffShiftInfo,
   getShiftTypes,
   editShiftFromStaff,
-  deleteShiftFromStaff
+  deleteShiftFromStaff,
+  addShiftType,
+  addShiftToStaff
  } from '../../../../../utils/useApi';
 import { transformStaffListToMockEvents } from './transformStaffListToMockEvents';
 
-// Status helpers (put above the component or anywhere before use)
+const BusyOverlay = ({ visible, text }) => {
+  if (!visible) return null;
+  return (
+    <Modal visible transparent animationType="fade">
+      <View style={styles.busyBackdrop}>
+        <View style={styles.busyCard}>
+          <ActivityIndicator size="large" />
+          {text ? <Text style={styles.busyText}>{text}</Text> : null}
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
 const normalizeStatus = (s) => {
   const v = (s || '').toLowerCase();
   if (v === 'pending') return 'PENDING';
@@ -44,6 +60,25 @@ const statusColors = (label) => {
     default:          return { bg: '#EEE',    fg: '#000'     };
   }
 };
+
+const formatWeekRange = (anchorDate = new Date()) => {
+  const d = new Date(anchorDate);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();              // 0 = Sun
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate() - day);   // back to Sunday
+  const saturday = new Date(sunday);
+  saturday.setDate(sunday.getDate() + 6);
+
+  const startDay = sunday.getDate();
+  const endDay = saturday.getDate();
+
+  // If week spans years, show both years: "29-4, 2024–2025"
+  const y1 = sunday.getFullYear();
+  const y2 = saturday.getFullYear();
+  return y1 === y2 ? `${startDay}-${endDay}, ${y2}` : `${startDay}-${endDay}, ${y1}–${y2}`;
+};
+
 
 
 const HomeTab = ({
@@ -80,10 +115,22 @@ const HomeTab = ({
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const [bootLoading, setBootLoading] = useState(false); 
+  const [opLoading, setOpLoading] = useState(false);     
+  const [busyText, setBusyText] = useState('');  
+
   useEffect(() => {
-    fetchStaffInfo();
-    fetchShiftTypes();
-  }, []); 
+    (async () => {
+      setBusyText('Loading…');
+      setBootLoading(true);
+      try {
+        await Promise.all([fetchStaffInfo(), fetchShiftTypes()]);
+      } finally {
+        setBootLoading(false);
+        setBusyText('');
+      }
+    })();
+  }, []);
 
   const fetchStaffInfo = async () => {
     try {
@@ -248,7 +295,8 @@ const HomeTab = ({
         Alert.alert('No event selected to delete.');
         return;
       }
-  
+
+      setBusyText('Deleting…');
       setDeleting(true);
   
       const [aicRaw, roleRaw] = await Promise.all([
@@ -286,7 +334,7 @@ const HomeTab = ({
         setShowConfirmDelete(false);
         setShowEventModal(false);
         setSelectedEvent(null);
-        alert('Shift deleted.');
+        Alert.alert('Shift deleted.');
       } else {
         Alert.alert(`Delete failed: ${result?.message || 'Unknown error'}`);
         await fetchStaffInfo();          // ensure UI not stale
@@ -294,11 +342,12 @@ const HomeTab = ({
       }
     } catch (e) {
       console.error('Delete error:', e);
-      alert('Delete failed. Please try again.');
+      Alert.alert('Delete failed. Please try again.');
       await fetchStaffInfo();
       setShowConfirmDelete(false);
     } finally {
       setDeleting(false);
+      setBusyText('');
     }
   };
 
@@ -317,6 +366,9 @@ const HomeTab = ({
         Alert.alert('Pick a shift time.');
         return;
       }
+
+      setBusyText('Updating shift…');
+      setOpLoading(true);
   
       // 2) Read AIC + Role in parallel
       const [aicRaw, roleRaw] = await Promise.all([
@@ -336,7 +388,7 @@ const HomeTab = ({
   
       if (!Number.isFinite(aic) || !endpoint) {
         console.warn('Missing/invalid AIC or unsupported role:', { aicRaw, role });
-        alert('Unable to update shift: account/role not set.');
+        Alert.alert('Unable to update shift: account/role not set.');
         return;
       }
   
@@ -362,13 +414,16 @@ const HomeTab = ({
       if (result?.success) {
         await fetchStaffInfo();        // refresh
         setShowEventModal(false);      // close
-        alert('Shift updated!');
+        Alert.alert('Shift updated!');
       } else {
-        alert(`Update failed: ${result?.message || 'Unknown error'}`);
+        Alert.alert(`Update failed: ${result?.message || 'Unknown error'}`);
       }
     } catch (err) {
       console.error('Edit shift failed:', err);
-      alert('Network error while updating shift. Please try again.');
+      Alert.alert('Network error while updating shift. Please try again.');
+    } finally {
+      setOpLoading(false);
+      setBusyText('');
     }
   };
 
@@ -401,6 +456,93 @@ const HomeTab = ({
       setSelectedShift(null);
     }
   };
+
+  const _norm = (s = "") =>
+    s.replace(/\u202F/g, " ").replace(/\s+/g, " ").replace(/[^\dAPMapm: ]/g, "").trim().toUpperCase();
+
+  const handleCreateShiftFromRange = async ({
+    date,
+    startLabel,
+    endLabel,
+    staffId,
+    shiftText
+  }) => {
+    try {
+      // 0) Guards
+      if (!date || !startLabel || !endLabel || !staffId) {
+        Alert.alert('Missing info', 'Please pick a staff and a valid time range.');
+        return;
+      }
+
+      setBusyText('Creating shift…');
+      setOpLoading(true);
+  
+      // 1) Get manager context
+      const [aicRaw, roleRaw] = await Promise.all([
+        AsyncStorage.getItem('aic'),
+        AsyncStorage.getItem('HireRole'),
+      ]);
+      const aic = Number.parseInt((aicRaw || '').trim(), 10);
+      const role = (roleRaw || '').trim();
+      const endpointMap = { restaurantManager: 'restau_manager', hotelManager: 'hotel_manager' };
+      const endpoint = endpointMap[role];
+  
+      if (!Number.isFinite(aic) || !endpoint) {
+        Alert.alert('Account issue', 'Unable to determine your role/account. Please re-login.');
+        return;
+      }
+  
+      // 2) First, register (ensure) a shift TYPE with this start/end
+      //    If it already exists (by time), skip creating a duplicate.
+      let exists = (Array.isArray(shiftTypes) ? shiftTypes : []).find(
+        s => _norm(s.start) === _norm(startLabel) && _norm(s.end) === _norm(endLabel)
+      );
+  
+      if (!exists) {
+        const body = {
+          aic,
+          name: shiftText,
+          start: startLabel,
+          end: endLabel,
+        };
+        const resp = await addShiftType(body, endpoint);
+        if (resp?.error) {
+          Alert.alert('Failed to create shift type', 'Please try again.');
+          return;
+        }
+        // refresh local shift types so future matches are instant
+        await fetchShiftTypes();
+      }
+  
+      // 3) Next, assign the shift to the selected staff for the selected DATE
+      const formattedDate = date.toLocaleDateString('en-US', {
+        year: 'numeric', month: 'long', day: 'numeric',
+      });
+      const timeStr = `${startLabel} ➔ ${endLabel}`;
+      const shiftPayload = [{ date: formattedDate, time: timeStr }];
+  
+      const assignRes = await addShiftToStaff(
+        endpoint,
+        aic,
+        String(staffId),     
+        shiftPayload         // e.g. [{"date":"August 20, 2025","time":"3:07 AM ➔ 9:07 AM"}]
+      );
+  
+      if (assignRes?.success) {
+        await fetchStaffInfo();
+        Alert.alert('Shift created', `${formattedDate} • ${timeStr}`);
+      } else {
+        Alert.alert('Assign failed', assignRes?.message || 'Please try again.');
+      }
+    } catch (err) {
+      console.error('handleCreateShiftFromRange error:', err);
+      Alert.alert('Error', 'Could not create the shift. Please try again.');
+    }
+    finally {
+      setOpLoading(false);
+      setBusyText('');
+    }
+  };
   
 
   return (
@@ -431,18 +573,15 @@ const HomeTab = ({
             {viewMode === "Month"
               ? `${months[month].slice(0, 3)} ${year}`
               : viewMode === "Week"
-              ? weekStartDate.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })
+              ? formatWeekRange(weekStartDate)   // ← was toLocaleDateString(...)
               : dayDate.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "long",
+                  weekday: "short",
+                  month: "short",
                   day: "numeric",
                   year: "numeric",
                 })}
           </Text>
+
 
           <TouchableOpacity onPress={handleNext} style={styles.navButton}>
             <Text style={styles.navText}>▶</Text>
@@ -502,10 +641,17 @@ const HomeTab = ({
       {viewMode === 'Week' && (
         <WeekView
           startDate={weekStartDate}
-          mockEvents={ShiftData}               
-          onEventPress={handleMonthEventPress} 
-          setSelectedEvent={setSelectedEvent}  
+          mockEvents={ShiftData}
+          onEventPress={handleMonthEventPress}
+          setSelectedEvent={setSelectedEvent}l
           setShowEventModal={setShowEventModal}
+
+          /* NEW */
+          staffList={staffList}
+          onTimeRangeSelected={handleCreateShiftFromRange}
+          // onTimeRangeSelected={(payload) => {
+          //   console.log('Range confirmed:', payload);
+          // }}
         />
       )}
 
@@ -644,11 +790,36 @@ const HomeTab = ({
         </View>
       </Modal>
 
+      <BusyOverlay
+        visible={bootLoading || opLoading || deleting}
+        text={busyText || (deleting ? 'Deleting…' : '')}
+      />
+
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  busyBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  busyCard: {
+    backgroundColor: '#fff',
+    paddingVertical: 18,
+    paddingHorizontal: 22,
+    borderRadius: 12,
+    alignItems: 'center',
+    minWidth: 160,
+    gap: 10,
+  },
+  busyText: {
+    color: '#111',
+    fontWeight: '700',
+  },
+
   modalHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',

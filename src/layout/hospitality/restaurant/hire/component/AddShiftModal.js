@@ -101,6 +101,7 @@ export default function AddShiftModal({ visible, onClose, onReload }) {
         start: formatTime(startTime),
         end: formatTime(endTime),
       };
+      console.log(body);
 
       const response = await addShiftType(body, endpoint);
       if (response?.error) {

@@ -53,7 +53,7 @@ export default function StaffTab() {
         // Fetch
         const data = await getStaffShiftInfo(endpoint, aic);
 
-        console.log('📦 getStaffShiftInfo raw:', JSON.stringify(data, null, 2));
+        // console.log('📦 getStaffShiftInfo raw:', JSON.stringify(data, null, 2));
     
         // Shape + guard
         const list = (Array.isArray(data) ? data : []).map((user) => ({
