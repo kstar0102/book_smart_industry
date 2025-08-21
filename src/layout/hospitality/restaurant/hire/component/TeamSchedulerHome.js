@@ -63,22 +63,27 @@ const statusColors = (label) => {
 
 const formatWeekRange = (anchorDate = new Date()) => {
   const d = new Date(anchorDate);
-  d.setHours(0, 0, 0, 0);
-  const day = d.getDay();              // 0 = Sun
+  d.setHours(12, 0, 0, 0);
+
   const sunday = new Date(d);
-  sunday.setDate(d.getDate() - day);   // back to Sunday
+  sunday.setDate(d.getDate() - d.getDay());
   const saturday = new Date(sunday);
   saturday.setDate(sunday.getDate() + 6);
 
-  const startDay = sunday.getDate();
-  const endDay = saturday.getDate();
-
-  // If week spans years, show both years: "29-4, 2024–2025"
+  const m1 = sunday.toLocaleString('en-US', { month: 'short' });  
+  const m2 = saturday.toLocaleString('en-US', { month: 'short' });
+  const s  = sunday.getDate();
+  const e  = saturday.getDate();
   const y1 = sunday.getFullYear();
   const y2 = saturday.getFullYear();
-  return y1 === y2 ? `${startDay}-${endDay}, ${y2}` : `${startDay}-${endDay}, ${y1}–${y2}`;
-};
 
+  if (y1 === y2) {
+    if (m1 === m2) return `${m1} ${s}–${e}, ${y1}`;
+    return `${m1} ${s} – ${m2} ${e}, ${y1}`;
+  }
+
+  return `${m1} ${s}, ${y1} – ${m2} ${e}, ${y2}`;
+};
 
 
 const HomeTab = ({
@@ -573,7 +578,7 @@ const HomeTab = ({
             {viewMode === "Month"
               ? `${months[month].slice(0, 3)} ${year}`
               : viewMode === "Week"
-              ? formatWeekRange(weekStartDate)   // ← was toLocaleDateString(...)
+              ? formatWeekRange(weekStartDate)  
               : dayDate.toLocaleDateString("en-US", {
                   weekday: "short",
                   month: "short",

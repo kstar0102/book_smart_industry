@@ -10,27 +10,27 @@ import {
   Dimensions,
   Modal,
   Pressable,
-  TextInput,          // ← added
+  TextInput,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
-const HOUR_COL_WIDTH = 32;
+const HOUR_COL_WIDTH = 25;                // narrow columns
 const MIN_ROW_HEIGHT = 36;
+const DAY_LABEL_W = 40;
 const LANE_HEIGHT = 22;
 const LANE_GAP = 4;
 const V_PADDING = 6;
 
 const START_MIN = 0;
 const END_MIN = 24 * 60;
+
+const TOTAL_TICKS = 25;                   // 0..24 -> "12a ... 12a" (visual)
+const EFFECTIVE_HOURS = 24;               // real day length
+const TIMELINE_TOTAL_W = TOTAL_TICKS * HOUR_COL_WIDTH;     // painted width (header/grid)
+const EFFECTIVE_W = EFFECTIVE_HOURS * HOUR_COL_WIDTH;      // math/events/taps width
+
 const SCREEN_H = Dimensions.get("window").height;
 const MAX_VIEWPORT_HEIGHT = Math.max(280, Math.floor(SCREEN_H * 0.6));
-
-const TIME_LABELS = [
-  "12a",
-  ...Array.from({ length: 11 }, (_, i) => `${i + 1}`),
-  "12p",
-  ...Array.from({ length: 11 }, (_, i) => `${i + 1}`),
-];
 
 const PILL_COLOR = "#5B61FF";
 
@@ -46,17 +46,23 @@ const getStartOfWeekSun = (d) => {
   return date;
 };
 
+const hourBoundaryLabel = (i) => {
+  if (i === 0 || i === 24) return "12a";
+  if (i === 12) return "12p";
+  return String(i % 12);
+};
+
 const range = (n) => Array.from({ length: n }, (_, i) => i);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+/** Label with real minutes (no longer forced to :00) */
 const minutesToLabel = (m) => {
-  m = clamp(Math.round(m / 5) * 5, 0, 24 * 60);
-  let hh = Math.floor(m / 60);
-  const mm = m % 60;
-  const ampm = hh >= 12 ? "PM" : "AM";
-  hh = hh % 12 || 12;
-  const mm2 = String(mm).padStart(2, "0");
-  return `${hh}:${mm2} ${ampm}`;
+  const total = clamp(m, 0, 24 * 60);
+  const h = Math.floor(total / 60);
+  const mm = total % 60;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hh12 = (h % 12) || 12;
+  return `${hh12}:${String(mm).padStart(2, "0")} ${ampm}`;
 };
 
 function parseTimeToMinutes(s) {
@@ -134,7 +140,7 @@ function StartDot({ leftPx, top, size, direction = "left" }) {
       pointerEvents="none"
       style={{
         position: "absolute",
-        left: leftPx - r, // flat edge on right at click x
+        left: leftPx - r,
         top,
         width: r,
         height: size,
@@ -148,7 +154,7 @@ function StartDot({ leftPx, top, size, direction = "left" }) {
       pointerEvents="none"
       style={{
         position: "absolute",
-        left: leftPx, // flat edge on left at click x
+        left: leftPx,
         top,
         width: r,
         height: size,
@@ -179,7 +185,7 @@ function PillRangeOverlay({ leftPx, rightPx, top, height }) {
   );
 }
 
-/* --- lightweight dropdown for Staff only --- */
+/* --- lightweight dropdown for Staff only (reused for minutes too) --- */
 function SimpleSelect({ label, items, getKey, getLabel, value, onChange }) {
   const [open, setOpen] = useState(false);
   return (
@@ -190,7 +196,7 @@ function SimpleSelect({ label, items, getKey, getLabel, value, onChange }) {
         style={[styles.selectBox, open && { borderColor: "#5B61FF" }]}
       >
         <Text style={{ color: value == null ? "#999" : "#000", fontWeight: "600" }}>
-          {value == null ? "Select Staff…" : getLabel(items.find((it) => getKey(it) === value))}
+          {value == null ? "Select…" : getLabel(items.find((it) => getKey(it) === value))}
         </Text>
       </Pressable>
 
@@ -230,7 +236,6 @@ export default function WeekView({
 
   // from HomeTab
   staffList = [],
-  // shiftTypes can still be passed, but we won't use it here since shift is text input
   shiftTypes = [],
 }) {
   const [sel, setSel] = useState(null);          // { key, dateObj, startMin }
@@ -239,10 +244,41 @@ export default function WeekView({
 
   // selections
   const [staffId, setStaffId] = useState(null);
-  const [shiftText, setShiftText] = useState("");  // ← text input for shift
+  const [shiftText, setShiftText] = useState("");  // free-text shift name
 
+  // NEW: minute selection states (0/15/30/45)
+  const minuteOptions = useMemo(() => [0, 15, 30, 45], []);
+  const [startMinute, setStartMinute] = useState(0);
+  const [endMinute, setEndMinute] = useState(0);
+
+  // derive hours from selected cells, then apply selectable minutes
+  const startHour = confirm ? Math.floor(confirm.startMin / 60) : 0;
+  const endHour   = confirm ? Math.floor(confirm.endMin / 60) : 0;
+
+  // End at 24:00 must stick to :00 (avoid >24h)
+  const endMinuteChoices = endHour >= 24 ? [0] : minuteOptions;
+
+  const derivedStartMin = useMemo(
+    () => (confirm ? startHour * 60 + startMinute : 0),
+    [confirm, startHour, startMinute]
+  );
+  const derivedEndMin = useMemo(
+    () => (confirm ? Math.min(24 * 60, endHour * 60 + endMinute) : 0),
+    [confirm, endHour, endMinute]
+  );
+
+  // Pre-fill minutes when modal opens (default :00)
   useEffect(() => {
-    // when modal opens with a range, prefill shift text with the range
+    if (showModal && confirm) {
+      const sMin = confirm.startMin % 60;
+      const eMin = confirm.endMin % 60;
+      setStartMinute(minuteOptions.includes(sMin) ? sMin : 0);
+      setEndMinute(minuteOptions.includes(eMin) ? eMin : 0);
+    }
+  }, [showModal, confirm, minuteOptions]);
+
+  // Keep your original prefill for shiftText on open (don’t override on minute changes)
+  useEffect(() => {
     if (showModal && confirm) {
       const start = minutesToLabel(confirm.startMin);
       const end = minutesToLabel(confirm.endMin);
@@ -259,7 +295,6 @@ export default function WeekView({
     });
   }, [startDate]);
 
-  const timelineWidth = 24 * HOUR_COL_WIDTH;
   const todayKey = toDateKey(new Date());
 
   const handleEventPressInternal = (ev, date) => {
@@ -270,9 +305,10 @@ export default function WeekView({
     }
   };
 
-  const handleGridTap = (dateObj, hourIndex, locX) => {
+  /** snap to hour; hourIndex is 0..23 (24 is far-right endcap) */
+  const handleGridTap = (dateObj, hourIndex) => {
     const key = toDateKey(dateObj);
-    const minute = clamp(hourIndex * 60 + (locX / HOUR_COL_WIDTH) * 60, 0, 24 * 60);
+    const minute = clamp(hourIndex * 60, 0, 24 * 60);
 
     // first click: start
     if (!sel || sel.key !== key || (confirm && confirm.key === key)) {
@@ -287,34 +323,35 @@ export default function WeekView({
     setConfirm({ key, dateObj, startMin, endMin });
     setShowModal(true);
     setStaffId(null);
-    setShiftText(""); // will be filled in useEffect above
+    setShiftText("");
   };
 
   const pxFromMin = (m) =>
-    ((clamp(m, 0, 1440) - START_MIN) / (END_MIN - START_MIN)) * timelineWidth;
+    ((clamp(m, 0, 1440) - START_MIN) / (END_MIN - START_MIN)) * EFFECTIVE_W;
 
   const handleCancelModal = () => {
     setShowModal(false);
     setConfirm(null);
-    setSel(null);         // clear visuals
+    setSel(null);
     setStaffId(null);
     setShiftText("");
   };
 
-  const canConfirm = staffId != null && shiftText.trim().length > 0;
+  const timeOk = confirm ? derivedEndMin > derivedStartMin : true;
+  const canConfirm = staffId != null && shiftText.trim().length > 0 && timeOk;
 
   const handleConfirmModal = () => {
     if (!confirm || !canConfirm) return;
-    const { dateObj, startMin, endMin } = confirm;
+    const { dateObj } = confirm;
 
     onTimeRangeSelected?.({
       date: dateObj,
-      startLabel: minutesToLabel(startMin),
-      endLabel: minutesToLabel(endMin),
-      startMin,
-      endMin,
+      startLabel: minutesToLabel(derivedStartMin),
+      endLabel: minutesToLabel(derivedEndMin),
+      startMin: derivedStartMin,
+      endMin: derivedEndMin,
       staffId,
-      shiftText, // ← send the free-text shift value
+      shiftText,
     });
 
     setShowModal(false);
@@ -325,7 +362,10 @@ export default function WeekView({
   };
 
   return (
-    <View style={{ width: "100%" }}>
+    <View style={{ width: "100%", zIndex: -1 }}>
+      <View style={styles.hintRow}>
+        <Text style={styles.hintText}>Browse more hours →</Text>
+      </View>
       <ScrollView
         style={{ maxHeight: MAX_VIEWPORT_HEIGHT }}
         nestedScrollEnabled
@@ -333,14 +373,14 @@ export default function WeekView({
         contentContainerStyle={{ paddingBottom: 8 }}
       >
         <ScrollView horizontal showsHorizontalScrollIndicator nestedScrollEnabled>
-          <View style={{ minWidth: timelineWidth + 120 }}>
+          <View style={{ minWidth: TIMELINE_TOTAL_W + DAY_LABEL_W }}>
             {/* Header */}
             <View style={styles.headerRow}>
               <View style={styles.dayLabelHeaderCell} />
-              <View style={[styles.timeHeaderRow, { width: timelineWidth }]}>
-                {TIME_LABELS.map((label, i) => (
-                  <View key={`time-${i}`} style={[styles.timeHeaderCell, { width: HOUR_COL_WIDTH }]}>
-                    <Text style={styles.timeHeaderText}>{label}</Text>
+              <View style={[styles.timeHeaderRow, { width: TIMELINE_TOTAL_W }]}>
+                {Array.from({ length: TOTAL_TICKS }, (_, i) => (
+                  <View key={`tick-${i}`} style={[styles.timeHeaderCell, { width: HOUR_COL_WIDTH }]}>
+                    <Text style={styles.timeHeaderText}>{hourBoundaryLabel(i)}</Text>
                   </View>
                 ))}
               </View>
@@ -394,16 +434,16 @@ export default function WeekView({
                     style={[
                       styles.timelineRow,
                       {
-                        width: timelineWidth,
+                        width: TIMELINE_TOTAL_W,
                         height: rowHeight,
                         backgroundColor: isToday ? "#EFE9FF" : "#fff",
                         borderColor: isToday ? "#EFE9FF" : "#ccc",
                       },
                     ]}
                   >
-                    {/* alternating hour backgrounds */}
+                    {/* alternating hour backgrounds (25 stripes, including endcap) */}
                     <View style={[styles.gridColumns, { backgroundColor: isToday ? "#EFE9FF" : "#fff" }]}>
-                      {range(24).map((i) => (
+                      {Array.from({ length: TOTAL_TICKS }, (_, i) => (
                         <View
                           key={`col-${i}`}
                           style={[
@@ -411,7 +451,7 @@ export default function WeekView({
                             {
                               width: HOUR_COL_WIDTH,
                               backgroundColor: isToday
-                                ? (i % 2 === 1 ? "#EFE9FF" : "#EFE9FF")
+                                ? "#EFE9FF"
                                 : (i % 2 === 1 ? "#fafafa" : "#fff"),
                             },
                           ]}
@@ -421,7 +461,7 @@ export default function WeekView({
 
                     {/* hour & half-hour guides */}
                     <View style={[StyleSheet.absoluteFill, { flexDirection: "row" }]}>
-                      {range(25).map((i) => (
+                      {Array.from({ length: TOTAL_TICKS + 1 }, (_, i) => (
                         <View
                           key={`vline-${i}`}
                           style={[
@@ -430,7 +470,7 @@ export default function WeekView({
                           ]}
                         />
                       ))}
-                      {range(24).map((i) => (
+                      {Array.from({ length: TOTAL_TICKS }, (_, i) => (
                         <View
                           key={`half-${i}`}
                           style={[styles.vLineHalf, { left: i * HOUR_COL_WIDTH + HOUR_COL_WIDTH / 2 }]}
@@ -448,8 +488,8 @@ export default function WeekView({
                         const offsetMin = start - START_MIN;
                         const durationMin = Math.max(end - start, 10);
 
-                        const leftPx = (offsetMin / (END_MIN - START_MIN)) * timelineWidth;
-                        const widthPx = (durationMin / (END_MIN - START_MIN)) * timelineWidth;
+                        const leftPx = (offsetMin / (END_MIN - START_MIN)) * EFFECTIVE_W;
+                        const widthPx = (durationMin / (END_MIN - START_MIN)) * EFFECTIVE_W;
 
                         const top = V_PADDING + lane * (LANE_HEIGHT + LANE_GAP);
                         const height = LANE_HEIGHT;
@@ -477,28 +517,26 @@ export default function WeekView({
                         );
                       })}
                     </View>
-
-                    {/* extra lane (click capture) */}
                     <View
                       style={{
                         position: "absolute",
                         left: 0,
                         top: extraTop,
-                        width: timelineWidth,
+                        width: TIMELINE_TOTAL_W,   // include the 25th "12a" endcap
                         height: extraHeight,
                       }}
                     >
-                      {range(24).map((h) => (
+                      {Array.from({ length: TOTAL_TICKS }, (_, h) => (  // h = 0..24
                         <Pressable
                           key={`tap-${h}`}
                           style={{
                             position: "absolute",
-                            left: h * HOUR_COL_WIDTH,
+                            left: h * HOUR_COL_WIDTH,  // h=24 sits at the far-right 12a
                             top: 0,
                             width: HOUR_COL_WIDTH,
                             height: "100%",
                           }}
-                          onPress={(e) => handleGridTap(dateObj, h, e.nativeEvent.locationX)}
+                          onPress={() => handleGridTap(dateObj, h)}
                         />
                       ))}
                     </View>
@@ -514,8 +552,8 @@ export default function WeekView({
                     )}
                     {confirm && confirm.key === key && (
                       <PillRangeOverlay
-                        leftPx={pxFromMin(confirm.startMin)}
-                        rightPx={pxFromMin(confirm.endMin)}
+                        leftPx={pxFromMin(derivedStartMin)}
+                        rightPx={pxFromMin(derivedEndMin)}
                         top={extraTop + (extraHeight - pillH) / 2}
                         height={pillH}
                       />
@@ -549,9 +587,35 @@ export default function WeekView({
                     year: "numeric",
                   })}
                 </Text>
+
+                {/* Live time preview with selected minutes */}
                 <Text style={styles.confirmInfo}>
-                  {minutesToLabel(confirm.startMin)} ➜ {minutesToLabel(confirm.endMin)}
+                  {minutesToLabel(derivedStartMin)} ➜ {minutesToLabel(derivedEndMin)}
                 </Text>
+
+                {/* Minute selectors */}
+                <View style={styles.minutesRow}>
+                  <View style={styles.minutesCol}>
+                    <SimpleSelect
+                      label="Start minutes"
+                      items={minuteOptions}
+                      getKey={(m) => String(m)}
+                      getLabel={(m) => String(m).padStart(2, "0")}
+                      value={String(startMinute)}
+                      onChange={(k) => setStartMinute(parseInt(k, 10))}
+                    />
+                  </View>
+                  <View style={[styles.minutesCol, { marginRight: 0 }]}>
+                    <SimpleSelect
+                      label="End minutes"
+                      items={endMinuteChoices}
+                      getKey={(m) => String(m)}
+                      getLabel={(m) => String(m).padStart(2, "0")}
+                      value={String(endMinute)}
+                      onChange={(k) => setEndMinute(parseInt(k, 10))}
+                    />
+                  </View>
+                </View>
 
                 {/* Staff dropdown */}
                 <SimpleSelect
@@ -570,12 +634,16 @@ export default function WeekView({
                 {/* Shift text input */}
                 <Text style={styles.inputLabel}>Shift</Text>
                 <TextInput
-                  // value={shiftText}
                   onChangeText={setShiftText}
                   placeholder="Please enter shift name"
                   placeholderTextColor="#999"
                   style={styles.textInput}
                 />
+                {!timeOk && (
+                  <Text style={{ color: "#b00020", marginTop: 6, fontWeight: "700" }}>
+                    End time must be after start time.
+                  </Text>
+                )}
               </>
             )}
 
@@ -697,10 +765,25 @@ const styles = StyleSheet.create({
   },
   dropdownItem: { paddingVertical: 10, paddingHorizontal: 12 },
 
-  confirmRow: { flexDirection: "row", justifyContent: "flex-end", gap: 10, marginTop: 16 },
-  btn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8 },
+  confirmRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 16 },
+  btn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, marginLeft: 10 },
   btnPrimary: { backgroundColor: PILL_COLOR },
   btnPrimaryText: { color: "#fff", fontWeight: "800" },
   btnGhost: { backgroundColor: "transparent", borderWidth: 1, borderColor: "#444" },
   btnGhostText: { color: "#333", fontWeight: "800" },
+
+  // NEW: minutes layout
+  minutesRow: { flexDirection: "row", marginTop: 8 },
+  minutesCol: { flex: 1, marginRight: 10 },
+
+  hintRow: {
+    width: "100%",
+    alignItems: "flex-end",
+    paddingHorizontal: 10,
+    marginBottom: 2,
+  },
+  hintText: {
+    color: "#666",
+    fontWeight: "700",
+  },
 });
