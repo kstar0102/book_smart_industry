@@ -39,7 +39,7 @@ const normalizeStatus = (s) => {
 };
 
 const mapApiItem = (api) => ({
-  id: api.id, // this is assignedShiftId from your API
+  id: api.id,
   assignedShiftId: api.id,
   location: api.companyName,
   date: api.date,
@@ -53,7 +53,6 @@ export default function HospitalityRestaurantWorkAssignedShift() {
   const [refreshing, setRefreshing] = useState(false);
   const [shifts, setShifts] = useState([]);
   const [busyId, setBusyId] = useState(null); 
-
   const [headerHeight, setHeaderHeight] = useState(0);
   const headerPad = headerHeight || RFValue(120);
 
@@ -185,9 +184,7 @@ export default function HospitalityRestaurantWorkAssignedShift() {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-
-      {/* Fixed header overlay (stays on top, back button always clickable) */}
+      <StatusBar translucent backgroundColor="transparent"/>
       <View
         style={styles.headerOverlay}
         onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
@@ -208,7 +205,6 @@ export default function HospitalityRestaurantWorkAssignedShift() {
           contentContainerStyle={[
             styles.listContent,
             {
-              // push content below the *fixed* header
               paddingTop: headerPad,
               paddingBottom: FOOTER_HEIGHT + RFValue(34),
             },
@@ -223,7 +219,6 @@ export default function HospitalityRestaurantWorkAssignedShift() {
           }
         />
       )}
-
       <MFooter />
     </View>
 
@@ -236,11 +231,10 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 1000,        // iOS
-    elevation: 10,       // Android
+    zIndex: 1000,        
+    elevation: 10,       
     backgroundColor: '#fff',
   },
-
   container: { flex: 1, width: '100%', backgroundColor: '#fff' },
   listContent: { paddingHorizontal: RFValue(16), paddingBottom: RFValue(40) },
   headerWrap: { alignItems: 'center', paddingTop: RFValue(1) },

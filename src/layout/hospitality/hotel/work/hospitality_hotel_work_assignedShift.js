@@ -53,6 +53,8 @@ export default function HospitalityHotelWorkAssignedShift() {
   const [refreshing, setRefreshing] = useState(false);
   const [shifts, setShifts] = useState([]);
   const [busyId, setBusyId] = useState(null); 
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerPad = headerHeight || RFValue(120);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -182,8 +184,13 @@ export default function HospitalityHotelWorkAssignedShift() {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
-      <MHeader navigation={navigation} back={true} />
+      <StatusBar translucent backgroundColor="transparent"/>
+      <View
+        style={styles.headerOverlay}
+        onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
+      >
+        <MHeader navigation={navigation} back={true} />
+      </View>
 
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -197,7 +204,10 @@ export default function HospitalityHotelWorkAssignedShift() {
           ListHeaderComponent={ListHeader}
           contentContainerStyle={[
             styles.listContent,
-            { marginTop: height * 0.15, paddingBottom: FOOTER_HEIGHT + RFValue(34) },
+            {
+              paddingTop: headerPad,
+              paddingBottom: FOOTER_HEIGHT + RFValue(34),
+            },
           ]}
           refreshing={refreshing}
           onRefresh={onRefresh}
@@ -282,4 +292,13 @@ const styles = StyleSheet.create({
   rejectBtn: { backgroundColor: '#991B1B' },
   cancelBtn: { backgroundColor: '#6B7280' },
   actionText: { color: '#fff', fontWeight: '700', fontSize: RFValue(12) },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,        
+    elevation: 10,       
+    backgroundColor: '#fff',
+  },
 });
