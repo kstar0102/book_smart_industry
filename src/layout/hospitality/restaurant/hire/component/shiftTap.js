@@ -104,6 +104,8 @@ export default function ShiftTab() {
         contentContainerStyle={{ paddingBottom: 20 }}
       />
 
+      <View style = {{height: 70}}/>
+
       <AddShiftModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}

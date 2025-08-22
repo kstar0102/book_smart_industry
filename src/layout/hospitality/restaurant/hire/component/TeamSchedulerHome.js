@@ -9,7 +9,8 @@ import {
   Modal,
   Alert,
   Pressable,
-  ActivityIndicator 
+  ActivityIndicator,
+  Dimensions
 } from "react-native";
 import DatePicker from 'react-native-date-picker';
 import MonthView from "./MonthView";
@@ -497,27 +498,25 @@ const HomeTab = ({
         return;
       }
   
-      // 2) First, register (ensure) a shift TYPE with this start/end
-      //    If it already exists (by time), skip creating a duplicate.
-      let exists = (Array.isArray(shiftTypes) ? shiftTypes : []).find(
-        s => _norm(s.start) === _norm(startLabel) && _norm(s.end) === _norm(endLabel)
-      );
+      // let exists = (Array.isArray(shiftTypes) ? shiftTypes : []).find(
+      //   s => _norm(s.start) === _norm(startLabel) && _norm(s.end) === _norm(endLabel)
+      // );
   
-      if (!exists) {
-        const body = {
-          aic,
-          name: shiftText,
-          start: startLabel,
-          end: endLabel,
-        };
-        const resp = await addShiftType(body, endpoint);
-        if (resp?.error) {
-          Alert.alert('Failed to create shift type', 'Please try again.');
-          return;
-        }
-        // refresh local shift types so future matches are instant
-        await fetchShiftTypes();
-      }
+      // if (!exists) {
+      //   const body = {
+      //     aic,
+      //     name: shiftText,
+      //     start: startLabel,
+      //     end: endLabel,
+      //   };
+      //   const resp = await addShiftType(body, endpoint);
+      //   if (resp?.error) {
+      //     Alert.alert('Failed to create shift type', 'Please try again.');
+      //     return;
+      //   }
+      //   // refresh local shift types so future matches are instant
+      //   await fetchShiftTypes();
+      // }
   
       // 3) Next, assign the shift to the selected staff for the selected DATE
       const formattedDate = date.toLocaleDateString('en-US', {
@@ -650,13 +649,8 @@ const HomeTab = ({
           onEventPress={handleMonthEventPress}
           setSelectedEvent={setSelectedEvent}l
           setShowEventModal={setShowEventModal}
-
-          /* NEW */
           staffList={staffList}
           onTimeRangeSelected={handleCreateShiftFromRange}
-          // onTimeRangeSelected={(payload) => {
-          //   console.log('Range confirmed:', payload);
-          // }}
         />
       )}
 
@@ -761,27 +755,38 @@ const HomeTab = ({
             />
 
             <Text style={styles.label}>Shift</Text>
-            <View style={styles.shiftOptions}>
-              {shiftTypes.map((shift) => (
-                <TouchableOpacity
-                  key={shift.id}
-                  style={[
-                    styles.shiftButton,
-                    selectedShift === shift.id && styles.shiftButtonSelected,
-                  ]}
-                  onPress={() => setSelectedShift(shift.id)}
-                >
-                  <Text
-                    style={[
-                      styles.shiftText,
-                      selectedShift === shift.id && styles.shiftTextSelected,
-                    ]}
-                  >
-                    {shift.start} ➔ {shift.end}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            <View style={styles.shiftScrollBox}>
+              <ScrollView
+                style={styles.shiftScroll}
+                contentContainerStyle={styles.shiftListContent}
+                nestedScrollEnabled
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator
+              >
+                <View style={styles.shiftOptions}>
+                  {shiftTypes.map((shift) => (
+                    <TouchableOpacity
+                      key={shift.id}
+                      style={[
+                        styles.shiftButton,
+                        selectedShift === shift.id && styles.shiftButtonSelected,
+                      ]}
+                      onPress={() => setSelectedShift(shift.id)}
+                    >
+                      <Text
+                        style={[
+                          styles.shiftText,
+                          selectedShift === shift.id && styles.shiftTextSelected,
+                        ]}
+                      >
+                        {shift.start} ➔ {shift.end}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
             </View>
+
 
             <View style={styles.buttonRow}>
               <TouchableOpacity style={styles.submitButton} onPress={handleEditShift}>
@@ -1094,6 +1099,25 @@ const styles = StyleSheet.create({
   confirmDeleteText: {
     color: '#fff',
     fontWeight: '700',
+  },
+  shiftScrollBox: {
+    maxHeight: Math.floor(Dimensions.get("window").height * 0.3), // ~35% of screen; tweak if needed
+    borderWidth: 1,
+    borderColor: "#eee",
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    overflow: "hidden",
+    marginBottom: 12,
+  },
+  
+  shiftListContent: {
+    padding: 10,
+  },
+
+  shiftOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
   },
 });
 

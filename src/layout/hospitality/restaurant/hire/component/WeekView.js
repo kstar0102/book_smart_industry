@@ -14,27 +14,22 @@ import {
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
-const HOUR_COL_WIDTH = 25;                // narrow columns
+const HOUR_COL_WIDTH = 25;
 const MIN_ROW_HEIGHT = 36;
 const DAY_LABEL_W = 40;
 const LANE_HEIGHT = 22;
 const LANE_GAP = 4;
 const V_PADDING = 6;
-
 const START_MIN = 0;
 const END_MIN = 24 * 60;
-
-const TOTAL_TICKS = 25;                   // 0..24 -> "12a ... 12a" (visual)
-const EFFECTIVE_HOURS = 24;               // real day length
-const TIMELINE_TOTAL_W = TOTAL_TICKS * HOUR_COL_WIDTH;     // painted width (header/grid)
-const EFFECTIVE_W = EFFECTIVE_HOURS * HOUR_COL_WIDTH;      // math/events/taps width
-
+const TOTAL_TICKS = 25;                  
+const EFFECTIVE_HOURS = 24;              
+const TIMELINE_TOTAL_W = TOTAL_TICKS * HOUR_COL_WIDTH;
+const EFFECTIVE_W = EFFECTIVE_HOURS * HOUR_COL_WIDTH; 
 const SCREEN_H = Dimensions.get("window").height;
 const MAX_VIEWPORT_HEIGHT = Math.max(280, Math.floor(SCREEN_H * 0.6));
-
 const PILL_COLOR = "#5B61FF";
 
-/* --- helpers --- */
 const toDateKey = (date) =>
   date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
@@ -55,7 +50,6 @@ const hourBoundaryLabel = (i) => {
 const range = (n) => Array.from({ length: n }, (_, i) => i);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-/** Label with real minutes (no longer forced to :00) */
 const minutesToLabel = (m) => {
   const total = clamp(m, 0, 24 * 60);
   const h = Math.floor(total / 60);
@@ -132,7 +126,6 @@ function layoutLanes(events) {
   return { placed, laneCount: Math.max(1, lanes.length) };
 }
 
-/* --- pretty pills on grid --- */
 function StartDot({ leftPx, top, size, direction = "left" }) {
   const r = size / 2;
   return direction === "left" ? (
@@ -185,7 +178,6 @@ function PillRangeOverlay({ leftPx, rightPx, top, height }) {
   );
 }
 
-/* --- lightweight dropdown for Staff only (reused for minutes too) --- */
 function SimpleSelect({ label, items, getKey, getLabel, value, onChange }) {
   const [open, setOpen] = useState(false);
   return (
@@ -225,7 +217,6 @@ function SimpleSelect({ label, items, getKey, getLabel, value, onChange }) {
   );
 }
 
-/* --- main --- */
 export default function WeekView({
   startDate,
   mockEvents = {},
@@ -632,13 +623,13 @@ export default function WeekView({
                 />
 
                 {/* Shift text input */}
-                <Text style={styles.inputLabel}>Shift</Text>
+                {/* <Text style={styles.inputLabel}>Shift</Text>
                 <TextInput
                   onChangeText={setShiftText}
                   placeholder="Please enter shift name"
                   placeholderTextColor="#999"
                   style={styles.textInput}
-                />
+                /> */}
                 {!timeOk && (
                   <Text style={{ color: "#b00020", marginTop: 6, fontWeight: "700" }}>
                     End time must be after start time.

@@ -5,12 +5,14 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  ScrollView, 
+  Dimensions 
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { 
   getShiftTypes, 
   addShiftToStaff 
 } from '../../../../../utils/useApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { TextInput } from 'react-native-paper';
 import { Dropdown } from 'react-native-element-dropdown';
 import DatePicker from 'react-native-date-picker';
@@ -18,10 +20,8 @@ import DatePicker from 'react-native-date-picker';
 export default function AddNewShiftModal({ visible, onClose, staffList, refreshShiftData  }) {
   const [shiftTypes, setShiftTypes] = useState([]);
   const [selectedShift, setSelectedShift] = useState(null);
-
   const [employeeList, setEmployeeList] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState('');
-
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -38,7 +38,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
 
   const fetchShiftTypes = async () => {
     try {
-      // Read aic + role in parallel
       const [aicRaw, roleRaw] = await Promise.all([
         AsyncStorage.getItem('aic'),
         AsyncStorage.getItem('HireRole'),
@@ -47,7 +46,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
       const aic = Number.parseInt((aicRaw || '').trim(), 10);
       const role = (roleRaw || '').trim();
   
-      // Map role -> endpoint
       const endpointMap = {
         restaurantManager: 'restau_manager',
         hotelManager: 'hotel_manager',
@@ -62,7 +60,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
   
       const userData = { aic };
       const response = await getShiftTypes(userData, endpoint);
-  
       const types = Array.isArray(response?.shiftType) ? response.shiftType : [];
       if (!types.length) {
         console.warn('ShiftTypes API returned empty or invalid list:', response);
@@ -77,13 +74,11 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
   
 
   const handleSubmit = async () => {
-    // Basic field checks
     if (!selectedEmployee || !selectedShift || !selectedDate) {
       alert('Please select all fields');
       return;
     }
   
-    // Find the chosen shift type (be type-safe on id comparison)
     const selectedShiftObj = shiftTypes.find(
       (s) => String(s.id) === String(selectedShift)
     );
@@ -93,7 +88,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
     }
   
     try {
-      // Read aic + role in parallel
       const [aicRaw, roleRaw] = await Promise.all([
         AsyncStorage.getItem('aic'),
         AsyncStorage.getItem('HireRole'),
@@ -102,7 +96,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
       const aic = Number.parseInt((aicRaw || '').trim(), 10);
       const role = (roleRaw || '').trim();
   
-      // Map role -> API endpoint key
       const endpointMap = {
         restaurantManager: 'restau_manager',
         hotelManager: 'hotel_manager',
@@ -114,7 +107,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
         return;
       }
   
-      // Ensure we have a Date instance (avoid timezone surprises from strings)
       const d = selectedDate instanceof Date ? selectedDate : new Date(selectedDate);
       const formattedDate = d.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -122,7 +114,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
         day: 'numeric',
       });
   
-      // Keep the same arrow your data uses ("➔") so comparisons stay consistent
       const formattedTime = `${selectedShiftObj.start} ➔ ${selectedShiftObj.end}`;
   
       const shiftPayload = [
@@ -131,8 +122,7 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
           time: formattedTime,
         },
       ];
-      console.log(shiftPayload);
-  
+      // console.log(shiftPayload);
       const result = await addShiftToStaff(endpoint, aic, selectedEmployee, shiftPayload);
   
       if (result?.success) {
@@ -148,8 +138,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
     }
   };
   
-  
-
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.backdrop}>
@@ -172,7 +160,6 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
             onChange={item => setSelectedEmployee(item.value)}
           />
 
-
           <Text style={styles.label}>Day</Text>
           <TouchableOpacity onPress={() => setShowDatePicker(true)}>
             <TextInput
@@ -186,39 +173,50 @@ export default function AddNewShiftModal({ visible, onClose, staffList, refreshS
             </TouchableOpacity>
 
             <DatePicker
-            modal
-            open={showDatePicker}
-            date={selectedDate}
-            mode="date"
-            onConfirm={(date) => {
-                setShowDatePicker(false);
-                setSelectedDate(date);
-            }}
-            onCancel={() => setShowDatePicker(false)}
+              modal
+              open={showDatePicker}
+              date={selectedDate}
+              mode="date"
+              onConfirm={(date) => {
+                  setShowDatePicker(false);
+                  setSelectedDate(date);
+              }}
+              onCancel={() => setShowDatePicker(false)}
             />
 
-          <Text style={styles.label}>Shift</Text>
-          <View style={styles.shiftOptions}>
-            {shiftTypes.map((shift) => (
-              <TouchableOpacity
-                key={shift.id}
-                style={[
-                  styles.shiftButton,
-                  selectedShift === shift.id && styles.shiftButtonSelected,
-                ]}
-                onPress={() => setSelectedShift(shift.id)}
+            <Text style={styles.label}>Shift</Text>
+            <View style={styles.shiftScrollBox}>
+              <ScrollView
+                style={styles.shiftScroll}
+                contentContainerStyle={styles.shiftListContent}
+                nestedScrollEnabled
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator
               >
-                <Text
-                  style={[
-                    styles.shiftText,
-                    selectedShift === shift.id && styles.shiftTextSelected,
-                  ]}
-                >
-                  {shift.start} ➔ {shift.end}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                <View style={styles.shiftOptions}>
+                  {shiftTypes.map((shift) => (
+                    <TouchableOpacity
+                      key={shift.id}
+                      style={[
+                        styles.shiftButton,
+                        selectedShift === shift.id && styles.shiftButtonSelected,
+                      ]}
+                      onPress={() => setSelectedShift(shift.id)}
+                    >
+                      <Text
+                        style={[
+                          styles.shiftText,
+                          selectedShift === shift.id && styles.shiftTextSelected,
+                        ]}
+                      >
+                        {shift.start} ➔ {shift.end}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+
 
           <View style={styles.footer}>
             <TouchableOpacity style={styles.submitButton}>
@@ -350,5 +348,23 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#fff',
   },
-  
+  shiftScrollBox: {
+    maxHeight: Math.floor(Dimensions.get('window').height * 0.3), 
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    overflow: 'hidden',
+    marginBottom: 20,
+  },
+
+  shiftListContent: {
+    padding: 10,
+  },
+
+  shiftOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
 });
