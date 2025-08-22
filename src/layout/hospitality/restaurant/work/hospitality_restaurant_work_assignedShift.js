@@ -54,6 +54,9 @@ export default function HospitalityRestaurantWorkAssignedShift() {
   const [shifts, setShifts] = useState([]);
   const [busyId, setBusyId] = useState(null); 
 
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerPad = headerHeight || RFValue(120);
+
   const load = useCallback(async () => {
     setLoading(true);
     const res = await getAssignedShifts("restau_user");
@@ -182,8 +185,15 @@ export default function HospitalityRestaurantWorkAssignedShift() {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
-      <MHeader navigation={navigation} back={true} />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+
+      {/* Fixed header overlay (stays on top, back button always clickable) */}
+      <View
+        style={styles.headerOverlay}
+        onLayout={(e) => setHeaderHeight(e.nativeEvent.layout.height)}
+      >
+        <MHeader navigation={navigation} back={true} />
+      </View>
 
       {loading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -197,7 +207,11 @@ export default function HospitalityRestaurantWorkAssignedShift() {
           ListHeaderComponent={ListHeader}
           contentContainerStyle={[
             styles.listContent,
-            { marginTop: height * 0.15, paddingBottom: FOOTER_HEIGHT + RFValue(34) },
+            {
+              // push content below the *fixed* header
+              paddingTop: headerPad,
+              paddingBottom: FOOTER_HEIGHT + RFValue(34),
+            },
           ]}
           refreshing={refreshing}
           onRefresh={onRefresh}
@@ -209,12 +223,24 @@ export default function HospitalityRestaurantWorkAssignedShift() {
           }
         />
       )}
+
       <MFooter />
     </View>
+
   );
 }
 
 const styles = StyleSheet.create({
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,        // iOS
+    elevation: 10,       // Android
+    backgroundColor: '#fff',
+  },
+
   container: { flex: 1, width: '100%', backgroundColor: '#fff' },
   listContent: { paddingHorizontal: RFValue(16), paddingBottom: RFValue(40) },
   headerWrap: { alignItems: 'center', paddingTop: RFValue(1) },
