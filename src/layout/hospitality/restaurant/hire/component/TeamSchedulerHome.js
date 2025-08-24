@@ -125,6 +125,12 @@ const HomeTab = ({
   const [opLoading, setOpLoading] = useState(false);     
   const [busyText, setBusyText] = useState('');  
 
+  const [startTime, endTime] = React.useMemo(() => {
+    const raw = String(selectedEvent?.time || '');
+    const [s, e] = raw.split(/[➔➜→]/).map(t => t?.trim());
+    return [s || '', e || ''];
+  }, [selectedEvent?.time]);
+
   useEffect(() => {
     (async () => {
       setBusyText('Loading…');
@@ -357,81 +363,81 @@ const HomeTab = ({
     }
   };
 
-  const handleEditShift = async () => {
-    try {
-      if (!selectedEvent?.id || !selectedEvent?.shiftId) {
-        Alert.alert('No event selected.');
-        return;
-      }
-      if (!selectedDate) {
-        Alert.alert('Pick a date first.');
-        return;
-      }
-      const selectedShiftObj = shiftTypes.find(s => String(s.id) === String(selectedShift));
-      if (!selectedShiftObj) {
-        Alert.alert('Pick a shift time.');
-        return;
-      }
+  // const handleEditShift = async () => {
+  //   try {
+  //     if (!selectedEvent?.id || !selectedEvent?.shiftId) {
+  //       Alert.alert('No event selected.');
+  //       return;
+  //     }
+  //     if (!selectedDate) {
+  //       Alert.alert('Pick a date first.');
+  //       return;
+  //     }
+  //     const selectedShiftObj = shiftTypes.find(s => String(s.id) === String(selectedShift));
+  //     if (!selectedShiftObj) {
+  //       Alert.alert('Pick a shift time.');
+  //       return;
+  //     }
 
-      setBusyText('Updating shift…');
-      setOpLoading(true);
+  //     setBusyText('Updating shift…');
+  //     setOpLoading(true);
   
-      // 2) Read AIC + Role in parallel
-      const [aicRaw, roleRaw] = await Promise.all([
-        AsyncStorage.getItem('aic'),
-        AsyncStorage.getItem('HireRole'),
-      ]);
+  //     // 2) Read AIC + Role in parallel
+  //     const [aicRaw, roleRaw] = await Promise.all([
+  //       AsyncStorage.getItem('aic'),
+  //       AsyncStorage.getItem('HireRole'),
+  //     ]);
   
-      const aic = Number.parseInt((aicRaw || '').trim(), 10);
-      const role = (roleRaw || '').trim();
+  //     const aic = Number.parseInt((aicRaw || '').trim(), 10);
+  //     const role = (roleRaw || '').trim();
   
-      // 3) Map role -> endpoint
-      const endpointMap = {
-        restaurantManager: 'restau_manager',
-        hotelManager: 'hotel_manager',
-      };
-      const endpoint = endpointMap[role];
+  //     // 3) Map role -> endpoint
+  //     const endpointMap = {
+  //       restaurantManager: 'restau_manager',
+  //       hotelManager: 'hotel_manager',
+  //     };
+  //     const endpoint = endpointMap[role];
   
-      if (!Number.isFinite(aic) || !endpoint) {
-        console.warn('Missing/invalid AIC or unsupported role:', { aicRaw, role });
-        Alert.alert('Unable to update shift: account/role not set.');
-        return;
-      }
+  //     if (!Number.isFinite(aic) || !endpoint) {
+  //       console.warn('Missing/invalid AIC or unsupported role:', { aicRaw, role });
+  //       Alert.alert('Unable to update shift: account/role not set.');
+  //       return;
+  //     }
   
-      // 4) Format payload
-      const formattedDate = selectedDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-      const formattedTime = `${selectedShiftObj.start} ➜ ${selectedShiftObj.end}`;
+  //     // 4) Format payload
+  //     const formattedDate = selectedDate.toLocaleDateString('en-US', {
+  //       year: 'numeric',
+  //       month: 'long',
+  //       day: 'numeric',
+  //     });
+  //     const formattedTime = `${selectedShiftObj.start} ➜ ${selectedShiftObj.end}`;
   
-      // 5) Call API
-      const result = await editShiftFromStaff(
-        endpoint,          // role-aware endpoint
-        aic,               // managerAic
-        selectedEvent.id,  // staffId
-        selectedEvent.shiftId,
-        formattedDate,
-        formattedTime
-      );
+  //     // 5) Call API
+  //     const result = await editShiftFromStaff(
+  //       endpoint,          // role-aware endpoint
+  //       aic,               // managerAic
+  //       selectedEvent.id,  // staffId
+  //       selectedEvent.shiftId,
+  //       formattedDate,
+  //       formattedTime
+  //     );
   
-      // 6) Handle response
-      if (result?.success) {
-        await fetchStaffInfo();        // refresh
-        setShowEventModal(false);      // close
-        Alert.alert('Shift updated!');
-      } else {
-        Alert.alert(`Update failed: ${result?.message || 'Unknown error'}`);
-      }
-    } catch (err) {
-      console.error('Edit shift failed:', err);
-      Alert.alert('Network error while updating shift. Please try again.');
-    } finally {
-      setOpLoading(false);
-      setBusyText('');
-    }
-  };
+  //     // 6) Handle response
+  //     if (result?.success) {
+  //       await fetchStaffInfo();        // refresh
+  //       setShowEventModal(false);      // close
+  //       Alert.alert('Shift updated!');
+  //     } else {
+  //       Alert.alert(`Update failed: ${result?.message || 'Unknown error'}`);
+  //     }
+  //   } catch (err) {
+  //     console.error('Edit shift failed:', err);
+  //     Alert.alert('Network error while updating shift. Please try again.');
+  //   } finally {
+  //     setOpLoading(false);
+  //     setBusyText('');
+  //   }
+  // };
 
   const normalizeTime = (s = "") =>
     s
@@ -442,11 +448,11 @@ const HomeTab = ({
       .toUpperCase();
 
   const handleMonthEventPress = (event, cellDate) => {
+    // console.log(event);
     setSelectedEvent(event);
     setEventDate(cellDate);
     setShowEventModal(true);
   
-    // Preselect shift by comparing times
     if (event?.time && Array.isArray(shiftTypes) && shiftTypes.length) {
       const [startRaw, endRaw] = event.time.split("➔").map(t => (t || "").trim());
   
@@ -757,13 +763,20 @@ const HomeTab = ({
             <Text style={styles.label}>Shift</Text>
             <View style={styles.shiftScrollBox}>
               <ScrollView
-                style={styles.shiftScroll}
+                // style={styles.shiftScroll}
                 contentContainerStyle={styles.shiftListContent}
                 nestedScrollEnabled
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator
               >
-                <View style={styles.shiftOptions}>
+                 <View style={styles.shiftOptions}>
+                  <View style={[styles.shiftButton, styles.shiftButtonSelected]}>
+                    <Text style={[styles.shiftText, styles.shiftTextSelected]}>
+                      {startTime && endTime ? `${startTime} ➔ ${endTime}` : '—'}
+                    </Text>
+                  </View>
+                </View>
+                {/* <View style={styles.shiftOptions}>
                   {shiftTypes.map((shift) => (
                     <TouchableOpacity
                       key={shift.id}
@@ -783,15 +796,15 @@ const HomeTab = ({
                       </Text>
                     </TouchableOpacity>
                   ))}
-                </View>
+                </View> */}
               </ScrollView>
             </View>
 
 
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.submitButton} onPress={handleEditShift}>
+              {/* <TouchableOpacity style={styles.submitButton} onPress={handleEditShift}>
                 <Text style={styles.submitText}>Submit</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity onPress={() => setShowEventModal(false)}>
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
