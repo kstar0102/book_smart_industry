@@ -228,24 +228,16 @@ export default function WeekView({
   staffList = [],
   shiftTypes = [],
 }) {
-  const [sel, setSel] = useState(null);          // { key, dateObj, startMin }
-  const [confirm, setConfirm] = useState(null);  // { key, dateObj, startMin, endMin }
+  const [sel, setSel] = useState(null);        
+  const [confirm, setConfirm] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
-  // selections
   const [staffId, setStaffId] = useState(null);
-  const [shiftText, setShiftText] = useState("");  // free-text shift name
-
-  // NEW: minute selection states (0/15/30/45)
+  const [shiftText, setShiftText] = useState("");
   const minuteOptions = useMemo(() => [0, 15, 30, 45], []);
   const [startMinute, setStartMinute] = useState(0);
   const [endMinute, setEndMinute] = useState(0);
-
-  // derive hours from selected cells, then apply selectable minutes
   const startHour = confirm ? Math.floor(confirm.startMin / 60) : 0;
   const endHour   = confirm ? Math.floor(confirm.endMin / 60) : 0;
-
-  // End at 24:00 must stick to :00 (avoid >24h)
   const endMinuteChoices = endHour >= 24 ? [0] : minuteOptions;
 
   const derivedStartMin = useMemo(
@@ -257,7 +249,6 @@ export default function WeekView({
     [confirm, endHour, endMinute]
   );
 
-  // Pre-fill minutes when modal opens (default :00)
   useEffect(() => {
     if (showModal && confirm) {
       const sMin = confirm.startMin % 60;
@@ -267,7 +258,6 @@ export default function WeekView({
     }
   }, [showModal, confirm, minuteOptions]);
 
-  // Keep your original prefill for shiftText on open (don’t override on minute changes)
   useEffect(() => {
     if (showModal && confirm) {
       const start = minutesToLabel(confirm.startMin);
@@ -295,18 +285,15 @@ export default function WeekView({
     }
   };
 
-  /** snap to hour; hourIndex is 0..23 (24 is far-right endcap) */
   const handleGridTap = (dateObj, hourIndex) => {
     const key = toDateKey(dateObj);
     const minute = clamp(hourIndex * 60, 0, 24 * 60);
 
-    // first click: start
     if (!sel || sel.key !== key || (confirm && confirm.key === key)) {
       setSel({ key, dateObj, startMin: minute });
       setConfirm(null);
       return;
     }
-    // second click: end → modal
     const startMin = Math.min(sel.startMin, minute);
     const endMin = Math.max(sel.startMin, minute);
     setSel(null);
@@ -398,7 +385,6 @@ export default function WeekView({
 
               return (
                 <View key={key} style={styles.row}>
-                  {/* Day label */}
                   <View
                     style={[
                       styles.dayLabelCell,
@@ -419,7 +405,6 @@ export default function WeekView({
                     </Text>
                   </View>
 
-                  {/* Timeline row */}
                   <View
                     style={[
                       styles.timelineRow,
@@ -448,7 +433,6 @@ export default function WeekView({
                       ))}
                     </View>
 
-                    {/* hour & half-hour guides */}
                     <View style={[StyleSheet.absoluteFill, { flexDirection: "row" }]}>
                       {Array.from({ length: TOTAL_TICKS + 1 }, (_, i) => (
                         <View
@@ -467,7 +451,6 @@ export default function WeekView({
                       ))}
                     </View>
 
-                    {/* existing events */}
                     <View style={StyleSheet.absoluteFill}>
                       {placed.map(({ e: ev, r, lane }, idx) => {
                         const start = Math.max(r.start, START_MIN);
@@ -515,12 +498,12 @@ export default function WeekView({
                         height: extraHeight,
                       }}
                     >
-                      {Array.from({ length: TOTAL_TICKS }, (_, h) => (  // h = 0..24
+                      {Array.from({ length: TOTAL_TICKS }, (_, h) => ( 
                         <Pressable
                           key={`tap-${h}`}
                           style={{
                             position: "absolute",
-                            left: h * HOUR_COL_WIDTH,  // h=24 sits at the far-right 12a
+                            left: h * HOUR_COL_WIDTH,  
                             top: 0,
                             width: HOUR_COL_WIDTH,
                             height: "100%",
@@ -579,7 +562,6 @@ export default function WeekView({
                   {minutesToLabel(derivedStartMin)} ➜ {minutesToLabel(derivedEndMin)}
                 </Text>
 
-                {/* Minute selectors */}
                 <View style={styles.minutesRow}>
                   <View style={styles.minutesCol}>
                     <SimpleSelect
@@ -603,7 +585,6 @@ export default function WeekView({
                   </View>
                 </View>
 
-                {/* Staff dropdown */}
                 <SimpleSelect
                   label="Staff"
                   items={staffList}
