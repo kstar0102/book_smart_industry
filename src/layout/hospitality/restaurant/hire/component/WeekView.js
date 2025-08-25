@@ -26,6 +26,7 @@ const TOTAL_TICKS = 25;
 const EFFECTIVE_HOURS = 24;              
 const TIMELINE_TOTAL_W = TOTAL_TICKS * HOUR_COL_WIDTH;
 const EFFECTIVE_W = EFFECTIVE_HOURS * HOUR_COL_WIDTH; 
+
 const SCREEN_H = Dimensions.get("window").height;
 const MAX_VIEWPORT_HEIGHT = Math.max(280, Math.floor(SCREEN_H * 0.6));
 const PILL_COLOR = "#5B61FF";
@@ -41,21 +42,42 @@ const getStartOfWeekSun = (d) => {
   return date;
 };
 
+// const hourBoundaryLabel = (i) => {
+//   if (i === 0 || i === 24) return "12a";
+//   if (i === 12) return "12p";
+//   return String(i % 12);
+// };
 const hourBoundaryLabel = (i) => {
-  if (i === 0 || i === 24) return "12a";
+  if (i === 0) return "12a";
   if (i === 12) return "12p";
+  if (i === 24) return "12a (+1)";   // make it explicit this is next day
   return String(i % 12);
 };
+
+const endLabelForDisplay = (m) => (m === 1440 ? "12:00 AM (+1 day)" : minutesToLabel(m));
 
 const range = (n) => Array.from({ length: n }, (_, i) => i);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
+// const minutesToLabel = (m) => {
+//   const total = clamp(m, 0, 24 * 60);
+//   const h = Math.floor(total / 60);
+//   const mm = total % 60;
+//   const ampm = h >= 12 ? "PM" : "AM";
+//   const hh12 = (h % 12) || 12;
+//   return `${hh12}:${String(mm).padStart(2, "0")} ${ampm}`;
+// };
+
 const minutesToLabel = (m) => {
   const total = clamp(m, 0, 24 * 60);
-  const h = Math.floor(total / 60);
+  let h24 = Math.floor(total / 60);
   const mm = total % 60;
-  const ampm = h >= 12 ? "PM" : "AM";
-  const hh12 = (h % 12) || 12;
+
+  // 24:00 is midnight of the next day -> treat as 0:00 for labeling
+  if (h24 === 24) h24 = 0;
+
+  const ampm = h24 >= 12 ? "PM" : "AM";
+  const hh12 = (h24 % 12) || 12;
   return `${hh12}:${String(mm).padStart(2, "0")} ${ampm}`;
 };
 
@@ -97,8 +119,12 @@ function parseEventTimeRange(timeStr) {
   if (!timeStr) return null;
   const parts = timeStr.split(/[➔➜→\-–—]/).map((x) => (x || "").trim());
   const start = parseTimeToMinutes(parts[0]);
-  const end = parseTimeToMinutes(parts[1]);
+  let end = parseTimeToMinutes(parts[1]);
   if (start == null || end == null) return null;
+
+  // If end is not after start, interpret it as next-day (e.g., "7:00 PM ➔ 12:00 AM")
+  if (end <= start) end += 24 * 60;
+
   return { start, end };
 }
 
@@ -433,36 +459,15 @@ export default function WeekView({
                       ))}
                     </View>
 
-                    <View style={[StyleSheet.absoluteFill, { flexDirection: "row" }]}>
-                      {Array.from({ length: TOTAL_TICKS + 1 }, (_, i) => (
-                        <View
-                          key={`vline-${i}`}
-                          style={[
-                            styles.vLine,
-                            { left: i * HOUR_COL_WIDTH - (I18nManager.isRTL ? 1 : 0) },
-                          ]}
-                        />
-                      ))}
-                      {Array.from({ length: TOTAL_TICKS }, (_, i) => (
-                        <View
-                          key={`half-${i}`}
-                          style={[styles.vLineHalf, { left: i * HOUR_COL_WIDTH + HOUR_COL_WIDTH / 2 }]}
-                        />
-                      ))}
-                    </View>
-
                     <View style={StyleSheet.absoluteFill}>
                       {placed.map(({ e: ev, r, lane }, idx) => {
                         const start = Math.max(r.start, START_MIN);
                         const end = Math.min(r.end, END_MIN);
                         if (end <= START_MIN || start >= END_MIN) return null;
 
-                        const offsetMin = start - START_MIN;
-                        const durationMin = Math.max(end - start, 10);
-
-                        const leftPx = (offsetMin / (END_MIN - START_MIN)) * EFFECTIVE_W;
-                        const widthPx = (durationMin / (END_MIN - START_MIN)) * EFFECTIVE_W;
-
+                        const leftPx  = pxFromMin(start);
+                        const rightPx = end === END_MIN ? TIMELINE_TOTAL_W : pxFromMin(end);
+                        const widthPx = Math.max(rightPx - leftPx, 18);
                         const top = V_PADDING + lane * (LANE_HEIGHT + LANE_GAP);
                         const height = LANE_HEIGHT;
 
@@ -524,7 +529,7 @@ export default function WeekView({
                     {confirm && confirm.key === key && (
                       <PillRangeOverlay
                         leftPx={pxFromMin(derivedStartMin)}
-                        rightPx={pxFromMin(derivedEndMin)}
+                        rightPx={derivedEndMin >= END_MIN ? TIMELINE_TOTAL_W : pxFromMin(derivedEndMin)}
                         top={extraTop + (extraHeight - pillH) / 2}
                         height={pillH}
                       />
@@ -558,8 +563,11 @@ export default function WeekView({
                   })}
                 </Text>
 
-                <Text style={styles.confirmInfo}>
+                {/* <Text style={styles.confirmInfo}>
                   {minutesToLabel(derivedStartMin)} ➜ {minutesToLabel(derivedEndMin)}
+                </Text> */}
+                <Text style={styles.confirmInfo}>
+                  {minutesToLabel(derivedStartMin)} ➜ {endLabelForDisplay(derivedEndMin)}
                 </Text>
 
                 <View style={styles.minutesRow}>
@@ -645,7 +653,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   dayLabelHeaderCell: {
-    width: 40,
+    width: 35,
     height: 30,
     justifyContent: "center",
     alignItems: "flex-start",

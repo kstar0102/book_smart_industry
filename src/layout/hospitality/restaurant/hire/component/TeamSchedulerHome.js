@@ -539,6 +539,7 @@ const HomeTab = ({
         String(staffId),     
         shiftPayload         
       );
+      console.log(shiftPayload);
   
       if (assignRes?.success) {
         await fetchStaffInfo();
@@ -892,7 +893,7 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "center",
   },
-  
+
   shiftButtonSecondary: {
     backgroundColor: "#7A8A91",
     paddingHorizontal: 12,
