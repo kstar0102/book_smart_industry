@@ -535,7 +535,7 @@ const HomeTab = ({
         endpoint,
         aic,
         String(staffId),     
-        shiftPayload         // e.g. [{"date":"August 20, 2025","time":"3:07 AM ➔ 9:07 AM"}]
+        shiftPayload         
       );
   
       if (assignRes?.success) {
@@ -690,7 +690,6 @@ const HomeTab = ({
           <View style={styles.eventModal}>
 
           <View style={styles.modalHeaderRow}>
-            {/* Status chip on the left */}
             {(() => {
               const label = normalizeStatus(
                 selectedEvent?.status ?? selectedEvent?.data?.status
@@ -741,12 +740,12 @@ const HomeTab = ({
             <DatePicker
               modal
               open={showDatePicker}
-              date={eventDate || new Date()} // Use eventDate as initial value
+              date={eventDate || new Date()}
               mode="date"
               onConfirm={(date) => {
                 setShowDatePicker(false);
                 setSelectedDate(date);
-                setEventDate(date); // 👈 This line updates the visible input!
+                setEventDate(date); 
               }}
               onCancel={() => setShowDatePicker(false)}
             />
@@ -829,6 +828,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   busyCard: {
     backgroundColor: '#fff',
     paddingVertical: 18,
@@ -838,6 +838,7 @@ const styles = StyleSheet.create({
     minWidth: 160,
     gap: 10,
   },
+
   busyText: {
     color: '#111',
     fontWeight: '700',
@@ -860,6 +861,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontWeight: '700',
   },
+
   topRightControls: {
     flexDirection: "row",
     justifyContent: "flex-end",
@@ -868,10 +870,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     gap: 10,
   },
+
   shiftButtonGroup: {
     flexDirection: "row",
     gap: 10,
   },
+
   shiftButtonPrimary: {
     backgroundColor: "#7A8A91",
     paddingHorizontal: 12,
@@ -880,6 +884,7 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "center",
   },
+  
   shiftButtonSecondary: {
     backgroundColor: "#7A8A91",
     paddingHorizontal: 12,
