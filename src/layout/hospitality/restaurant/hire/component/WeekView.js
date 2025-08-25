@@ -225,7 +225,6 @@ export default function WeekView({
   setShowEventModal,
   onTimeRangeSelected,
 
-  // from HomeTab
   staffList = [],
   shiftTypes = [],
 }) {
@@ -432,7 +431,6 @@ export default function WeekView({
                       },
                     ]}
                   >
-                    {/* alternating hour backgrounds (25 stripes, including endcap) */}
                     <View style={[styles.gridColumns, { backgroundColor: isToday ? "#EFE9FF" : "#fff" }]}>
                       {Array.from({ length: TOTAL_TICKS }, (_, i) => (
                         <View
@@ -513,7 +511,7 @@ export default function WeekView({
                         position: "absolute",
                         left: 0,
                         top: extraTop,
-                        width: TIMELINE_TOTAL_W,   // include the 25th "12a" endcap
+                        width: TIMELINE_TOTAL_W,
                         height: extraHeight,
                       }}
                     >
@@ -532,7 +530,6 @@ export default function WeekView({
                       ))}
                     </View>
 
-                    {/* visuals */}
                     {sel && sel.key === key && (
                       <StartDot
                         leftPx={pxFromMin(sel.startMin)}
@@ -557,7 +554,6 @@ export default function WeekView({
         </ScrollView>
       </ScrollView>
 
-      {/* Modal */}
       <Modal
         transparent
         visible={showModal}
@@ -579,7 +575,6 @@ export default function WeekView({
                   })}
                 </Text>
 
-                {/* Live time preview with selected minutes */}
                 <Text style={styles.confirmInfo}>
                   {minutesToLabel(derivedStartMin)} ➜ {minutesToLabel(derivedEndMin)}
                 </Text>
@@ -661,7 +656,6 @@ export default function WeekView({
   );
 }
 
-/* --- styles --- */
 const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
@@ -710,7 +704,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   dayLabelCell: {
-    width: 40,
+    width: 35,
     paddingVertical: 4,
     paddingHorizontal: 3,
     borderLeftWidth: 1,
