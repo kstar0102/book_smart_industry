@@ -9,10 +9,20 @@ const { width, height } = Dimensions.get('window');
 export default function MFooter(props) {
   const theme = useTheme();
 
-  const handleEmailPress = () => {
+  const handleEmailPress = async () => {
     const emailUrl = 'mailto:support@booksmart.app';
-    Linking.openURL(emailUrl);
+    try {
+      const supported = await Linking.canOpenURL(emailUrl);
+      if (supported) {
+        await Linking.openURL(emailUrl);
+      } else {
+        console.log('Email URL is not supported');
+      }
+    } catch (error) {
+      console.error('Error opening email URL:', error);
+    }
   };
+  
 
   const handleSMSPress = () => {
     const phoneUrl = 'sms:+18445582665';
@@ -22,43 +32,48 @@ export default function MFooter(props) {
   return (
     <View style={styles.shadow}>
       <View style={styles.bottomStyle}></View>
-      <Text style={styles.text}>
-        <TouchableOpacity onPress={handleEmailPress}>
-          <Text style={styles.emailText}>Support by Email: support@booksmart.app</Text>
-        </TouchableOpacity>
-        {'\n'}
-        <TouchableOpacity onPress={handleSMSPress}>
-          <Text style={styles.smsText}>Support by Text: # 844.558.BOOK</Text>
-        </TouchableOpacity>
-      </Text>
+      <View style={{ marginTop: 5 }}>
+        <View style={styles.supportRow}>
+          <Text style={styles.generalText}>Support by Email:</Text>
+          <TouchableOpacity onPress={handleEmailPress}>
+            <Text style={styles.emailText}>
+              support@booksmart.app
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.supportRow}>
+          <Text style={styles.generalText}>Support by Text:</Text>
+          <TouchableOpacity onPress={handleSMSPress}>
+            <Text style={styles.smsText}>
+              # 844.558.BOOK
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  supportRow: {
+    flexDirection: 'row',      // Aligns items horizontally
+    justifyContent: 'center', // Align items to the start of the row
+    alignItems: 'center',      // Align items vertically in the center
+    marginBottom: 5,           // Adds some space between rows if needed
+  },
   shadow: {
     borderRadius: 0,
     backgroundColor: '#290135',
     bottom: 0,
     width: '100%',
     position: 'absolute',
-  },
-  text: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    width: '100%',
-    paddingHorizontal: 5,
-    paddingVertical: 10,
-    color: 'white',
-    fontSize: RFValue(13),
-    textAlign: 'center',
-    fontWeight: '700',
+    paddingBottom: 13,
   },
   bottomStyle: {
     width: '100%',
     height: height * 0.007,
-    backgroundColor: "#BC222F"
+    backgroundColor: "#BC222F",
   },
   emailText: {
     color: 'white',
@@ -78,8 +93,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 1,
   },
-  logo: {
-    width: 70,
-    height: 59,
+  generalText: {
+    color: 'white',
+    fontSize: RFValue(13.2),
+    textAlign: 'center',
+    fontWeight: '700',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    paddingTop: 2, // Ensures vertical alignment
   },
 });
