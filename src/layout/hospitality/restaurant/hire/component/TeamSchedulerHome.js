@@ -486,8 +486,8 @@ const HomeTab = ({
         return;
       }
 
-      setBusyText('Creating shift…');
-      setOpLoading(true);
+      // setBusyText('Creating shift…');
+      // setOpLoading(true);
   
       // 1) Get manager context
       const [aicRaw, roleRaw] = await Promise.all([
@@ -500,6 +500,8 @@ const HomeTab = ({
       const endpoint = endpointMap[role];
   
       if (!Number.isFinite(aic) || !endpoint) {
+        // setOpLoading(false);
+        // setBusyText('');
         Alert.alert('Account issue', 'Unable to determine your role/account. Please re-login.');
         return;
       }
@@ -541,17 +543,23 @@ const HomeTab = ({
       if (assignRes?.success) {
         await fetchStaffInfo();
         Alert.alert('Shift created', `${formattedDate} • ${timeStr}`);
+        // setOpLoading(false);
+        // setBusyText('');
       } else {
+        // setOpLoading(false);
+        // setBusyText('');
         Alert.alert('Assign failed', assignRes?.message || 'Please try again.');
       }
     } catch (err) {
       console.error('handleCreateShiftFromRange error:', err);
+      // setOpLoading(false);
+      // setBusyText('');
       Alert.alert('Error', 'Could not create the shift. Please try again.');
     }
-    finally {
-      setOpLoading(false);
-      setBusyText('');
-    }
+    // finally {
+    //   setOpLoading(false);
+    //   setBusyText('');
+    // }
   };
   
 
