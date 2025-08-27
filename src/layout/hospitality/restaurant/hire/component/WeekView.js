@@ -50,11 +50,11 @@ const getStartOfWeekSun = (d) => {
 const hourBoundaryLabel = (i) => {
   if (i === 0) return "12a";
   if (i === 12) return "12p";
-  if (i === 24) return "12a (+1)";   // make it explicit this is next day
+  if (i === 24) return "12a";   // make it explicit this is next day
   return String(i % 12);
 };
 
-const endLabelForDisplay = (m) => (m === 1440 ? "12:00 AM (+1 day)" : minutesToLabel(m));
+const endLabelForDisplay = (m) => (m === 1440 ? "12:00 AM" : minutesToLabel(m));
 
 const range = (n) => Array.from({ length: n }, (_, i) => i);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
