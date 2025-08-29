@@ -6,6 +6,7 @@ import {
   StyleSheet, 
   Modal,
   ScrollView } from 'react-native';
+import { RFValue } from "react-native-responsive-fontsize";
 
 export default function MonthView({ 
   calendarDays, 
@@ -172,17 +173,17 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   eventDot: {
-    marginTop: 2,
+    marginTop: 1,
     borderRadius: 4,
-    paddingVertical: 2,
+    paddingVertical: 1,
     paddingHorizontal: 4,
   },
   eventText: {
-    fontSize: 10,
+    fontSize: RFValue(8),
     color: '#fff',
   },
   moreText: {
-    fontSize: 11,
+    fontSize: RFValue(8),
     color: '#888',
     marginTop: 2,
     textAlign: 'center',

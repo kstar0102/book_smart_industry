@@ -1,15 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet, Dimensions } from "react-native";
 import images from "../assets/images";
 
-const { height } = Dimensions.get("window");
+const { height, width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const CustomTopNav = ({ selectedTab, setSelectedTab }) => {
+  const [isWrapped, setIsWrapped] = useState(false);
   const tabs = [
-    { key: "Home", icon: "📅" },
-    { key: "Staff", icon: "👥" },
-    { key: "Shifts", icon: "⚙️" },
+    { key: "Home" },
+    { key: "Staff" },
+    { key: "Shifts" },
   ];
+
+  const onLayout = (event) => {
+    const { width } = event.nativeEvent.layout;
+    if (width < SCREEN_WIDTH) {
+      setIsWrapped(true);  // Set wrapped state if the container's width is less than screen width
+    } else {
+      setIsWrapped(false);
+    }
+  };
 
   return (
     <View style={styles.navContainer}>
@@ -18,7 +28,13 @@ const CustomTopNav = ({ selectedTab, setSelectedTab }) => {
         <Text style={styles.title}>Team Scheduler</Text>
       </View>
 
-      <View style={styles.tabContainer}>
+      <View
+        style={[
+          styles.tabContainer,
+          isWrapped && { marginTop: 10, justifyContent: "flex-end" }, // Apply margin and end positioning if wrapped
+        ]}
+        onLayout={onLayout} // Use onLayout to detect layout changes
+      >
         {tabs.map(({ key }) => (
           <TouchableOpacity
             key={key}
@@ -58,6 +74,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width: "100%",
     marginTop: height * 0.15,
+    flexWrap: "wrap",
   },
   logoContainer: {
     flexDirection: "row",
@@ -71,6 +88,8 @@ const styles = StyleSheet.create({
   tabContainer: {
     flexDirection: "row",
     gap: 12,
+    flexWrap: "wrap",
+    alignItems: "center",
   },
   tab: {
     alignItems: "center",

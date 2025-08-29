@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     height: RFValue(40),
   },
   text: {
-    fontSize:  pixelRatio > 1.5 ? RFValue(9) : RFValue(14),
+    fontSize:  pixelRatio > 1.5 ? RFValue(8) : RFValue(13),
     fontWeight: '800',
     color: 'white',
     textAlign: 'center',

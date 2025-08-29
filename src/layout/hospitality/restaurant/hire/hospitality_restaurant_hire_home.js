@@ -135,8 +135,8 @@ const styles = StyleSheet.create({
   },
   titles: {
     fontWeight: 'bold',
-    fontSize: RFValue(16),
-    width: RFValue(55), // fixed width for alignment
+    fontSize: RFValue(15),
+    width: RFValue(62), // fixed width for alignment
     marginRight: RFValue(5),
   },
   content: {

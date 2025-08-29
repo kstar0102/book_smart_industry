@@ -11,6 +11,7 @@ import {
   Modal,
   Pressable,
   TextInput,
+  PixelRatio,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
@@ -22,14 +23,21 @@ const LANE_GAP = 4;
 const V_PADDING = 6;
 const START_MIN = 0;
 const END_MIN = 24 * 60;
-const TOTAL_TICKS = 25;                  
-const EFFECTIVE_HOURS = 24;              
+const TOTAL_TICKS = 25;
+const EFFECTIVE_HOURS = 24;
 const TIMELINE_TOTAL_W = TOTAL_TICKS * HOUR_COL_WIDTH;
-const EFFECTIVE_W = EFFECTIVE_HOURS * HOUR_COL_WIDTH; 
+const EFFECTIVE_W = EFFECTIVE_HOURS * HOUR_COL_WIDTH;
 
 const SCREEN_H = Dimensions.get("window").height;
 const MAX_VIEWPORT_HEIGHT = Math.max(280, Math.floor(SCREEN_H * 0.6));
 const PILL_COLOR = "#5B61FF";
+
+// --- Large text handling ---
+const FONT_CAP = 1.2; // cap for tiny labels
+const FS = PixelRatio.getFontScale();
+const SCALE = Math.min(FS, FONT_CAP);
+const HEADER_H = Math.round(28 * SCALE);
+const DAY_W = Math.round(35 * SCALE);
 
 const toDateKey = (date) =>
   date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -42,15 +50,10 @@ const getStartOfWeekSun = (d) => {
   return date;
 };
 
-// const hourBoundaryLabel = (i) => {
-//   if (i === 0 || i === 24) return "12a";
-//   if (i === 12) return "12p";
-//   return String(i % 12);
-// };
 const hourBoundaryLabel = (i) => {
   if (i === 0) return "12a";
   if (i === 12) return "12p";
-  if (i === 24) return "12a";   // make it explicit this is next day
+  if (i === 24) return "12a"; // next day midnight
   return String(i % 12);
 };
 
@@ -59,25 +62,13 @@ const endLabelForDisplay = (m) => (m === 1440 ? "12:00 AM" : minutesToLabel(m));
 const range = (n) => Array.from({ length: n }, (_, i) => i);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-// const minutesToLabel = (m) => {
-//   const total = clamp(m, 0, 24 * 60);
-//   const h = Math.floor(total / 60);
-//   const mm = total % 60;
-//   const ampm = h >= 12 ? "PM" : "AM";
-//   const hh12 = (h % 12) || 12;
-//   return `${hh12}:${String(mm).padStart(2, "0")} ${ampm}`;
-// };
-
 const minutesToLabel = (m) => {
   const total = clamp(m, 0, 24 * 60);
   let h24 = Math.floor(total / 60);
   const mm = total % 60;
-
-  // 24:00 is midnight of the next day -> treat as 0:00 for labeling
-  if (h24 === 24) h24 = 0;
-
+  if (h24 === 24) h24 = 0; // treat 24:00 as 0:00 for label
   const ampm = h24 >= 12 ? "PM" : "AM";
-  const hh12 = (h24 % 12) || 12;
+  const hh12 = h24 % 12 || 12;
   return `${hh12}:${String(mm).padStart(2, "0")} ${ampm}`;
 };
 
@@ -87,7 +78,8 @@ function parseTimeToMinutes(s) {
 
   let m = raw.match(/^(\d{1,2}):?(\d{2})$/);
   if (m) {
-    const hh = parseInt(m[1], 10), mm = parseInt(m[2], 10);
+    const hh = parseInt(m[1], 10),
+      mm = parseInt(m[2], 10);
     if (hh >= 0 && hh < 24 && mm >= 0 && mm < 60) return hh * 60 + mm;
   }
   m = raw.match(/^(\d{1,2}):?(\d{2})\s*([AaPp][Mm])$/);
@@ -122,7 +114,7 @@ function parseEventTimeRange(timeStr) {
   let end = parseTimeToMinutes(parts[1]);
   if (start == null || end == null) return null;
 
-  // If end is not after start, interpret it as next-day (e.g., "7:00 PM ➔ 12:00 AM")
+  // If end is not after start, interpret as next-day (e.g., "7:00 PM ➔ 12:00 AM")
   if (end <= start) end += 24 * 60;
 
   return { start, end };
@@ -254,7 +246,7 @@ export default function WeekView({
   staffList = [],
   shiftTypes = [],
 }) {
-  const [sel, setSel] = useState(null);        
+  const [sel, setSel] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [staffId, setStaffId] = useState(null);
@@ -263,7 +255,7 @@ export default function WeekView({
   const [startMinute, setStartMinute] = useState(0);
   const [endMinute, setEndMinute] = useState(0);
   const startHour = confirm ? Math.floor(confirm.startMin / 60) : 0;
-  const endHour   = confirm ? Math.floor(confirm.endMin / 60) : 0;
+  const endHour = confirm ? Math.floor(confirm.endMin / 60) : 0;
   const endMinuteChoices = endHour >= 24 ? [0] : minuteOptions;
 
   const derivedStartMin = useMemo(
@@ -376,14 +368,23 @@ export default function WeekView({
         contentContainerStyle={{ paddingBottom: 8 }}
       >
         <ScrollView horizontal showsHorizontalScrollIndicator nestedScrollEnabled>
-          <View style={{ minWidth: TIMELINE_TOTAL_W + DAY_LABEL_W }}>
+          <View style={{ minWidth: TIMELINE_TOTAL_W + DAY_W }}>
             {/* Header */}
             <View style={styles.headerRow}>
-              <View style={styles.dayLabelHeaderCell} />
-              <View style={[styles.timeHeaderRow, { width: TIMELINE_TOTAL_W }]}>
+              <View style={[styles.dayLabelHeaderCell, { width: DAY_W, height: HEADER_H }]} />
+              <View style={[styles.timeHeaderRow, { width: TIMELINE_TOTAL_W, height: HEADER_H }]}>
                 {Array.from({ length: TOTAL_TICKS }, (_, i) => (
-                  <View key={`tick-${i}`} style={[styles.timeHeaderCell, { width: HOUR_COL_WIDTH }]}>
-                    <Text style={styles.timeHeaderText}>{hourBoundaryLabel(i)}</Text>
+                  <View
+                    key={`tick-${i}`}
+                    style={[styles.timeHeaderCell, { width: HOUR_COL_WIDTH }]} // height now 100% via style
+                  >
+                    <Text
+                      style={styles.timeHeaderText}
+                      numberOfLines={1}
+                      maxFontSizeMultiplier={FONT_CAP}
+                    >
+                      {hourBoundaryLabel(i)}
+                    </Text>
                   </View>
                 ))}
               </View>
@@ -415,6 +416,7 @@ export default function WeekView({
                     style={[
                       styles.dayLabelCell,
                       {
+                        width: DAY_W,
                         height: rowHeight,
                         backgroundColor: isToday ? "#EFE9FF" : "#fff",
                         borderColor: isToday ? "#EFE9FF" : "#ccc",
@@ -426,6 +428,8 @@ export default function WeekView({
                   >
                     <Text
                       style={[styles.dayLabelTop, { fontWeight: isToday ? "900" : "700" }]}
+                      numberOfLines={1}
+                      maxFontSizeMultiplier={FONT_CAP}
                     >
                       {dateObj.toLocaleDateString("en-US", { weekday: "short" })}
                     </Text>
@@ -450,9 +454,7 @@ export default function WeekView({
                             styles.gridCol,
                             {
                               width: HOUR_COL_WIDTH,
-                              backgroundColor: isToday
-                                ? "#EFE9FF"
-                                : (i % 2 === 1 ? "#fafafa" : "#fff"),
+                              backgroundColor: isToday ? "#EFE9FF" : i % 2 === 1 ? "#fafafa" : "#fff",
                             },
                           ]}
                         />
@@ -465,7 +467,7 @@ export default function WeekView({
                         const end = Math.min(r.end, END_MIN);
                         if (end <= START_MIN || start >= END_MIN) return null;
 
-                        const leftPx  = pxFromMin(start);
+                        const leftPx = pxFromMin(start);
                         const rightPx = end === END_MIN ? TIMELINE_TOTAL_W : pxFromMin(end);
                         const widthPx = Math.max(rightPx - leftPx, 18);
                         const top = V_PADDING + lane * (LANE_HEIGHT + LANE_GAP);
@@ -503,12 +505,12 @@ export default function WeekView({
                         height: extraHeight,
                       }}
                     >
-                      {Array.from({ length: TOTAL_TICKS }, (_, h) => ( 
+                      {Array.from({ length: TOTAL_TICKS }, (_, h) => (
                         <Pressable
                           key={`tap-${h}`}
                           style={{
                             position: "absolute",
-                            left: h * HOUR_COL_WIDTH,  
+                            left: h * HOUR_COL_WIDTH,
                             top: 0,
                             width: HOUR_COL_WIDTH,
                             height: "100%",
@@ -542,12 +544,7 @@ export default function WeekView({
         </ScrollView>
       </ScrollView>
 
-      <Modal
-        transparent
-        visible={showModal}
-        animationType="fade"
-        onRequestClose={handleCancelModal}
-      >
+      <Modal transparent visible={showModal} animationType="fade" onRequestClose={handleCancelModal}>
         <Pressable style={styles.modalOverlay} onPress={handleCancelModal}>
           <Pressable style={styles.confirmCard}>
             <Text style={styles.confirmTitle}>Create Shift</Text>
@@ -563,9 +560,6 @@ export default function WeekView({
                   })}
                 </Text>
 
-                {/* <Text style={styles.confirmInfo}>
-                  {minutesToLabel(derivedStartMin)} ➜ {minutesToLabel(derivedEndMin)}
-                </Text> */}
                 <Text style={styles.confirmInfo}>
                   {minutesToLabel(derivedStartMin)} ➜ {endLabelForDisplay(derivedEndMin)}
                 </Text>
@@ -598,22 +592,12 @@ export default function WeekView({
                   items={staffList}
                   getKey={(s) => String(s.id ?? s._id ?? s.aic)}
                   getLabel={(s) =>
-                    [s.firstName, s.lastName].filter(Boolean).join(" ") ||
-                    s.email ||
-                    "Unknown"
+                    [s.firstName, s.lastName].filter(Boolean).join(" ") || s.email || "Unknown"
                   }
                   value={staffId}
                   onChange={setStaffId}
                 />
 
-                {/* Shift text input */}
-                {/* <Text style={styles.inputLabel}>Shift</Text>
-                <TextInput
-                  onChangeText={setShiftText}
-                  placeholder="Please enter shift name"
-                  placeholderTextColor="#999"
-                  style={styles.textInput}
-                /> */}
                 {!timeOk && (
                   <Text style={{ color: "#b00020", marginTop: 6, fontWeight: "700" }}>
                     End time must be after start time.
@@ -624,11 +608,7 @@ export default function WeekView({
 
             <View style={styles.confirmRow}>
               <TouchableOpacity
-                style={[
-                  styles.btn,
-                  styles.btnPrimary,
-                  !canConfirm && { opacity: 0.5 },
-                ]}
+                style={[styles.btn, styles.btnPrimary, !canConfirm && { opacity: 0.5 }]}
                 disabled={!canConfirm}
                 onPress={handleConfirmModal}
               >
@@ -653,8 +633,8 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   dayLabelHeaderCell: {
-    width: 35,
-    height: 30,
+    width: 35,                 
+    height: 30,                
     justifyContent: "center",
     alignItems: "flex-start",
     paddingHorizontal: 8,
@@ -665,6 +645,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#ccc",
   },
+  
   timeHeaderRow: {
     flexDirection: "row",
     borderTopWidth: 1,
@@ -674,8 +655,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     borderTopRightRadius: 6,
   },
+  
   timeHeaderCell: {
-    height: 28,
+    height: "100%",            
     justifyContent: "center",
     alignItems: "center",
     borderLeftWidth: 1,
@@ -683,9 +665,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 1,
   },
   timeHeaderText: {
-    fontSize: 11,
+    fontSize: RFValue(8),
     color: "#555",
     fontWeight: "700",
+    includeFontPadding: false, // Android: cleaner baseline
   },
   row: {
     flexDirection: "row",
@@ -693,7 +676,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   dayLabelCell: {
-    width: 35,
+    width: 35, // overridden dynamically
     paddingVertical: 4,
     paddingHorizontal: 3,
     borderLeftWidth: 1,
@@ -703,9 +686,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   dayLabelTop: {
-    fontSize: RFValue(10),
+    fontSize: RFValue(8.5),
     color: "black",
     fontWeight: "300",
+    includeFontPadding: false, // Android
   },
   timelineRow: {
     borderRightWidth: 1,
@@ -714,28 +698,70 @@ const styles = StyleSheet.create({
   },
   gridColumns: { flexDirection: "row", ...StyleSheet.absoluteFillObject },
   gridCol: { height: "100%", backgroundColor: "#fff" },
-  vLine: { position: "absolute", top: 0, bottom: 0, width: StyleSheet.hairlineWidth, backgroundColor: "#ddd" },
-  vLineHalf: { position: "absolute", top: 0, bottom: 0, width: StyleSheet.hairlineWidth, backgroundColor: "#eee" },
-  eventBlock: { position: "absolute", borderRadius: 6, paddingHorizontal: 6, justifyContent: "center" },
+  vLine: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: StyleSheet.hairlineWidth,
+    backgroundColor: "#ddd",
+  },
+  vLineHalf: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: StyleSheet.hairlineWidth,
+    backgroundColor: "#eee",
+  },
+  eventBlock: {
+    position: "absolute",
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    justifyContent: "center",
+  },
   eventText: { color: "#fff", fontSize: 10, fontWeight: "700" },
 
   // modal
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.35)", alignItems: "center", justifyContent: "center" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   confirmCard: { width: "88%", backgroundColor: "#fff", borderRadius: 12, padding: 18 },
   confirmTitle: { fontSize: 16, fontWeight: "800", color: "#000", marginBottom: 6 },
   confirmInfo: { color: "#333", marginVertical: 2, fontWeight: "600" },
 
   inputLabel: { marginTop: 12, marginBottom: 6, color: "#222", fontWeight: "700" },
   textInput: {
-    borderWidth: 1, borderColor: "#ccc", borderRadius: 8,
-    paddingHorizontal: 10, paddingVertical: 10, color: "#000", backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    color: "#000",
+    backgroundColor: "#fff",
   },
 
   // dropdown
-  selectBox: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 10, backgroundColor: "#fff" },
+  selectBox: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+  },
   dropdownMenu: {
-    marginTop: 6, borderWidth: 1, borderColor: "#ddd", borderRadius: 10, backgroundColor: "#fff",
-    shadowColor: "#000", shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 4,
+    marginTop: 6,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   dropdownItem: { paddingVertical: 10, paddingHorizontal: 12 },
 

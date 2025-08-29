@@ -28,6 +28,7 @@ import {
   addShiftToStaff
  } from '../../../../../utils/useApi';
 import { transformStaffListToMockEvents } from './transformStaffListToMockEvents';
+import { RFValue } from "react-native-responsive-fontsize";
 
 const BusyOverlay = ({ visible, text }) => {
   if (!visible) return null;
@@ -215,7 +216,6 @@ const HomeTab = ({
     }
   };
   
-  // every time staffList actually changes (thanks to the diff above)
   // useEffect(() => {
   //   console.log('✅ staffList:', JSON.stringify(staffList, null, 2));
   // }, [staffList]);
@@ -363,82 +363,6 @@ const HomeTab = ({
     }
   };
 
-  // const handleEditShift = async () => {
-  //   try {
-  //     if (!selectedEvent?.id || !selectedEvent?.shiftId) {
-  //       Alert.alert('No event selected.');
-  //       return;
-  //     }
-  //     if (!selectedDate) {
-  //       Alert.alert('Pick a date first.');
-  //       return;
-  //     }
-  //     const selectedShiftObj = shiftTypes.find(s => String(s.id) === String(selectedShift));
-  //     if (!selectedShiftObj) {
-  //       Alert.alert('Pick a shift time.');
-  //       return;
-  //     }
-
-  //     setBusyText('Updating shift…');
-  //     setOpLoading(true);
-  
-  //     // 2) Read AIC + Role in parallel
-  //     const [aicRaw, roleRaw] = await Promise.all([
-  //       AsyncStorage.getItem('aic'),
-  //       AsyncStorage.getItem('HireRole'),
-  //     ]);
-  
-  //     const aic = Number.parseInt((aicRaw || '').trim(), 10);
-  //     const role = (roleRaw || '').trim();
-  
-  //     // 3) Map role -> endpoint
-  //     const endpointMap = {
-  //       restaurantManager: 'restau_manager',
-  //       hotelManager: 'hotel_manager',
-  //     };
-  //     const endpoint = endpointMap[role];
-  
-  //     if (!Number.isFinite(aic) || !endpoint) {
-  //       console.warn('Missing/invalid AIC or unsupported role:', { aicRaw, role });
-  //       Alert.alert('Unable to update shift: account/role not set.');
-  //       return;
-  //     }
-  
-  //     // 4) Format payload
-  //     const formattedDate = selectedDate.toLocaleDateString('en-US', {
-  //       year: 'numeric',
-  //       month: 'long',
-  //       day: 'numeric',
-  //     });
-  //     const formattedTime = `${selectedShiftObj.start} ➜ ${selectedShiftObj.end}`;
-  
-  //     // 5) Call API
-  //     const result = await editShiftFromStaff(
-  //       endpoint,          // role-aware endpoint
-  //       aic,               // managerAic
-  //       selectedEvent.id,  // staffId
-  //       selectedEvent.shiftId,
-  //       formattedDate,
-  //       formattedTime
-  //     );
-  
-  //     // 6) Handle response
-  //     if (result?.success) {
-  //       await fetchStaffInfo();        // refresh
-  //       setShowEventModal(false);      // close
-  //       Alert.alert('Shift updated!');
-  //     } else {
-  //       Alert.alert(`Update failed: ${result?.message || 'Unknown error'}`);
-  //     }
-  //   } catch (err) {
-  //     console.error('Edit shift failed:', err);
-  //     Alert.alert('Network error while updating shift. Please try again.');
-  //   } finally {
-  //     setOpLoading(false);
-  //     setBusyText('');
-  //   }
-  // };
-
   const normalizeTime = (s = "") =>
     s
       .replace(/\u202F/g, " ")         // narrow no-break space -> space
@@ -448,7 +372,6 @@ const HomeTab = ({
       .toUpperCase();
 
   const handleMonthEventPress = (event, cellDate) => {
-    // console.log(event);
     setSelectedEvent(event);
     setEventDate(cellDate);
     setShowEventModal(true);
@@ -480,16 +403,10 @@ const HomeTab = ({
     shiftText
   }) => {
     try {
-      // 0) Guards
       if (!date || !startLabel || !endLabel || !staffId) {
         Alert.alert('Missing info', 'Please pick a staff and a valid time range.');
         return;
       }
-
-      // setBusyText('Creating shift…');
-      // setOpLoading(true);
-  
-      // 1) Get manager context
       const [aicRaw, roleRaw] = await Promise.all([
         AsyncStorage.getItem('aic'),
         AsyncStorage.getItem('HireRole'),
@@ -500,33 +417,9 @@ const HomeTab = ({
       const endpoint = endpointMap[role];
   
       if (!Number.isFinite(aic) || !endpoint) {
-        // setOpLoading(false);
-        // setBusyText('');
         Alert.alert('Account issue', 'Unable to determine your role/account. Please re-login.');
         return;
       }
-  
-      // let exists = (Array.isArray(shiftTypes) ? shiftTypes : []).find(
-      //   s => _norm(s.start) === _norm(startLabel) && _norm(s.end) === _norm(endLabel)
-      // );
-  
-      // if (!exists) {
-      //   const body = {
-      //     aic,
-      //     name: shiftText,
-      //     start: startLabel,
-      //     end: endLabel,
-      //   };
-      //   const resp = await addShiftType(body, endpoint);
-      //   if (resp?.error) {
-      //     Alert.alert('Failed to create shift type', 'Please try again.');
-      //     return;
-      //   }
-      //   // refresh local shift types so future matches are instant
-      //   await fetchShiftTypes();
-      // }
-  
-      // 3) Next, assign the shift to the selected staff for the selected DATE
       const formattedDate = date.toLocaleDateString('en-US', {
         year: 'numeric', month: 'long', day: 'numeric',
       });
@@ -539,28 +432,16 @@ const HomeTab = ({
         String(staffId),     
         shiftPayload         
       );
-      console.log(shiftPayload);
-  
       if (assignRes?.success) {
         await fetchStaffInfo();
         Alert.alert('Shift created', `${formattedDate} • ${timeStr}`);
-        // setOpLoading(false);
-        // setBusyText('');
       } else {
-        // setOpLoading(false);
-        // setBusyText('');
         Alert.alert('Assign failed', assignRes?.message || 'Please try again.');
       }
     } catch (err) {
       console.error('handleCreateShiftFromRange error:', err);
-      // setOpLoading(false);
-      // setBusyText('');
       Alert.alert('Error', 'Could not create the shift. Please try again.');
     }
-    // finally {
-    //   setOpLoading(false);
-    //   setBusyText('');
-    // }
   };
   
 
@@ -571,13 +452,17 @@ const HomeTab = ({
           <TouchableOpacity 
             style={styles.shiftButtonPrimary} 
             onPress={openCreateSingleShift}>
-            <Text style={styles.shiftButtonText}>Create Single Shift</Text>
+            <Text style={styles.shiftButtonText} numberOfLines={1} ellipsizeMode="tail">
+              Create Single Shift
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.shiftButtonSecondary} 
             onPress={openCreateNextWeek}>
-            <Text style={styles.shiftButtonText}>Create Next Week's Shifts</Text>
+            <Text style={styles.shiftButtonText} numberOfLines={1} ellipsizeMode="tail">
+              Create Next Week's Shifts
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -771,7 +656,6 @@ const HomeTab = ({
             <Text style={styles.label}>Shift</Text>
             <View style={styles.shiftScrollBox}>
               <ScrollView
-                // style={styles.shiftScroll}
                 contentContainerStyle={styles.shiftListContent}
                 nestedScrollEnabled
                 keyboardShouldPersistTaps="handled"
@@ -784,35 +668,11 @@ const HomeTab = ({
                     </Text>
                   </View>
                 </View>
-                {/* <View style={styles.shiftOptions}>
-                  {shiftTypes.map((shift) => (
-                    <TouchableOpacity
-                      key={shift.id}
-                      style={[
-                        styles.shiftButton,
-                        selectedShift === shift.id && styles.shiftButtonSelected,
-                      ]}
-                      onPress={() => setSelectedShift(shift.id)}
-                    >
-                      <Text
-                        style={[
-                          styles.shiftText,
-                          selectedShift === shift.id && styles.shiftTextSelected,
-                        ]}
-                      >
-                        {shift.start} ➔ {shift.end}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View> */}
               </ScrollView>
             </View>
 
 
             <View style={styles.buttonRow}>
-              {/* <TouchableOpacity style={styles.submitButton} onPress={handleEditShift}>
-                <Text style={styles.submitText}>Submit</Text>
-              </TouchableOpacity> */}
               <TouchableOpacity onPress={() => setShowEventModal(false)}>
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
@@ -882,31 +742,47 @@ const styles = StyleSheet.create({
 
   shiftButtonGroup: {
     flexDirection: "row",
-    gap: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal : 10
   },
-
+  
   shiftButtonPrimary: {
     backgroundColor: "#7A8A91",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 2,
+    paddingVertical: 5,
     borderRadius: 8,
     height: 40,
     justifyContent: "center",
+    alignItems: "center",
+    width: "40%",       // 40%
+    minWidth: 0,        // needed for ellipsis on Android
+    overflow: "hidden",
+    marginRight: 8,     // spacing between buttons
   },
-
+  
   shiftButtonSecondary: {
     backgroundColor: "#7A8A91",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 2,
+    paddingVertical: 5,
     borderRadius: 8,
     height: 40,
     justifyContent: "center",
+    alignItems: "center",
+    width: "60%",       // 60%
+    minWidth: 0,
+    overflow: "hidden",
   },
+  
   shiftButtonText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 13,
+    fontSize: RFValue(10),
+    textAlign: "center",
+    flexShrink: 1,      // allow truncation
   },
+  
+  
   headerContainer: {
     position: 'relative', 
   },
