@@ -59,7 +59,7 @@ const HospitalityRestaurantHireSchedulerScreen = ({ navigation }) => {
   const [showViewDropdown, setShowViewDropdown] = useState(false);
 
   const [selectedTab, setSelectedTab] = useState("Home");
-  const [viewMode, setViewMode] = useState("Month");
+  const [viewMode, setViewMode] = useState("Week");
   const years = generateYears(2000, 2030);
 
   const handlePrevMonth = () => {

@@ -6,18 +6,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  I18nManager,
   Dimensions,
   Modal,
   Pressable,
-  TextInput,
   PixelRatio,
+  Platform,
 } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
 const HOUR_COL_WIDTH = 25;
 const MIN_ROW_HEIGHT = 36;
-const DAY_LABEL_W = 40;
 const LANE_HEIGHT = 22;
 const LANE_GAP = 4;
 const V_PADDING = 6;
@@ -33,7 +31,7 @@ const MAX_VIEWPORT_HEIGHT = Math.max(280, Math.floor(SCREEN_H * 0.6));
 const PILL_COLOR = "#5B61FF";
 
 // --- Large text handling ---
-const FONT_CAP = 1.2; // cap for tiny labels
+const FONT_CAP = 1.2;
 const FS = PixelRatio.getFontScale();
 const SCALE = Math.min(FS, FONT_CAP);
 const HEADER_H = Math.round(28 * SCALE);
@@ -53,7 +51,7 @@ const getStartOfWeekSun = (d) => {
 const hourBoundaryLabel = (i) => {
   if (i === 0) return "12a";
   if (i === 12) return "12p";
-  if (i === 24) return "12a"; // next day midnight
+  if (i === 24) return "12a";
   return String(i % 12);
 };
 
@@ -66,7 +64,7 @@ const minutesToLabel = (m) => {
   const total = clamp(m, 0, 24 * 60);
   let h24 = Math.floor(total / 60);
   const mm = total % 60;
-  if (h24 === 24) h24 = 0; // treat 24:00 as 0:00 for label
+  if (h24 === 24) h24 = 0;
   const ampm = h24 >= 12 ? "PM" : "AM";
   const hh12 = h24 % 12 || 12;
   return `${hh12}:${String(mm).padStart(2, "0")} ${ampm}`;
@@ -113,10 +111,7 @@ function parseEventTimeRange(timeStr) {
   const start = parseTimeToMinutes(parts[0]);
   let end = parseTimeToMinutes(parts[1]);
   if (start == null || end == null) return null;
-
-  // If end is not after start, interpret as next-day (e.g., "7:00 PM ➔ 12:00 AM")
   if (end <= start) end += 24 * 60;
-
   return { start, end };
 }
 
@@ -235,6 +230,18 @@ function SimpleSelect({ label, items, getKey, getLabel, value, onChange }) {
   );
 }
 
+/**
+ * @param {Object} props
+ * @param {Date} props.startDate
+ * @param {Record<string, any[]>} props.mockEvents
+ * @param {(ev:any, date:Date)=>void} [props.onEventPress]
+ * @param {(ev:any)=>void} [props.setSelectedEvent]
+ * @param {(show:boolean)=>void} [props.setShowEventModal]
+ * @param {(payload:any)=>void} [props.onTimeRangeSelected]
+ * @param {any[]} [props.staffList]
+ * @param {any[]} [props.shiftTypes]
+ * @param {number} [props.footerHeight] // height of your footer to avoid overlap
+ */
 export default function WeekView({
   startDate,
   mockEvents = {},
@@ -242,9 +249,9 @@ export default function WeekView({
   setSelectedEvent,
   setShowEventModal,
   onTimeRangeSelected,
-
   staffList = [],
   shiftTypes = [],
+  footerHeight = 110,
 }) {
   const [sel, setSel] = useState(null);
   const [confirm, setConfirm] = useState(null);
@@ -357,27 +364,37 @@ export default function WeekView({
   };
 
   return (
-    <View style={{ width: "100%", zIndex: -1 }}>
+    <View style={{ width: "100%", zIndex:-1 }}>
       <View style={styles.hintRow}>
         <Text style={styles.hintText}>Browse more hours →</Text>
       </View>
+
+      {/* Vertical scroll (outer) */}
       <ScrollView
         style={{ maxHeight: MAX_VIEWPORT_HEIGHT }}
+        contentContainerStyle={{ paddingBottom: footerHeight }}
         nestedScrollEnabled
+        directionalLockEnabled
+        keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator
-        contentContainerStyle={{ paddingBottom: 8 }}
+        {...(Platform.OS === "android" ? { overScrollMode: "always" } : {})}
       >
-        <ScrollView horizontal showsHorizontalScrollIndicator nestedScrollEnabled>
+        {/* Horizontal scroll (inner) */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator
+          nestedScrollEnabled
+          directionalLockEnabled
+          keyboardDismissMode="on-drag"
+          {...(Platform.OS === "android" ? { overScrollMode: "always" } : {})}
+        >
           <View style={{ minWidth: TIMELINE_TOTAL_W + DAY_W }}>
             {/* Header */}
             <View style={styles.headerRow}>
               <View style={[styles.dayLabelHeaderCell, { width: DAY_W, height: HEADER_H }]} />
               <View style={[styles.timeHeaderRow, { width: TIMELINE_TOTAL_W, height: HEADER_H }]}>
                 {Array.from({ length: TOTAL_TICKS }, (_, i) => (
-                  <View
-                    key={`tick-${i}`}
-                    style={[styles.timeHeaderCell, { width: HOUR_COL_WIDTH }]} // height now 100% via style
-                  >
+                  <View key={`tick-${i}`} style={[styles.timeHeaderCell, { width: HOUR_COL_WIDTH }]}>
                     <Text
                       style={styles.timeHeaderText}
                       numberOfLines={1}
@@ -496,6 +513,8 @@ export default function WeekView({
                         );
                       })}
                     </View>
+
+                    {/* Tap zones for creating a range */}
                     <View
                       style={{
                         position: "absolute",
@@ -633,8 +652,8 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   dayLabelHeaderCell: {
-    width: 35,                 
-    height: 30,                
+    width: 35,
+    height: 30,
     justifyContent: "center",
     alignItems: "flex-start",
     paddingHorizontal: 8,
@@ -645,7 +664,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#ccc",
   },
-  
+
   timeHeaderRow: {
     flexDirection: "row",
     borderTopWidth: 1,
@@ -655,9 +674,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     borderTopRightRadius: 6,
   },
-  
+
   timeHeaderCell: {
-    height: "100%",            
+    height: "100%",
     justifyContent: "center",
     alignItems: "center",
     borderLeftWidth: 1,
@@ -668,7 +687,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(8),
     color: "#555",
     fontWeight: "700",
-    includeFontPadding: false, // Android: cleaner baseline
+    includeFontPadding: false,
   },
   row: {
     flexDirection: "row",
@@ -676,7 +695,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   dayLabelCell: {
-    width: 35, // overridden dynamically
+    width: 35,
     paddingVertical: 4,
     paddingHorizontal: 3,
     borderLeftWidth: 1,
@@ -689,7 +708,7 @@ const styles = StyleSheet.create({
     fontSize: RFValue(8.5),
     color: "black",
     fontWeight: "300",
-    includeFontPadding: false, // Android
+    includeFontPadding: false,
   },
   timelineRow: {
     borderRightWidth: 1,
@@ -698,20 +717,6 @@ const styles = StyleSheet.create({
   },
   gridColumns: { flexDirection: "row", ...StyleSheet.absoluteFillObject },
   gridCol: { height: "100%", backgroundColor: "#fff" },
-  vLine: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: StyleSheet.hairlineWidth,
-    backgroundColor: "#ddd",
-  },
-  vLineHalf: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    width: StyleSheet.hairlineWidth,
-    backgroundColor: "#eee",
-  },
   eventBlock: {
     position: "absolute",
     borderRadius: 6,
@@ -732,15 +737,6 @@ const styles = StyleSheet.create({
   confirmInfo: { color: "#333", marginVertical: 2, fontWeight: "600" },
 
   inputLabel: { marginTop: 12, marginBottom: 6, color: "#222", fontWeight: "700" },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    color: "#000",
-    backgroundColor: "#fff",
-  },
 
   // dropdown
   selectBox: {

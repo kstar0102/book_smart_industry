@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   emailText: {
     color: 'white',
     textDecorationLine: 'underline',
-    fontSize: RFValue(12),
+    fontSize: RFValue(11),
     textAlign: 'center',
     fontWeight: '700',
     paddingHorizontal: 5,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   smsText: {
     color: 'white',
     textDecorationLine: 'underline',
-    fontSize: RFValue(12),
+    fontSize: RFValue(11),
     textAlign: 'center',
     fontWeight: '700',
     paddingHorizontal: 5,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   generalText: {
     color: 'white',
-    fontSize: RFValue(12),
+    fontSize: RFValue(11),
     textAlign: 'center',
     fontWeight: '700',
     paddingHorizontal: 5,

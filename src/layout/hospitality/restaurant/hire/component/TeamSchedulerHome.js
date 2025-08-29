@@ -806,12 +806,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   navText: {
-    fontSize: 18,
+    fontSize: RFValue(11),
     fontWeight: "bold",
     color: "#000",
   },
   monthYearText: {
-    fontSize: 18,
+    fontSize: RFValue(11),
     fontWeight: "bold",
     color: "#000",
   },
