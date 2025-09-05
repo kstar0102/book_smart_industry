@@ -58,9 +58,18 @@ export default function HospitalityRestaurantWorkLogin({ navigation }) {
   };
 
   const getFCMMsgToken = async () => {
-    const token = await messaging().getToken();
-    console.log("This is FCM Token => ", token);
-    setFToken(token);
+    // const token = await messaging().getToken();
+    // console.log("This is FCM Token => ", token);
+    
+    try {
+      const token = await getMessaging().getToken();
+      if (!token) throw new Error('No token from FCM');
+      console.log('FCM token:', token);
+      setFToken(token);
+    } catch (e) {
+      console.log('FCM unavailable on this device/emulator:', e?.message || e);
+      // fallback: use Notifee local notifications for flows you’re testing
+    }
   };
 
   useFocusEffect(

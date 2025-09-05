@@ -23,11 +23,19 @@ function App() {
         }
 
         // ✅ Get FCM Token
-        const fcmToken = await messaging().getToken();
-        if (fcmToken) {
-          console.log("FCM Token", fcmToken);
-        } else {
-          console.log("FCM Token", "Token not available");
+        // const fcmToken = await messaging().getToken();
+        // if (fcmToken) {
+        //   console.log("FCM Token", fcmToken);
+        // } else {
+        //   console.log("FCM Token", "Token not available");
+        // }
+        try {
+          const token = await getMessaging().getToken();
+          if (!token) throw new Error('No token from FCM');
+          console.log('FCM token:', token);
+        } catch (e) {
+          console.log('FCM unavailable on this device/emulator:', e?.message || e);
+          // fallback: use Notifee local notifications for flows you’re testing
         }
 
         if (Platform.OS === 'android') {
