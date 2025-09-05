@@ -1,94 +1,79 @@
+// App.js
 import React, { useEffect } from 'react';
-import { StyleSheet, Alert, Platform } from 'react-native';
-import messaging from '@react-native-firebase/messaging';
-import PushNotification from 'react-native-push-notification';
-import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import { StyleSheet, Platform, PermissionsAndroid } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import Layout from './src/layout/Layout';
-import BackgroundTask from './src/utils/backgroundTask.js';
 import notifee from '@notifee/react-native';
-function App() {
+import { getMessaging } from '@react-native-firebase/messaging';
+
+import Layout from './src/layout/Layout';
+import BackgroundTask from './src/utils/backgroundTask';
+
+export default function App() {
   useEffect(() => {
+    let unsubscribe = () => {};
+
     const initFCM = async () => {
-      try {
-        if (Platform.OS === 'ios') {
-          const authStatus = await messaging().requestPermission();
-          const enabled =
-            authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-            authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-          if (!enabled) return;
-
-          await messaging().registerDeviceForRemoteMessages();
-        }
-
-        // ✅ Get FCM Token
-        // const fcmToken = await messaging().getToken();
-        // if (fcmToken) {
-        //   console.log("FCM Token", fcmToken);
-        // } else {
-        //   console.log("FCM Token", "Token not available");
-        // }
-        try {
-          const token = await getMessaging().getToken();
-          if (!token) throw new Error('No token from FCM');
-          console.log('FCM token:', token);
-        } catch (e) {
-          console.log('FCM unavailable on this device/emulator:', e?.message || e);
-          // fallback: use Notifee local notifications for flows you’re testing
-        }
-
-        if (Platform.OS === 'android') {
-          PushNotification.createChannel(
-            {
-              channelId: "book_smart",
-              channelName: "Book Smart Notifications",
-              channelDescription: "Notifications related to Book Smart app",
-              importance: 4,
-              vibrate: true,
-            },
-            (created) => console.log(`Channel created: ${created}`)
-          );
-        }
-
-        const unsubscribe = messaging().onMessage(async remoteMessage => {
-          const { title, body } = remoteMessage.notification || {};
-
-          // Alert.alert(title || 'Notification', body || '');
-
-          if (Platform.OS === 'ios') {
-            PushNotificationIOS.addNotificationRequest({
-              id: remoteMessage.messageId || new Date().toISOString(),
-              title: title || 'Notification',
-              body: body || '',
-              userInfo: remoteMessage.data || {}, 
-            });
-            await notifee.displayNotification({
-              title: title || 'Notification',
-              body: body || '',
-              ios: {
-                sound: 'default',
-              },
-            });
-          } else {
-            PushNotification.localNotification({
-              channelId: "book_smart",
-              title: title || 'Notification',
-              message: body || '',
-              playSound: true,
-              soundName: 'default',
-              importance: 'high',
-              vibrate: true,
-            });
-          }
-        });
-        return unsubscribe;
-      } catch (error) {
-        console.log('FCM Initialization Error', error?.message || String(error));
+      // Android 13+ (API 33) notifications permission
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
       }
+
+      // iOS permission + register for remote messages
+      if (Platform.OS === 'ios') {
+        const messaging = getMessaging();
+        const status = await messaging.requestPermission();
+        const ok =
+          status === messaging.AuthorizationStatus.AUTHORIZED ||
+          status === messaging.AuthorizationStatus.PROVISIONAL;
+        if (!ok) return;
+        await messaging.registerDeviceForRemoteMessages();
+      }
+
+      // Android channel for Notifee (idempotent)
+      if (Platform.OS === 'android') {
+        await notifee.createChannel({
+          id: 'book_smart',
+          name: 'Book Smart Notifications',
+          importance: 4, // IMPORTANCE_HIGH
+        });
+      }
+
+      // FCM token (may be null on devices without Play services)
+      try {
+        const token = await getMessaging().getToken();
+        if (!token) throw new Error('No token from FCM');
+        console.log('FCM token:', token);
+      } catch (e) {
+        console.log(
+          'FCM unavailable on this device/emulator:',
+          e?.message || String(e)
+        );
+      }
+
+      // Foreground notifications
+      unsubscribe = getMessaging().onMessage(async (remoteMessage) => {
+        const { title, body } = remoteMessage?.notification || {};
+        await notifee.displayNotification({
+          title: title || 'Notification',
+          body: body || '',
+          android: { channelId: 'book_smart' },
+          ios: { sound: 'default' },
+        });
+      });
+
+      // When the app is opened from background by tapping a notification
+      getMessaging().onNotificationOpenedApp((remoteMessage) => {
+        // You can navigate based on remoteMessage.data here
+        console.log('Opened from background:', remoteMessage?.messageId);
+      });
     };
 
-    initFCM();
+    initFCM().catch((err) =>
+      console.log('FCM Initialization Error', err?.message || String(err))
+    );
+    return () => unsubscribe && unsubscribe();
   }, []);
 
   return (
@@ -106,5 +91,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffffa8',
   },
 });
-
-export default App;

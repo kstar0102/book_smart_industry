@@ -28,6 +28,7 @@ import {
  } from '../../../../context/RestaurantWorkProvider';
 import { useAtom } from 'jotai';
 import { sendFCMToken, Signin } from '../../../../utils/useApi';
+import { getMessaging } from '@react-native-firebase/messaging';
 
 export default function HospitalityRestaurantWorkLogin({ navigation }) {
   const [device, setDevice] = useState('');

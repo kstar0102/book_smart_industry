@@ -1,9 +1,4 @@
-// import {AppRegistry} from 'react-native';
-// import App from './App';
-// import {name as appName} from './app.json';
-
-// AppRegistry.registerComponent(appName, () => App);
-
+// index.js
 globalThis.RNFB_SILENCE_MODULAR_DEPRECATION_WARNINGS = true; // optional
 
 import '@react-native-firebase/app';
@@ -13,14 +8,17 @@ import notifee from '@notifee/react-native';
 import App from './App';
 import { name as appName } from './app.json';
 
-// Headless background handler (NO Alert/navigation here)
-getMessaging().setBackgroundMessageHandler(async remoteMessage => {
+// Headless background handler (NO Alert / navigation here)
+getMessaging().setBackgroundMessageHandler(async (remoteMessage) => {
   const { title, body } = remoteMessage?.notification || {};
 
-  // Ensure Android channel exists (idempotent)
-  await notifee.createChannel({ id: 'book_smart', name: 'Book Smart Notifications', importance: 4 });
+  // idempotent: safe to call every time
+  await notifee.createChannel({
+    id: 'book_smart',
+    name: 'Book Smart Notifications',
+    importance: 4, // IMPORTANCE_HIGH
+  });
 
-  // Show a local notification instead of Alert
   await notifee.displayNotification({
     title: title || 'Notification',
     body: body || '',
