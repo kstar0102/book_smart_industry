@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Linking, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Linking, Alert, Platform, Dimensions } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,12 +14,48 @@ export default function MFooter() {
     const emailUrl = 'mailto:support@booksmart.app';
     try {
       const supported = await Linking.canOpenURL(emailUrl);
-      if (supported) await Linking.openURL(emailUrl);
-      else console.log('Email URL is not supported');
+      if (supported) {
+        await Linking.openURL(emailUrl);
+      } else {
+        Alert.alert(
+          "Set Gmail as Default",
+          "It seems that the mail app is not set as the default app. Please set Gmail as your default email app to send emails.",
+          [
+            { 
+              text: "OK", 
+              onPress: () => openAppSettings() 
+            },
+            {
+              text: "Cancel",
+              onPress: () => console.log('User canceled the settings navigation'),
+              style: "cancel"
+            }
+          ]
+        );
+      }
     } catch (error) {
       console.error('Error opening email URL:', error);
     }
   };
+  const openAppSettings = () => {
+    const appSettingsUrl =
+      Platform.OS === 'android'
+        ? 'android.settings.APPLICATION_DETAILS_SETTINGS'  // Open app-specific settings page
+        : 'app-settings:'; // iOS settings URL
+    
+    try {
+      Linking.openURL(appSettingsUrl).catch(err => {
+        console.error('Failed to open app settings:', err);
+        Alert.alert(
+          'Error',
+          'Failed to open settings. Please manually set the default app.'
+        );
+      });
+    } catch (err) {
+      console.error('Error opening settings:', err);
+    }
+  };
+  
 
   const handleSMSPress = () => {
     const phoneUrl = 'sms:+18445582665';
@@ -75,7 +111,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 2,
-    flexWrap: 'wrap', // allow label/value to wrap if needed
+    flexWrap: 'wrap',
   },
   shadow: {
     borderRadius: 0,
@@ -97,7 +133,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     paddingHorizontal: 5,
     paddingVertical: 1,
-    flexShrink: 1,        // let long text shrink
+    flexShrink: 1,
     maxWidth: '100%',
     lineHeight: RFValue(16),
   },
