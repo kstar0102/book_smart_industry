@@ -44,7 +44,7 @@ export default function MonthView({
     <>
       {/* Main vertical scroll so content isn't hidden behind the footer */}
       <ScrollView
-        style={{ flex: 1 }}
+        style={{ flex: 1, zIndex: -1 }}
         contentContainerStyle={{ paddingBottom: footerHeight }}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={nestedScrollEnabled}
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: "hidden",
     marginHorizontal: 10,
-    // zIndex: -1, // removed so it doesn't sit under the footer
+    // zIndex: -1, 
   },
   dayHeader: {
     width: `${100 / 7}%`,

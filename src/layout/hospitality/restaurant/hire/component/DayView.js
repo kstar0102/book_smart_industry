@@ -96,7 +96,6 @@ export default function DayView({
   return (
     <View style={{ flex: 1, zIndex : -1}}>
       <View style={styles.dayContainer}>
-        {/* time gutter */}
         <View style={styles.timeColumn}>
           {HOURS.map((hour) => (
             <Text key={hour} style={styles.timeLabel}>
@@ -145,7 +144,8 @@ const styles = StyleSheet.create({
     width: "100%",
     minHeight: ROW_HEIGHT * 24,
     backgroundColor: "#fff",
-    zIndex : -1
+    zIndex : -1,
+    marginBottom: 110
   },
   timeColumn: {
     width: 50,
